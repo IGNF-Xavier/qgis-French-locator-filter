@@ -29,7 +29,8 @@ tracker=https://github.com/Oslandia/french_locator_filter/issues
 homepage=https://github.com/Oslandia/french_locator_filter
 repository=https://github.com/Oslandia/french_locator_filter
 
-changelog=0.2 adds insee code display to municipalities
+changelog=0.3 add address type in group
+0.2 adds insee code display to municipalities
     
 category=Filter
 
