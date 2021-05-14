@@ -42,6 +42,7 @@ pip-delete-this-directory.txt
 
 # Unit test / coverage reports
 htmlcov/
+junit/
 .tox/
 .coverage
 .coverage.*
@@ -70,6 +71,7 @@ instance/
 
 # Sphinx documentation
 docs/_build/
+docs/_apidoc/
 
 # PyBuilder
 target/
@@ -109,3 +111,7 @@ venv.bak/
 .mypy_cache/
 
 .vscode/settings.json
+
+# QGIS
+# To be fixed in CI
+#resources_rc.py
