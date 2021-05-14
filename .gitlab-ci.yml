@@ -25,7 +25,7 @@ cache:
 # -- LINT JOBS -------------------------------------------------------------------------
 linter:
   image: python:3.7-slim-buster
-  stage: lint
+  stage: 🐍 lint
   only:
     changes:
       - "**/*.py"
@@ -38,7 +38,7 @@ linter:
 # -- TEST JOBS -------------------------------------------------------------------------
 basic-test:
   image: python:3.7-slim-buster
-  stage: test
+  stage: 🤞 test
   only:
     changes:
       - "**/*.py"
@@ -65,7 +65,6 @@ builder:
   artifacts:
     expose_as: "Latest packaged plugin version"
     name: "$PROJECT_DIR_b$CI_COMMIT_REF_NAME-c$CI_COMMIT_SHORT_SHA-j$CI_JOB_ID"
-    public: true
     paths:
       - "${PROJECT_DIR}.latest.zip"
 
@@ -120,7 +119,7 @@ pages:
       - master
   needs:
     - documentation
-    - pylint
+    - linter
   script:
     - mkdir -p public/lint
     - cp -rf target/docs/* public/
