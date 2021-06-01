@@ -20,8 +20,8 @@ python -m pip install -U -r requirements/testing.txt
 python -m pytest
 
 # run a specific test module using standard unittest
-python -m unittest tests.test_qlsc_reader
+python -m unittest tests.test_plg_metadata
 
 # run a specific test function using standard unittest
-python -m unittest tests.test_qlsc_reader.TestQlscReader.test_qlsc_reader
+python -m unittest tests.test_plg_metadata.TestPluginMetadata.test_version_semver
 ```

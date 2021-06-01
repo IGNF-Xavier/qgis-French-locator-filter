@@ -13,5 +13,5 @@ qgis-plugin-ci release 0.3.1
 ### Using GitLab CI
 
 1. Fillfull the `CHANGELOG.md`
-2. Apply a git tag with the relevant version: `git tag -a 0.3.0 {git commit hash} -m "September 2019"`
+2. Apply a git tag with the relevant version: `git tag -a 0.3.0 {git commit hash} -m "This version rocks!"`
 3. Push tag to master
