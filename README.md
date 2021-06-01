@@ -6,6 +6,8 @@
 [![flake8](https://img.shields.io/badge/linter-flake8-green)](https://flake8.pycqa.org/)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 
+[:gb: Check-out the documentation - :fr: Consulter la documentation](https://oslandia.gitlab.io/qgis/french_locator_filter/)
+
 ![Demonstration of the French Locator Filter plugin for QGIS](docs/_static/images/french_geocoder_demo.gif "French Locator Filter - demo")
 
 ## TOC
