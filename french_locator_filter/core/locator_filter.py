@@ -6,25 +6,34 @@
 
 # standard library
 import json
+import logging
 
 # PyQGIS
 from qgis.core import (
-    Qgis,
     QgsCoordinateReferenceSystem,
     QgsCoordinateTransform,
+    QgsFeedback,
+    QgsLocatorContext,
     QgsLocatorFilter,
     QgsLocatorResult,
-    QgsMessageLog,
     QgsPointXY,
     QgsProject,
 )
 from qgis.PyQt.QtCore import pyqtSignal
+
+from french_locator_filter.toolbelt import PlgLogger, PlgOptionsManager
 
 # project
 from french_locator_filter.toolbelt.networkaccessmanager import (
     NetworkAccessManager,
     RequestsException,
 )
+
+# ############################################################################
+# ########## Globals ###############
+# ##################################
+
+logger = logging.getLogger(__name__)
 
 # ############################################################################
 # ########## Classes ###############
@@ -41,6 +50,8 @@ class FrenchBanGeocoderLocatorFilter(QgsLocatorFilter):
 
     def __init__(self, iface):
         self.iface = iface
+        self.log = PlgLogger().log
+
         super(QgsLocatorFilter, self).__init__()
 
     def name(self):
@@ -55,13 +66,37 @@ class FrenchBanGeocoderLocatorFilter(QgsLocatorFilter):
     def prefix(self):
         return "fra"
 
-    def fetchResults(self, search, context, feedback):
+    def fetchResults(
+        self, search: str, context: QgsLocatorContext, feedback: QgsFeedback
+    ):
+        """Retrieves the filter results for a specified search string. The context \
+        argument encapsulates the context relating to the search (such as a map extent \
+        to prioritize). \
+
+        Implementations of fetchResults() should emit the resultFetched() signal \
+        whenever they encounter a matching result. \
+        Subclasses should periodically check the feedback object to determine whether \
+        the query has been canceled. If so, the subclass should return from this method \
+        as soon as possible. This will be called from a background thread unless \
+        flags() returns the QgsLocatorFilter.FlagFast flag.
+
+        :param search: [description]
+        :type search: str
+        :param context: [description]
+        :type context: QgsLocatorContext
+        :param feedback: [description]
+        :type feedback: QgsFeedback
+        """
 
         if len(search) < 2:
             return
 
+        # build URL
         url = "{}{}".format(self.SEARCH_URL, search)
-        self.info("Search url {}".format(url))
+        if __debug__:
+            self.log(f"Search url {url}")
+
+        # request
         nam = NetworkAccessManager()
         try:
 
@@ -91,12 +126,22 @@ class FrenchBanGeocoderLocatorFilter(QgsLocatorFilter):
                     self.resultFetched.emit(result)
 
         except RequestsException as err:
-            # Handle exception..
-            self.info(err)
-            self.resultProblem.emit("{}".format(err))
+            self.log(message=err, log_level=1, push=True)
 
-    def triggerResult(self, result):
-        self.info("UserClick: {}".format(result.displayString))
+    def triggerResult(self, result: QgsLocatorResult):
+        """Triggers a filter result from this filter. This is called when one of the \
+        results obtained by a call to fetchResults() is triggered by a user. \
+        The filter subclass must implement logic here to perform the desired operation \
+        for the search result. E.g. a file search filter would open file associated \
+        with the triggered result.
+
+        :param result: [description]
+        :type result: QgsLocatorResult
+        """
+        if __debug__:
+            self.log(
+                message=f"DEBUG - Selected address: {result.displayString}", log_level=4
+            )
         doc = result.userData
         x = doc["geometry"]["coordinates"][0]
         y = doc["geometry"]["coordinates"][1]
