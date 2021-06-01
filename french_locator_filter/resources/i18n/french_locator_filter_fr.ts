@@ -16,7 +16,7 @@
     <message>
         <location filename="../../gui/dlg_settings.ui" line="216"/>
         <source>HTTP user-agent:</source>
-        <translation>HTPP user-agent :</translation>
+        <translation>HTTP user-agent :</translation>
     </message>
     <message>
         <location filename="../../gui/dlg_settings.ui" line="106"/>
