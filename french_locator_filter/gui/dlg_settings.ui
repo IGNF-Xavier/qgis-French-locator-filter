@@ -122,7 +122,7 @@
          </size>
         </property>
         <property name="text">
-         <string>Minimal search length</string>
+         <string>Minimal search length:</string>
         </property>
        </widget>
       </item>
