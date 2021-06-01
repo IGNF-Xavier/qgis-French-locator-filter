@@ -20,7 +20,7 @@ tags=geocoder, locator, filter, addok, France, french
 tags[fr]=geocodeur, recherche, adresse, France, ADDOK, Etalab, BAN, BANO
 
 # credits and contact
-author=Régis Haubourg (Oslandia), Richard Duivenvoorde, Zuidt
+author=Régis Haubourg (Oslandia), Richard Duivenvoorde, Zuidt, Julien Moura (Oslandia)
 email=qgis@oslandia.com
 homepage=https://gitlab.com/Oslandia/qgis/french_locator_filter/
 repository=https://gitlab.com/Oslandia/qgis/french_locator_filter/
@@ -29,9 +29,9 @@ tracker=https://gitlab.com/Oslandia/qgis/french_locator_filter/-/issues
 # status
 deprecated=False
 experimental=True
-qgisMinimumVersion=3.6
+qgisMinimumVersion=3.16
 qgisMaximumVersion=3.99
 
 # versioning
-version=0.3.0-beta1
+version=1.0.0-beta1
 changelog=
