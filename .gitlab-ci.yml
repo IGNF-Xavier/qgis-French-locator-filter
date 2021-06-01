@@ -1,0 +1,132 @@
+stages:
+  - 🐍 lint
+  - 🤞 test
+  - 📦 build
+  - 🚀 deploy
+
+# Change pip's cache directory to be inside the project directory since we can
+# only cache local items.
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  PROJECT_DIR: "french_locator_filter"
+
+# Pip's cache doesn't store the python packages
+# https://pip.pypa.io/en/stable/reference/pip_install/#caching
+#
+# If you want to also cache the installed packages, you have to install
+# them in a virtualenv and cache it as well.
+cache:
+  key:
+    files:
+      - requirements/*.txt
+  paths:
+    - .cache/pip
+
+# -- LINT JOBS -------------------------------------------------------------------------
+linter:
+  image: python:3.7-slim-buster
+  stage: 🐍 lint
+  only:
+    changes:
+      - "**/*.py"
+  before_script:
+    - python -m pip install -U flake8
+  script:
+    - flake8 $PROJECT_DIR --count --select=E9,F63,F7,F82 --show-source --statistics
+    - flake8 $PROJECT_DIR --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+# -- TEST JOBS -------------------------------------------------------------------------
+basic-test:
+  image: python:3.7-slim-buster
+  stage: 🤞 test
+  only:
+    changes:
+      - "**/*.py"
+      - ".gitlab-ci.yml"
+  before_script:
+    - python -m pip install -U -r requirements/base.txt
+    - python -m pip install -U -r requirements/development.txt
+    - python -m pip install -U -r requirements/testing.txt
+  script:
+    - python -m pytest
+
+# -- BUILD JOBS -------------------------------------------------------------------------
+builder:
+  image: python:3.7
+  stage: 📦 build
+  only:
+    refs:
+      - master
+  before_script:
+    - apt install git
+    - python -m pip install -U 'qgis-plugin-ci>=1.8,<1.9'
+  script:
+    - qgis-plugin-ci package latest
+  artifacts:
+    expose_as: "Latest packaged plugin version"
+    name: "$PROJECT_DIR_b$CI_COMMIT_REF_NAME-c$CI_COMMIT_SHORT_SHA-j$CI_JOB_ID"
+    paths:
+      - "${PROJECT_DIR}.latest.zip"
+
+documentation:
+  stage: 📦 build
+  image: python:3.8-slim-buster
+  only:
+    refs:
+      - master
+  before_script:
+    - python -m pip install -U -r requirements/documentation.txt
+  script:
+    - sphinx-build -b html docs target/docs
+  artifacts:
+    name: documentation
+    expose_as: "Built documentation static website"
+    paths:
+      - target/docs
+    when: always
+
+# -- DEPLOYMENT JOBS -------------------------------------------------------------------
+deploy-to-qgis-repository:
+  stage: 🚀 deploy
+  image: python:3.8
+  only:
+    - tags
+  before_script:
+    - apt install git
+    - python -m pip install -U 'qgis-plugin-ci>=1.8,<1.9'
+  script:
+    - echo "Deploying the version ${CI_COMMIT_TAG} plugin to QGIS Plugins Repository with the user ${OSGEO_USER_NAME}"
+    - python ${PROJECT_DIR}/__about__.py
+    - qgis-plugin-ci release ${CI_COMMIT_TAG}
+        --osgeo-username $OSGEO_USER_NAME
+        --osgeo-password $OSGEO_USER_PASSWORD
+
+release-from-tag:
+  stage: 🚀 deploy
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  only:
+    - tags
+  dependencies:
+    - builder
+  script:
+    - echo "running release from $CI_COMMIT_TAG"
+    - release-cli create --name "Version $CI_COMMIT_TAG" --tag-name $CI_COMMIT_TAG
+
+pages:
+  stage: 🚀 deploy
+  only:
+    refs:
+      - master
+  needs:
+    - documentation
+    - linter
+  script:
+    - mkdir -p public/lint
+    - cp -rf target/docs/* public/
+    - cp -rf target/badges/* public/lint/
+    - cp -rf target/lint/* public/lint/
+
+  artifacts:
+    paths:
+      - public
+    when: always
