@@ -31,12 +31,13 @@ plg_logger = PlgLogger()
 class PlgSettingsStructure(NamedTuple):
     """Plugin settings structure and defaults values."""
 
-    # global
+    # misc
     debug_mode: bool = False
     version: str = __version__
 
     # network
     http_user_agent: str = f"{__title__}/{__version__}"
+    min_search_length: int = 2
     request_url: str = "https://api-adresse.data.gouv.fr/search/"
     request_url_query: str = "limit=10&autocomplete=1"
 
@@ -54,7 +55,7 @@ class PlgOptionsManager:
         settings.beginGroup(__title__)
 
         options = PlgSettingsStructure(
-            # global
+            # misc
             debug_mode=settings.value(key="debug_mode", defaultValue=False, type=bool),
             version=settings.value(key="version", defaultValue=__version__, type=str),
             # network
@@ -62,6 +63,11 @@ class PlgOptionsManager:
                 key="http_user_agent",
                 defaultValue=f"{__title__}/{__version__}",
                 type=str,
+            ),
+            min_search_length=settings.value(
+                key="min_search_length",
+                defaultValue=2,
+                type=int,
             ),
             request_url=settings.value(
                 key="request_url",
