@@ -51,6 +51,7 @@ class FrenchBanGeocoderLocatorFilter(QgsLocatorFilter):
     def __init__(self, iface):
         self.iface = iface
         self.log = PlgLogger().log
+        self.plg_settings = PlgOptionsManager.get_plg_settings()
 
         super(QgsLocatorFilter, self).__init__()
 
@@ -88,7 +89,11 @@ class FrenchBanGeocoderLocatorFilter(QgsLocatorFilter):
         :type feedback: QgsFeedback
         """
 
-        if len(search) < 2:
+        # ignore if search terms is inferior than 3 chars or equal to the prefix
+        if (
+            len(search) < self.plg_settings.min_search_length
+            or search.rstrip() == self.prefix
+        ):
             return
 
         # build URL

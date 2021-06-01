@@ -69,6 +69,7 @@ class DlgSettings(QWidget, FORM_CLASS):
         )
 
         # load previously saved settings
+        self.plg_settings = PlgOptionsManager()
         self.load_settings()
 
     def closeEvent(self, event):
@@ -82,12 +83,13 @@ class DlgSettings(QWidget, FORM_CLASS):
 
     def load_settings(self) -> dict:
         """Load options from QgsSettings into UI form."""
-        settings = PlgOptionsManager.get_plg_settings()
+        settings = self.plg_settings.get_plg_settings()
 
         # features
         self.lbl_url_path_value.setText(settings.request_url)
         self.lbl_url_query_value.setText(settings.request_url_query)
         self.lbl_http_user_agent_value.setText(settings.http_user_agent)
+        self.sbx_min_search_length.setValue(settings.min_search_length)
 
         # misc
         self.opt_debug.setChecked(settings.debug_mode)
@@ -95,16 +97,14 @@ class DlgSettings(QWidget, FORM_CLASS):
 
     def save_settings(self):
         """Save options from UI form into QSettings."""
-        # open settings group
-        settings = QgsSettings()
-        settings.beginGroup(__title__)
+        # save user settings
+        self.plg_settings.set_value_from_key(
+            "min_search_length", self.sbx_min_search_length.value()
+        )
 
         # save miscellaneous
-        settings.setValue("debug_mode", self.opt_debug.isChecked())
-        settings.setValue("version", __version__)
-
-        # close settings group
-        settings.endGroup()
+        self.plg_settings.set_value_from_key("debug_mode", self.opt_debug.isChecked())
+        self.plg_settings.set_value_from_key("version", __version__)
 
         if __debug__:
             self.log(
