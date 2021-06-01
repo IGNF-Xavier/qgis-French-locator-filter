@@ -10,13 +10,12 @@ from functools import partial
 from pathlib import Path
 
 # PyQGIS
-from qgis.core import QgsSettings
 from qgis.gui import QgsOptionsPageWidget, QgsOptionsWidgetFactory
 from qgis.PyQt import uic
 from qgis.PyQt.Qt import QUrl
 from qgis.PyQt.QtCore import pyqtSignal
 from qgis.PyQt.QtGui import QDesktopServices, QIcon
-from qgis.PyQt.QtWidgets import QButtonGroup, QHBoxLayout, QWidget
+from qgis.PyQt.QtWidgets import QHBoxLayout, QWidget
 from qgis.utils import showPluginHelp
 
 # project
@@ -88,6 +87,7 @@ class DlgSettings(QWidget, FORM_CLASS):
         # features
         self.lbl_url_path_value.setText(settings.request_url)
         self.lbl_url_query_value.setText(settings.request_url_query)
+        self.lbl_http_content_type_value.setText(settings.http_content_type)
         self.lbl_http_user_agent_value.setText(settings.http_user_agent)
         self.sbx_min_search_length.setValue(settings.min_search_length)
 

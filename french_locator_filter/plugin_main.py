@@ -35,7 +35,7 @@ class LocatorFilterPlugin:
 
         # translation
         plg_translation_mngr = PlgTranslator(
-            tpl_filename=Template(f"french_locator_filter_$locale.qm")
+            tpl_filename=Template("french_locator_filter_$locale.qm")
         )
         translator = plg_translation_mngr.get_translator()
         if translator:

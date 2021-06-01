@@ -7,8 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 1.0.0 - 2021-06-XX
 
-- apply Oslandia code quality standards (development tooling, documentation, CI, etc.)
 - use QGIS 3.16 abilities (especially on networking)
+- apply Oslandia code quality standards (development tooling, documentation, CI, etc.)
+- add settings: display used values and allow end-user customize some preferences
 
 ## 0.2.0 - 2020-03-17
 

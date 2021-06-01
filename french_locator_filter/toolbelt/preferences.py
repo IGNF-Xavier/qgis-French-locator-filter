@@ -36,6 +36,7 @@ class PlgSettingsStructure(NamedTuple):
     version: str = __version__
 
     # network
+    http_content_type: str = "application/json"
     http_user_agent: str = f"{__title__}/{__version__}"
     min_search_length: int = 2
     request_url: str = "https://api-adresse.data.gouv.fr/search/"
@@ -59,6 +60,11 @@ class PlgOptionsManager:
             debug_mode=settings.value(key="debug_mode", defaultValue=False, type=bool),
             version=settings.value(key="version", defaultValue=__version__, type=str),
             # network
+            http_content_type=settings.value(
+                key="http_content_type",
+                defaultValue="application/json",
+                type=str,
+            ),
             http_user_agent=settings.value(
                 key="http_user_agent",
                 defaultValue=f"{__title__}/{__version__}",
