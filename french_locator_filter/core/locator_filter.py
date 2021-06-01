@@ -162,11 +162,8 @@ class FrenchBanGeocoderLocatorFilter(QgsLocatorFilter):
         y = doc["geometry"]["coordinates"][1]
 
         centerPoint = QgsPointXY(x, y)
-
         dest_crs = QgsProject.instance().crs()
-        results_crs = QgsCoordinateReferenceSystem(
-            4326, QgsCoordinateReferenceSystem.PostgisCrsId
-        )
+        results_crs = QgsCoordinateReferenceSystem.fromEpsgId(4326)
         aTransform = QgsCoordinateTransform(
             results_crs, dest_crs, QgsProject.instance()
         )
