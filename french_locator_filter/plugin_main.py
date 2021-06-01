@@ -30,7 +30,6 @@ class LocatorFilterPlugin:
 
         # install locator filter
         self.filter = FrenchBanGeocoderLocatorFilter(self.iface)
-        self.filter.resultProblem.connect(self.show_problem)
         self.iface.registerLocatorFilter(self.filter)
 
         if __debug__:
@@ -49,11 +48,3 @@ class LocatorFilterPlugin:
     def unload(self):
         """Cleans up when plugin is disabled/uninstalled."""
         self.iface.deregisterLocatorFilter(self.filter)
-
-    def show_problem(self, err):
-        """Log errors.
-
-        :param err: error message
-        :type err: [type]
-        """
-        self.log(message=err, log_level=1, push=True)

@@ -131,8 +131,3 @@ class FrenchBanGeocoderLocatorFilter(QgsLocatorFilter):
         # finally zoom actually
         self.iface.mapCanvas().zoomScale(scale)
         self.iface.mapCanvas().refresh()
-
-    def info(self, msg=""):
-        QgsMessageLog.logMessage(
-            "{} {}".format(self.__class__.__name__, msg), "LocatorFilter", Qgis.Info
-        )
