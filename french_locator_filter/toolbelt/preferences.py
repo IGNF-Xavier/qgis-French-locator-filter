@@ -38,7 +38,7 @@ class PlgSettingsStructure(NamedTuple):
     # network
     http_user_agent: str = f"{__title__}/{__version__}"
     request_url: str = "https://api-adresse.data.gouv.fr/search/"
-    request_path: str = "limit=10&autocomplete=1"
+    request_url_query: str = "limit=10&autocomplete=1"
 
 
 class PlgOptionsManager:
@@ -63,14 +63,14 @@ class PlgOptionsManager:
                 defaultValue=f"{__title__}/{__version__}",
                 type=str,
             ),
-            request_path=settings.value(
-                key="request_path",
-                defaultValue="limit=10&autocomplete=1",
-                type=str,
-            ),
             request_url=settings.value(
                 key="request_url",
                 defaultValue="https://api-adresse.data.gouv.fr/search/",
+                type=str,
+            ),
+            request_url_query=settings.value(
+                key="request_url_query",
+                defaultValue="limit=10&autocomplete=1",
                 type=str,
             ),
         )
