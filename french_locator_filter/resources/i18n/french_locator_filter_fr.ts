@@ -2,6 +2,14 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="fr_FR">
 <context>
+    <name>FrenchBanGeocoderLocatorFilter</name>
+    <message>
+        <location filename="../../core/locator_filter.py" line="67"/>
+        <source>French Adress geocoder</source>
+        <translation>Géocodeur API BAN</translation>
+    </message>
+</context>
+<context>
     <name>dlg_settings</name>
     <message>
         <location filename="../../gui/dlg_settings.ui" line="26"/>

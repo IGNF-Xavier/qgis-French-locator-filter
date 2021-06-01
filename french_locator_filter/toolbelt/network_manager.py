@@ -19,7 +19,6 @@ from qgis.PyQt.Qt import QByteArray, QUrl
 from qgis.PyQt.QtNetwork import QNetworkRequest
 
 # project
-from french_locator_filter.__about__ import __title__, __version__
 from french_locator_filter.toolbelt.log_handler import PlgLogger
 from french_locator_filter.toolbelt.preferences import PlgOptionsManager
 
@@ -44,37 +43,76 @@ class NetworkRequestsManager:
         self.plg_settings = PlgOptionsManager.get_plg_settings()
 
     @lru_cache(maxsize=128)
-    def build_url(self, url: str) -> QUrl:
-        parsed_url = urlparse(url)
-        clean_url = parsed_url._replace(
-            query=PlgOptionsManager.get_plg_settings().request_path
-        )
+    def build_url(self, additional_query: str = None) -> QUrl:
+        """Build URL using plugin settings and returns it as QUrl.
+
+        :return: complete URL
+        :rtype: QUrl
+        """
+        parsed_url = urlparse(self.plg_settings.request_url)
+
+        if additional_query:
+            url_query = self.plg_settings.request_url_query + additional_query
+        else:
+            url_query = self.plg_settings.request_url_query
+
+        clean_url = parsed_url._replace(query=url_query)
         return QUrl(urlunparse(clean_url))
 
-    def get_from_source(self, headers: dict = None) -> QByteArray:
-        """Method to retrieve a RSS feed from a referenced source in preferences. \
-        Use cache.
+    def build_request(self, url: QUrl = None) -> QNetworkRequest:
+        """Build request object using plugin settings.
+
+        :return: network request object.
+        :rtype: QNetworkRequest
+        """
+        # if URL is not specified, let's use the default one
+        if not url:
+            url = self.build_url()
+
+        # create network object
+        qreq = QNetworkRequest(url=url)
+
+        # headers
+        headers = {
+            b"Accept": bytes(self.plg_settings.http_content_type, "utf8"),
+            b"User-Agent": bytes(self.plg_settings.http_user_agent, "utf8"),
+        }
+        for k, v in headers.items():
+            qreq.setRawHeader(k, v)
+
+        return qreq
+
+    def get_url(self, url: QUrl = None, headers: dict = None) -> QByteArray:
+        """Send a get method., using cache and plugin settings.
 
         :raises ConnectionError: if any problem occurs during feed fetching.
         :raises TypeError: if response mime-type is not valid
 
         :return: feed response in bytes
         :rtype: QByteArray
-        """
-        url = self.build_url(PlgOptionsManager.get_plg_settings().request_url)
 
+        :example:
+
+        .. code-block:: python
+
+            import json
+            response_as_dict = json.loads(str(response, "UTF8"))
+        """
+        # prepare request
         try:
-            # prepare request
-            req = QNetworkRequest(QUrl(url))
+            req = self.build_request(url=url)
             if headers:
                 for k, v in headers.items():
                     req.setRawHeader(k, v)
-            else:
-                req.setHeader(
-                    QNetworkRequest.UserAgentHeader,
-                    bytes(f"{__title__}/{__version__}", "utf8"),
-                )
+        except Exception as err:
+            self.log(
+                message=f"Something went wrong during request preparation: {err}",
+                log_level=2,
+                push=False,
+            )
 
+        # send request
+        try:
             req_status = self.ntwk_requester.get(
                 request=req,
                 forceRefresh=False,
@@ -87,16 +125,18 @@ class NetworkRequestsManager:
                 )
                 raise ConnectionError(self.ntwk_requester.errorMessage())
 
-            self.log(
-                message=f"Request to {url} succeeded.",
-                log_level=3,
-                push=0,
-            )
+            if __debug__:
+                self.log(
+                    message=f"DEBUG - Request to {self.build_url()} succeeded.",
+                    log_level=4,
+                    push=False,
+                )
 
+            # check reply
             req_reply = self.ntwk_requester.reply()
-            if not req_reply.rawHeader(b"Content-Type") == "application/xml":
+            if b"application/json" not in req_reply.rawHeader(b"Content-Type"):
                 raise TypeError(
-                    "Response mime-type is '{}' not 'application/xml' as required.".format(
+                    "Response mime-type is '{}' not 'application/json' as required.".format(
                         req_reply.rawHeader(b"Content-type")
                     )
                 )
@@ -105,5 +145,4 @@ class NetworkRequestsManager:
 
         except Exception as err:
             err_msg = "Houston, we've got a problem: {}".format(err)
-            logger.error(err_msg)
             self.log(message=err_msg, log_level=2, push=1)

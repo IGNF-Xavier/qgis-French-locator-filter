@@ -19,14 +19,13 @@ from qgis.core import (
     QgsPointXY,
     QgsProject,
 )
-from qgis.PyQt.QtCore import pyqtSignal
-
-from french_locator_filter.toolbelt import PlgLogger, PlgOptionsManager
+from qgis.PyQt.QtCore import QCoreApplication
 
 # project
-from french_locator_filter.toolbelt.networkaccessmanager import (
-    NetworkAccessManager,
-    RequestsException,
+from french_locator_filter.toolbelt import (
+    NetworkRequestsManager,
+    PlgLogger,
+    PlgOptionsManager,
 )
 
 # ############################################################################
@@ -41,13 +40,6 @@ logger = logging.getLogger(__name__)
 
 
 class FrenchBanGeocoderLocatorFilter(QgsLocatorFilter):
-
-    USER_AGENT = b"Mozilla/5.0 QGIS LocatorFilter"
-
-    SEARCH_URL = "https://api-adresse.data.gouv.fr/search/?limit=10&autocomplete=1&q="
-
-    resultProblem = pyqtSignal(str)
-
     def __init__(self, iface):
         self.iface = iface
         self.log = PlgLogger().log
@@ -55,16 +47,40 @@ class FrenchBanGeocoderLocatorFilter(QgsLocatorFilter):
 
         super(QgsLocatorFilter, self).__init__()
 
-    def name(self):
+    def name(self) -> str:
+        """Returns the unique name for the filter. This should be an untranslated \
+        string identifying the filter.
+
+        :return: filter unique name
+        :rtype: str
+        """
         return self.__class__.__name__
 
-    def clone(self):
+    def clone(self) -> QgsLocatorFilter:
+        """Creates a clone of the filter. New requests are always executed in a clone \
+        of the original filter.
+
+        :return: clone of the actual filter
+        :rtype: QgsLocatorFilter
+        """
         return FrenchBanGeocoderLocatorFilter(self.iface)
 
-    def displayName(self):
-        return "Géocodeur API Adresse FR"
+    def displayName(self) -> str:
+        """Returns a translated, user-friendly name for the filter.
 
-    def prefix(self):
+        :return: user-friendly name to be displayed
+        :rtype: str
+        """
+        return self.tr("French Adress geocoder")
+
+    def prefix(self) -> str:
+        """Returns the search prefix character(s) for this filter. Prefix a search with \
+        these characters will restrict the locator search to only include results from \
+        this filter.
+
+        :return: search prefix for the filter
+        :rtype: str
+        """
         return "fra"
 
     def fetchResults(
@@ -81,14 +97,13 @@ class FrenchBanGeocoderLocatorFilter(QgsLocatorFilter):
         as soon as possible. This will be called from a background thread unless \
         flags() returns the QgsLocatorFilter.FlagFast flag.
 
-        :param search: [description]
+        :param search: text entered by the end-user into the locator line edit
         :type search: str
         :param context: [description]
         :type context: QgsLocatorContext
         :param feedback: [description]
         :type feedback: QgsFeedback
         """
-
         # ignore if search terms is inferior than 3 chars or equal to the prefix
         if (
             len(search) < self.plg_settings.min_search_length
@@ -96,42 +111,37 @@ class FrenchBanGeocoderLocatorFilter(QgsLocatorFilter):
         ):
             return
 
-        # build URL
-        url = "{}{}".format(self.SEARCH_URL, search)
-        if __debug__:
-            self.log(f"Search url {url}")
-
         # request
-        nam = NetworkAccessManager()
         try:
-
-            headers = {b"User-Agent": self.USER_AGENT}
-            # use BLOCKING request, as fetchResults already has it's own thread!
-            (response, content) = nam.request(url, headers=headers, blocking=True)
-
-            if (
-                response.status_code == 200
-            ):  # other codes are handled by NetworkAccessManager
-                content_string = content.decode("utf-8")
-                locations = json.loads(content_string)
-
-                # loop on features in json collection
-                for loc in locations["features"]:
-
-                    result = QgsLocatorResult()
-                    result.filter = self
-                    label = loc["properties"]["label"]
-                    if loc["properties"]["type"] == "municipality":
-                        # add city code to label
-                        label += " " + loc["properties"]["citycode"]
-                    result.displayString = label
-                    result.group = loc["properties"]["type"]
-                    # use the json full item as userData, so all info is in it:
-                    result.userData = loc
-                    self.resultFetched.emit(result)
-
-        except RequestsException as err:
+            qntwk = NetworkRequestsManager()
+            qurl = qntwk.build_url(additional_query=f"&q={search}")
+            response_content = qntwk.get_url(url=qurl)
+        except Exception as err:
             self.log(message=err, log_level=1, push=True)
+            return
+
+        # process response
+        try:
+            # load response as a dict
+            locations = json.loads(str(response_content, "UTF8"))
+
+            # loop on features in json collection
+            for loc in locations.get("features"):
+                result = QgsLocatorResult()
+                result.filter = self
+                label = loc.get("properties").get("label")
+                if loc.get("properties").get("type") == "municipality":
+                    # add city code to label
+                    label += " " + loc.get("properties").get("citycode")
+                result.displayString = label
+                result.group = loc.get("properties").get("type")
+
+                # use the json full item as userData, so all info is in it:
+                result.userData = loc
+                self.resultFetched.emit(result)
+        except Exception:
+            self.log(message="Response processing failed.", log_level=1, push=True)
+            return
 
     def triggerResult(self, result: QgsLocatorResult):
         """Triggers a filter result from this filter. This is called when one of the \
@@ -181,3 +191,17 @@ class FrenchBanGeocoderLocatorFilter(QgsLocatorFilter):
         # finally zoom actually
         self.iface.mapCanvas().zoomScale(scale)
         self.iface.mapCanvas().refresh()
+
+    def tr(self, message):
+        """Get the translation for a string using Qt translation API.
+
+        We implement this ourselves since we do not inherit QObject.
+
+        :param message: String for translation.
+        :type message: str, QString
+
+        :returns: Translated version of message.
+        :rtype: QString
+        """
+        # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
+        return QCoreApplication.translate(self.__class__.__name__, message)
