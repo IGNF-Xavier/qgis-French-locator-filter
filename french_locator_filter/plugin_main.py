@@ -9,7 +9,6 @@ from qgis.core import (
     QgsMessageLog,
     QgsPointXY,
     QgsProject,
-    QgsRectangle,
 )
 from qgis.PyQt.QtCore import pyqtSignal
 
