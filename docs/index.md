@@ -1,7 +1,7 @@
 # {{ title }} - Documentation
 
-> **Author and contributors:** {{ author }}  
 > **Description:** {{ description }}  
+> **Author and contributors:** {{ author }}  
 > **Plugin version:** {{ version }}  
 > **QGIS minimum version:** {{ qgis_version_min }}  
 > **QGIS maximum version:** {{ qgis_version_max }}  
