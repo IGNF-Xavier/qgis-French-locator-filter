@@ -138,7 +138,9 @@ myst_substitutions = {
 myst_url_schemes = ("http", "https", "mailto")
 
 # OpenGraph
-ogp_image = f"{__about__.__uri_homepage__}_images/french_geocoder_demo.gif"
+ogp_image = (
+    f"{__about__.__uri_homepage__}_images/french_locator_sample_basque_qgis_details.png"
+)
 ogp_site_name = "French Locator Filter : géocodeur BAN pour QGIS"
 ogp_site_url = __about__.__uri_homepage__
 ogp_custom_meta_tags = [
