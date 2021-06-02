@@ -26,7 +26,6 @@ project = __about__.__title__
 author = __about__.__author__
 copyright = __about__.__copyright__
 version = release = __about__.__version__
-# github_doc_root = "{}/tree/master/doc/".format(__about__.__uri_repository__)
 
 
 # -- General configuration ---------------------------------------------------
@@ -143,6 +142,7 @@ ogp_image = f"{__about__.__uri_homepage__}_images/french_geocoder_demo.gif"
 ogp_site_name = "French Locator Filter : géocodeur BAN pour QGIS"
 ogp_site_url = __about__.__uri_homepage__
 ogp_custom_meta_tags = [
+    "<meta name='twitter:card' content='summary_large_image'>",
     f'<meta property="twitter:description" content="{description}" />',
     f'<meta property="twitter:image" content="{ogp_image}" />',
     '<meta property="twitter:site" content="@oslandia" />',
