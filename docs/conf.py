@@ -56,6 +56,7 @@ extensions = [
     # 3rd party
     "myst_parser",
     "sphinx_copybutton",
+    "sphinxext.opengraph",
 ]
 
 
@@ -132,8 +133,9 @@ myst_enable_extensions = [
 ]
 
 # OpenGraph
+ogp_image = f"{__about__.__uri_homepage__}/_images/french_geocoder_demo.gif"
+ogp_site_name = "French Locator Filter : géocodeur BAN pour QGIS"
 ogp_site_url = __about__.__uri_homepage__
-
 
 # -- Options for Sphinx API doc ----------------------------------------------
 
