@@ -18,27 +18,16 @@ from french_locator_filter import __about__
 on_rtd = environ.get("READTHEDOCS", None) == "True"
 
 # -- Project information -----------------------------------------------------
+description = (
+    "Ajoute un filtre de géocodage basé sur l'API de la BAN dans le  "
+    "Localisateur (barre de recherche universelle) de QGIS."
+)
 project = __about__.__title__
 author = __about__.__author__
 copyright = __about__.__copyright__
 version = release = __about__.__version__
 # github_doc_root = "{}/tree/master/doc/".format(__about__.__uri_repository__)
 
-myst_substitutions = {
-    "author": author,
-    "date_update": datetime.now().strftime("%d %B %Y"),
-    "qgis_version_max": __about__.__plugin_md__.get("general").get(
-        "qgismaximumversion"
-    ),
-    "qgis_version_min": __about__.__plugin_md__.get("general").get(
-        "qgisminimumversion"
-    ),
-    "repo_url": __about__.__uri__,
-    "title": project,
-    "version": version,
-}
-
-myst_url_schemes = ("http", "https", "mailto")
 
 # -- General configuration ---------------------------------------------------
 
@@ -132,10 +121,33 @@ myst_enable_extensions = [
     "substitution",
 ]
 
+myst_substitutions = {
+    "author": author,
+    "date_update": datetime.now().strftime("%d %B %Y"),
+    "description": __about__.__summary__,
+    "qgis_version_max": __about__.__plugin_md__.get("general").get(
+        "qgismaximumversion"
+    ),
+    "qgis_version_min": __about__.__plugin_md__.get("general").get(
+        "qgisminimumversion"
+    ),
+    "repo_url": __about__.__uri__,
+    "title": project,
+    "version": version,
+}
+
+myst_url_schemes = ("http", "https", "mailto")
+
 # OpenGraph
-ogp_image = f"{__about__.__uri_homepage__}/_images/french_geocoder_demo.gif"
+ogp_image = f"{__about__.__uri_homepage__}_images/french_geocoder_demo.gif"
 ogp_site_name = "French Locator Filter : géocodeur BAN pour QGIS"
 ogp_site_url = __about__.__uri_homepage__
+ogp_custom_meta_tags = [
+    f'<meta property="twitter:description" content="{description}" />',
+    f'<meta property="twitter:image" content="{ogp_image}" />',
+    '<meta property="twitter:site" content="@oslandia" />',
+    f'<meta property="twitter:title" content="{project}" />',
+]
 
 # -- Options for Sphinx API doc ----------------------------------------------
 

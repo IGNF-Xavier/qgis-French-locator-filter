@@ -1,18 +1,35 @@
 # {{ title }} - Documentation
 
 > **Author and contributors:** {{ author }}  
+> **Description:** {{ description }}  
 > **Plugin version:** {{ version }}  
 > **QGIS minimum version:** {{ qgis_version_min }}  
 > **QGIS maximum version:** {{ qgis_version_max }}  
 > **Source code:** {{ repo_url }}  
 > **Last documentation update:** {{ date_update }}
 
+----
+
 ![Demonstration of the French Locator Filter plugin for QGIS](/_static/images/french_geocoder_demo.gif "French Locator Filter - demo")
 
-```{include} ../README.md
+----
+
+```{toctree}
+---
+caption: Usage
+maxdepth: 1
+---
+English <usage/en_how_to_use>
+Français <usage/fr_how_to_use>
 ```
 
-----
+```{toctree}
+---
+caption: Project life
+maxdepth: 1
+---
+misc/credits
+```
 
 ```{toctree}
 ---

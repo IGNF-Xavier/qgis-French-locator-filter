@@ -54,7 +54,7 @@
     <message>
         <location filename="../../gui/dlg_settings.ui" line="330"/>
         <source>Version used to save settings:</source>
-        <translation>Paramaètres sauvegardés avec la version :</translation>
+        <translation>Paramètres sauvegardés avec la version :</translation>
     </message>
     <message>
         <location filename="../../gui/dlg_settings.ui" line="349"/>
