@@ -19,9 +19,12 @@ from qgis.core import (
     QgsPointXY,
     QgsProject,
 )
+from qgis.gui import QgisInterface
 from qgis.PyQt.QtCore import QCoreApplication
+from qgis.PyQt.QtWidgets import QWidget
 
 # project
+from french_locator_filter.__about__ import __title__
 from french_locator_filter.toolbelt import (
     NetworkRequestsManager,
     PlgLogger,
@@ -40,7 +43,14 @@ logger = logging.getLogger(__name__)
 
 
 class FrenchBanGeocoderLocatorFilter(QgsLocatorFilter):
-    def __init__(self, iface):
+    """QGIS Locator Filter subclass.
+
+    :param iface: An interface instance that will be passed to this class which \
+    provides the hook by which you can manipulate the QGIS application at run time.
+    :type iface: QgisInterface
+    """
+
+    def __init__(self, iface: QgisInterface):
         self.iface = iface
         self.log = PlgLogger().log
         self.plg_settings = PlgOptionsManager.get_plg_settings()
@@ -55,6 +65,14 @@ class FrenchBanGeocoderLocatorFilter(QgsLocatorFilter):
         :rtype: str
         """
         return self.__class__.__name__
+
+    def hasConfigWidget(self) -> bool:
+        """Should return True if the filter has a configuration widget.
+
+        :return: configuration widget available
+        :rtype: bool
+        """
+        return True
 
     def clone(self) -> QgsLocatorFilter:
         """Creates a clone of the filter. New requests are always executed in a clone \
@@ -189,16 +207,27 @@ class FrenchBanGeocoderLocatorFilter(QgsLocatorFilter):
         self.iface.mapCanvas().zoomScale(scale)
         self.iface.mapCanvas().refresh()
 
-    def tr(self, message):
+    def tr(self, message) -> str:
         """Get the translation for a string using Qt translation API.
 
         We implement this ourselves since we do not inherit QObject.
 
         :param message: String for translation.
-        :type message: str, QString
+        :type message: str
 
         :returns: Translated version of message.
-        :rtype: QString
+        :rtype: str
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
         return QCoreApplication.translate(self.__class__.__name__, message)
+
+    def openConfigWidget(self, parent: QWidget = None):
+        """Opens the configuration widget for the filter (if it has one), with the \
+        specified parent widget. self.hasConfigWidget() must return True.
+
+        :param parent: [description], defaults to None
+        :type parent: QWidget, optional
+        """
+        self.iface.showOptionsDialog(
+            parent=parent, currentPage=f"mOptionsPage{__title__}"
+        )
