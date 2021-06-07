@@ -5,7 +5,6 @@
 """
 
 # standard
-import logging
 from typing import NamedTuple
 
 # PyQGIS
