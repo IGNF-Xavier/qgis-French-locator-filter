@@ -105,6 +105,7 @@ pages:
     - python -m pip install -U -r requirements/documentation.txt
   script:
     - sphinx-build -b html docs public
+    - ls
     - cp -rf "${PROJECT_DIR}.*.zip" public/
     - cp -rf plugins.xml public/
   artifacts:
