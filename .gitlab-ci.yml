@@ -66,7 +66,7 @@ builder:
     expose_as: "Latest packaged plugin version"
     name: "$PROJECT_DIR_b$CI_COMMIT_REF_NAME-c$CI_COMMIT_SHORT_SHA-j$CI_JOB_ID"
     paths:
-      - "${PROJECT_DIR}.latest.zip"
+      - "${PROJECT_DIR}.*.zip"
 
 # -- DEPLOYMENT JOBS -------------------------------------------------------------------
 deploy-to-qgis-repository:
