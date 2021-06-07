@@ -107,7 +107,7 @@ pages:
   script:
     - ls
     - mkdir -p public
-    # - cp -v "${PROJECT_DIR}.*.zip" public/
+    - cp ${PROJECT_DIR}.*.zip public/
     - cp plugins.xml public/
     - sphinx-build -b html docs public
   artifacts:
