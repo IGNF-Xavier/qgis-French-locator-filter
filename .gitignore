@@ -116,3 +116,4 @@ venv.bak/
 # QGIS
 # To be fixed in CI
 resources_rc.py
+plugins.xml
