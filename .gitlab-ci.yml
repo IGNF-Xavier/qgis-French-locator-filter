@@ -105,11 +105,11 @@ pages:
   before_script:
     - python -m pip install -U -r requirements/documentation.txt
   script:
+    - ls
     - mkdir -p public
-    - cp "${PROJECT_DIR}.*.zip" public/
+    - cp -v "${PROJECT_DIR}.*.zip" public/
     - cp plugins.xml public/
     - sphinx-build -b html docs public
-    - ls public/
   artifacts:
     paths:
       - public
