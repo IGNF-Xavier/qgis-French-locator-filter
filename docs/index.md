@@ -19,6 +19,7 @@
 caption: Usage
 maxdepth: 1
 ---
+Installation <usage/en_installation>
 English <usage/en_how_to_use>
 Français <usage/fr_how_to_use>
 ```
