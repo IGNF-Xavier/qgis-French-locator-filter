@@ -66,6 +66,7 @@ builder:
     name: "$PROJECT_DIR_b$CI_COMMIT_REF_NAME-c$CI_COMMIT_SHORT_SHA-j$CI_JOB_ID"
     paths:
       - "${PROJECT_DIR}.*.zip"
+      - plugins.xml
 
 # -- DEPLOYMENT JOBS -------------------------------------------------------------------
 deploy-to-qgis-repository:
@@ -104,10 +105,11 @@ pages:
   before_script:
     - python -m pip install -U -r requirements/documentation.txt
   script:
+    - mkdir -p public
+    - cp "${PROJECT_DIR}.*.zip" public/
+    - cp plugins.xml public/
     - sphinx-build -b html docs public
-    - ls
-    - cp -rf "${PROJECT_DIR}.*.zip" public/
-    - cp -rf plugins.xml public/
+    - ls public/
   artifacts:
     paths:
       - public
