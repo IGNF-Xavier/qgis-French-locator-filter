@@ -8,6 +8,7 @@ from qgis.core import QgsMessageLog
 from qgis.utils import iface
 
 # project package
+import french_locator_filter.toolbelt.preferences as plg_prefs_hdlr
 from french_locator_filter.__about__ import __title__
 
 # ############################################################################
@@ -26,7 +27,8 @@ class PlgLogger(logging.Handler):
         push: bool = False,
     ):
         """Send messages to QGIS messages windows and to the user as a message bar. \
-        Plugin name is used as title.
+        Plugin name is used as title. If debug mode is disabled, only warnings (1) and \
+        errors (2) or with push are sent.
 
         :param message: message to display
         :type message: str
@@ -50,6 +52,11 @@ class PlgLogger(logging.Handler):
             log(message="Plugin loaded - SUCCESS", log_level=3, push=1)
             log(message="Plugin loaded - TEST", log_level=4, push=1)
         """
+        # if debug mode, let's ignore INFO, SUCCESS and TEST
+        debug_mode = plg_prefs_hdlr.PlgOptionsManager.get_plg_settings().debug_mode
+        if not debug_mode and (1 < log_level < 3 or not push):
+            return
+
         # ensure message is a string
         if not isinstance(message, str):
             try:
