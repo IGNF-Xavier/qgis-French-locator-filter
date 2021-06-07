@@ -63,7 +63,6 @@ builder:
   script:
     - qgis-plugin-ci package latest
   artifacts:
-    expose_as: "Latest packaged plugin version"
     name: "$PROJECT_DIR_b$CI_COMMIT_REF_NAME-c$CI_COMMIT_SHORT_SHA-j$CI_JOB_ID"
     paths:
       - "${PROJECT_DIR}.*.zip"
