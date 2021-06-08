@@ -22,6 +22,7 @@ from qgis.utils import showPluginHelp
 from french_locator_filter.__about__ import (
     DIR_PLUGIN_ROOT,
     __title__,
+    __uri_homepage__,
     __uri_tracker__,
     __version__,
 )
@@ -57,7 +58,7 @@ class DlgSettings(QWidget, FORM_CLASS):
         # customization
         self.btn_help.setIcon(QIcon(":/images/themes/default/mActionHelpContents.svg"))
         self.btn_help.pressed.connect(
-            partial(showPluginHelp, filename=f"{DIR_PLUGIN_ROOT}/resources/help/index")
+            partial(QDesktopServices.openUrl, QUrl(__uri_homepage__))
         )
 
         self.btn_report.setIcon(
