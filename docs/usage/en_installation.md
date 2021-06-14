@@ -1,5 +1,7 @@
 # Installation
 
+## Stable version (recomended)
+
 This plugin is published on the official QGIS plugins repository: <https://plugins.qgis.org/plugins/french_locator_filter/>.
 
 ## Beta versions released

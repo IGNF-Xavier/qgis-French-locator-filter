@@ -13,15 +13,14 @@ from pathlib import Path
 from qgis.gui import QgsOptionsPageWidget, QgsOptionsWidgetFactory
 from qgis.PyQt import uic
 from qgis.PyQt.Qt import QUrl
-from qgis.PyQt.QtCore import pyqtSignal
 from qgis.PyQt.QtGui import QDesktopServices, QIcon
 from qgis.PyQt.QtWidgets import QHBoxLayout, QWidget
-from qgis.utils import showPluginHelp
 
 # project
 from french_locator_filter.__about__ import (
     DIR_PLUGIN_ROOT,
     __title__,
+    __uri_homepage__,
     __uri_tracker__,
     __version__,
 )
@@ -32,7 +31,7 @@ from french_locator_filter.toolbelt import PlgLogger, PlgOptionsManager
 # ##################################
 
 logger = logging.getLogger(__name__)
-FORM_CLASS, _ = uic.loadUiType(
+FORM_CLASS, FORM_BASE = uic.loadUiType(
     Path(__file__).parent / "{}.ui".format(Path(__file__).stem)
 )
 
@@ -42,9 +41,6 @@ FORM_CLASS, _ = uic.loadUiType(
 
 
 class DlgSettings(QWidget, FORM_CLASS):
-
-    closingPlugin = pyqtSignal()
-
     def __init__(self, parent=None):
         """Constructor."""
         super(DlgSettings, self).__init__(parent)
@@ -57,7 +53,7 @@ class DlgSettings(QWidget, FORM_CLASS):
         # customization
         self.btn_help.setIcon(QIcon(":/images/themes/default/mActionHelpContents.svg"))
         self.btn_help.pressed.connect(
-            partial(showPluginHelp, filename=f"{DIR_PLUGIN_ROOT}/resources/help/index")
+            partial(QDesktopServices.openUrl, QUrl(__uri_homepage__))
         )
 
         self.btn_report.setIcon(
@@ -70,15 +66,6 @@ class DlgSettings(QWidget, FORM_CLASS):
         # load previously saved settings
         self.plg_settings = PlgOptionsManager()
         self.load_settings()
-
-    def closeEvent(self, event):
-        """Map on plugin close.
-
-        :param event: [description]
-        :type event: [type]
-        """
-        self.closingPlugin.emit()
-        event.accept()
 
     def load_settings(self) -> dict:
         """Load options from QgsSettings into UI form."""
@@ -128,7 +115,7 @@ class PlgOptionsFactory(QgsOptionsWidgetFactory):
 
 
 class ConfigOptionsPage(QgsOptionsPageWidget):
-    def __init__(self, parent):
+    def __init__(self, parent=None):
         super().__init__(parent)
         self.dlg_settings = DlgSettings(self)
         layout = QHBoxLayout()

@@ -5,23 +5,14 @@
 """
 
 # standard
-import logging
 from typing import NamedTuple
 
 # PyQGIS
 from qgis.core import QgsSettings
 
 # package
+import french_locator_filter.toolbelt.log_handler as log_hdlr
 from french_locator_filter.__about__ import __title__, __version__
-
-from .log_handler import PlgLogger
-
-# ############################################################################
-# ########## Globals ###############
-# ##################################
-
-logger = logging.getLogger(__name__)
-plg_logger = PlgLogger()
 
 # ############################################################################
 # ########## Classes ###############
@@ -99,10 +90,11 @@ class PlgOptionsManager:
         :return: plugin settings value matching key
         """
         if not hasattr(PlgSettingsStructure, key):
-            logger.error(
-                "Bad settings key. Must be one of: {}".format(
+            log_hdlr.PlgLogger.log(
+                message="Bad settings key. Must be one of: {}".format(
                     ",".join(PlgSettingsStructure._fields)
-                )
+                ),
+                log_level=1,
             )
             return None
 
@@ -112,8 +104,11 @@ class PlgOptionsManager:
         try:
             out_value = settings.value(key=key, defaultValue=default, type=exp_type)
         except Exception as err:
-            logger.error(err)
-            plg_logger.log(err)
+            log_hdlr.PlgLogger.log(
+                message="Error occurred trying to get settings: {}.Trace: {}".format(
+                    key, err
+                )
+            )
             out_value = None
 
         settings.endGroup()
@@ -128,10 +123,11 @@ class PlgOptionsManager:
         :return: plugin settings value matching key
         """
         if not hasattr(PlgSettingsStructure, key):
-            logger.error(
-                "Bad settings key. Must be one of: {}".format(
+            log_hdlr.PlgLogger.log(
+                message="Bad settings key. Must be one of: {}".format(
                     ",".join(PlgSettingsStructure._fields)
-                )
+                ),
+                log_level=2,
             )
             return False
 
@@ -142,8 +138,11 @@ class PlgOptionsManager:
             settings.setValue(key, value)
             out_value = True
         except Exception as err:
-            logger.error(err)
-            plg_logger.log(err)
+            log_hdlr.PlgLogger.log(
+                message="Error occurred trying to set settings: {}.Trace: {}".format(
+                    key, err
+                )
+            )
             out_value = False
 
         settings.endGroup()
