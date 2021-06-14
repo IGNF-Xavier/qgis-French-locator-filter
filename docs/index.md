@@ -16,12 +16,20 @@
 
 ```{toctree}
 ---
-caption: Usage
+caption: Manuel (Français)
+maxdepth: 1
+---
+Installation <usage/fr_installation>
+Utilisation <usage/fr_how_to_use>
+```
+
+```{toctree}
+---
+caption: Manual (English)
 maxdepth: 1
 ---
 Installation <usage/en_installation>
-English <usage/en_how_to_use>
-Français <usage/fr_how_to_use>
+Usage <usage/en_how_to_use>
 ```
 
 ```{toctree}
