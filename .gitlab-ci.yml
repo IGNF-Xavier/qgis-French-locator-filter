@@ -71,11 +71,11 @@ builder:
 # -- DEPLOYMENT JOBS -------------------------------------------------------------------
 deploy-to-qgis-repository:
   stage: 🚀 deploy
-  image: python:3.8
+  image: python:3.7
   only:
     - tags
   before_script:
-    - apt install git qt5-default qttools5-dev-tools
+    - apt install git
     - python -m pip install -U -r requirements/packaging.txt
   script:
     - echo "Deploying the version ${CI_COMMIT_TAG} plugin to QGIS Plugins Repository with the user ${OSGEO_USER_NAME}"
