@@ -25,10 +25,10 @@ tracker=https://gitlab.com/Oslandia/qgis/french_locator_filter/-/issues
 
 # status
 deprecated=False
-experimental=True
+experimental=False
 qgisMinimumVersion=3.16
 qgisMaximumVersion=3.99
 
 # versioning
-version=1.0.0-beta2
+version=1.0.0
 changelog=
