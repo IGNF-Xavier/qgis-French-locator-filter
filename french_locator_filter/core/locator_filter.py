@@ -207,18 +207,15 @@ class FrenchBanGeocoderLocatorFilter(QgsLocatorFilter):
         self.iface.mapCanvas().zoomScale(scale)
         self.iface.mapCanvas().refresh()
 
-    def tr(self, message) -> str:
+    def tr(self, message: str) -> str:
         """Get the translation for a string using Qt translation API.
 
-        We implement this ourselves since we do not inherit QObject.
-
-        :param message: String for translation.
+        :param message: string to be translated.
         :type message: str
 
         :returns: Translated version of message.
         :rtype: str
         """
-        # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
         return QCoreApplication.translate(self.__class__.__name__, message)
 
     def openConfigWidget(self, parent: QWidget = None):
