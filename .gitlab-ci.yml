@@ -25,7 +25,7 @@ cache:
 
 # -- LINT JOBS -------------------------------------------------------------------------
 linter:
-  image: python:3.7-slim-buster
+  image: python:3.8-slim-buster
   stage: 🐍 lint
   only:
     changes:
@@ -38,7 +38,7 @@ linter:
 
 # -- TEST JOBS -------------------------------------------------------------------------
 basic-test:
-  image: python:3.7-slim-buster
+  image: python:3.8-slim-buster
   stage: 🤞 test
   only:
     changes:
@@ -53,7 +53,7 @@ basic-test:
 
 # -- BUILD JOBS -------------------------------------------------------------------------
 builder:
-  image: python:3.7
+  image: python:3.8
   stage: 📦 build
   only:
     refs:
@@ -72,7 +72,7 @@ builder:
 # -- DEPLOYMENT JOBS -------------------------------------------------------------------
 deploy-to-qgis-repository:
   stage: 🚀 deploy
-  image: python:3.7
+  image: python:3.8
   only:
     - tags
   before_script:
