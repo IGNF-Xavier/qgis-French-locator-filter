@@ -16,6 +16,6 @@ Si vous vous considérez comme un *early adopter*, un testeur ou que vous ne pou
 
 Pour cela, il faut ajouter cette URL dans les dépôts référencés dans le gestionnaire d'extensions de QGIS :
 
-```url
+```html
 https://oslandia.gitlab.io/qgis/french_locator_filter/plugins.xml
 ```
