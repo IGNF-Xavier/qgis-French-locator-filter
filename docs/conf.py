@@ -35,6 +35,7 @@ version = release = __about__.__version__
 # ones.
 extensions = [
     # Sphinx included
+    "sphinx.ext.autodoc",
     "sphinx.ext.autosectionlabel",
     "sphinx.ext.extlinks",
     "sphinx.ext.githubpages",
@@ -153,17 +154,29 @@ ogp_custom_meta_tags = [
 
 # -- Options for Sphinx API doc ----------------------------------------------
 
-# # run api doc
-# def run_apidoc(_):
-#     from sphinx.ext.apidoc import main
+autodoc_mock_imports = [
+    "qgis.core",
+    "qgis.gui",
+    "qgis.PyQt",
+    "qgis.PyQt.QtCore",
+    "qgis.PyQt.QtGui",
+    "qgis.PyQt.QtNetwork",
+    "qgis.PyQt.QtWidgets",
+    "qgis.utils",
+    "qgis",
+]
 
-#     cur_dir = path.normpath(path.dirname(__file__))
-#     output_path = path.join(cur_dir, "_apidoc")
-#     modules = path.normpath(path.join(cur_dir, "../french_locator_filter"))
-#     exclusions = ["../.venv", "../tests"]
-#     main(["-e", "-f", "-M", "-o", output_path, modules] + exclusions)
+# run api doc
+def run_apidoc(_):
+    from sphinx.ext.apidoc import main
+
+    cur_dir = path.normpath(path.dirname(__file__))
+    output_path = path.join(cur_dir, "_apidoc")
+    modules = path.normpath(path.join(cur_dir, "../french_locator_filter"))
+    exclusions = ["../.venv", "../tests"]
+    main(["-e", "-f", "-M", "-o", output_path, modules] + exclusions)
 
 
-# # launch setup
-# def setup(app):
-#     app.connect("builder-inited", run_apidoc)
+# launch setup
+def setup(app):
+    app.connect("builder-inited", run_apidoc)
