@@ -37,7 +37,7 @@ linter:
     - flake8 $PROJECT_FOLDER --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
 # -- TEST JOBS -------------------------------------------------------------------------
-basic-test:
+test-unit:
   image: python:3.8-slim-buster
   stage: 🤞 test
   only:
@@ -49,7 +49,12 @@ basic-test:
     - python -m pip install -U -r requirements/development.txt
     - python -m pip install -U -r requirements/testing.txt
   script:
-    - python -m pytest
+    - python3 -m pytest tests/unit
+  artifacts:
+    when: always
+    reports:
+      junit: junit/test-results.xml
+      cobertura: coverage.xml
 
 # -- BUILD JOBS -------------------------------------------------------------------------
 builder:
