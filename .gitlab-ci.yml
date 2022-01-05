@@ -58,6 +58,10 @@ test-unit:
     reports:
       junit: junit/test-results.xml
       cobertura: coverage.xml
+    only
+      - master
+      - tags
+      - merge_requests
 
 sonarcloud:
   stage: 🤞 test
@@ -77,6 +81,8 @@ sonarcloud:
     - sonar-scanner
   only:
     - master
+    - master
+    - tags
     - merge_requests
 
 # -- BUILD JOBS -------------------------------------------------------------------------
