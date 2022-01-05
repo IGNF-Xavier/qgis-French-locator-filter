@@ -176,7 +176,6 @@ pages:
     refs:
       - master
   needs:
-    - unit
     - builder
     - documentation-build
   script:
