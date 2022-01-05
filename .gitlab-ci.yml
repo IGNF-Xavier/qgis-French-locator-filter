@@ -41,6 +41,10 @@ test-unit:
   image: python:3.8-slim-buster
   stage: 🤞 test
   only:
+    refs:
+      - master
+      - tags
+      - merge_request
     changes:
       - "**/*.py"
       - ".gitlab-ci.yml"
@@ -58,10 +62,7 @@ test-unit:
     reports:
       junit: junit/test-results.xml
       cobertura: coverage.xml
-    only:
-      - master
-      - tags
-      - merge_request
+
 
 sonarcloud:
   stage: 🤞 test
