@@ -5,16 +5,16 @@
 """
 
 # standard
-import logging
 from functools import partial
 from pathlib import Path
 
 # PyQGIS
+from qgis.core import QgsApplication
 from qgis.gui import QgsOptionsPageWidget, QgsOptionsWidgetFactory
 from qgis.PyQt import uic
 from qgis.PyQt.Qt import QUrl
+from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtGui import QDesktopServices, QIcon
-from qgis.PyQt.QtWidgets import QHBoxLayout, QWidget
 
 # project
 from french_locator_filter.__about__ import (
@@ -25,12 +25,12 @@ from french_locator_filter.__about__ import (
     __version__,
 )
 from french_locator_filter.toolbelt import PlgLogger, PlgOptionsManager
+from french_locator_filter.toolbelt.preferences import PlgSettingsStructure
 
 # ############################################################################
 # ########## Globals ###############
 # ##################################
 
-logger = logging.getLogger(__name__)
 FORM_CLASS, FORM_BASE = uic.loadUiType(
     Path(__file__).parent / "{}.ui".format(Path(__file__).stem)
 )
@@ -40,32 +40,56 @@ FORM_CLASS, FORM_BASE = uic.loadUiType(
 # ##################################
 
 
-class DlgSettings(QWidget, FORM_CLASS):
-    def __init__(self, parent=None):
+class ConfigOptionsPage(FORM_CLASS, QgsOptionsPageWidget):
+    """Settings form embedded into QGIS 'options' menu."""
+
+    def __init__(self, parent):
         """Constructor."""
-        super(DlgSettings, self).__init__(parent)
-        self.setupUi(self)
+        super().__init__(parent)
         self.log = PlgLogger().log
+        self.plg_settings = PlgOptionsManager()
+        self.setupUi(self)
+        self.setObjectName("mOptionsPage{}".format(__title__))
 
         # header
         self.lbl_title.setText(f"{__title__} - Version {__version__}")
 
         # customization
-        self.btn_help.setIcon(QIcon(":/images/themes/default/mActionHelpContents.svg"))
+        self.btn_help.setIcon(QIcon(QgsApplication.iconPath("mActionHelpContents.svg")))
         self.btn_help.pressed.connect(
             partial(QDesktopServices.openUrl, QUrl(__uri_homepage__))
         )
 
         self.btn_report.setIcon(
-            QIcon(":images/themes/default/console/iconSyntaxErrorConsole.svg")
+            QIcon(QgsApplication.iconPath("console/iconSyntaxErrorConsole.svg"))
         )
         self.btn_report.pressed.connect(
-            partial(QDesktopServices.openUrl, QUrl(__uri_tracker__))
+            partial(QDesktopServices.openUrl, QUrl(f"{__uri_tracker__}/new/"))
         )
 
         # load previously saved settings
-        self.plg_settings = PlgOptionsManager()
         self.load_settings()
+
+    def apply(self):
+        """Called to permanently apply the settings shown in the options page (e.g. \
+        save them to QgsSettings objects). This is usually called when the options \
+        dialog is accepted."""
+        new_settings = PlgSettingsStructure(
+            # features
+            min_search_length=self.sbx_min_search_length.value(),
+            # misc
+            debug_mode=self.opt_debug.isChecked(),
+            version=__version__,
+        )
+
+        # dump new settings into QgsSettings
+        self.plg_settings.save_from_object(new_settings)
+
+        if __debug__:
+            self.log(
+                message="DEBUG - Settings successfully saved.",
+                log_level=4,
+            )
 
     def load_settings(self) -> dict:
         """Load options from QgsSettings into UI form."""
@@ -82,22 +106,16 @@ class DlgSettings(QWidget, FORM_CLASS):
         self.opt_debug.setChecked(settings.debug_mode)
         self.lbl_version_saved_value.setText(settings.version)
 
-    def save_settings(self):
-        """Save options from UI form into QSettings."""
-        # save user settings
-        self.plg_settings.set_value_from_key(
-            "min_search_length", self.sbx_min_search_length.value()
-        )
+    def tr(self, message: str) -> str:
+        """Get the translation for a string using Qt translation API.
 
-        # save miscellaneous
-        self.plg_settings.set_value_from_key("debug_mode", self.opt_debug.isChecked())
-        self.plg_settings.set_value_from_key("version", __version__)
+        :param message: string to be translated.
+        :type message: str
 
-        if __debug__:
-            self.log(
-                message="DEBUG - Settings successfully saved.",
-                log_level=4,
-            )
+        :returns: Translated version of message.
+        :rtype: str
+        """
+        return QCoreApplication.translate(self.__class__.__name__, message)
 
 
 class PlgOptionsFactory(QgsOptionsWidgetFactory):
@@ -112,20 +130,3 @@ class PlgOptionsFactory(QgsOptionsWidgetFactory):
 
     def title(self):
         return __title__
-
-
-class ConfigOptionsPage(QgsOptionsPageWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.dlg_settings = DlgSettings(self)
-        layout = QHBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        self.dlg_settings.setLayout(layout)
-        self.setLayout(layout)
-        self.setObjectName("mOptionsPage{}".format(__title__))
-
-    def apply(self):
-        """Called to permanently apply the settings shown in the options page (e.g. \
-        save them to QgsSettings objects). This is usually called when the options \
-        dialog is accepted."""
-        self.dlg_settings.save_settings()
