@@ -66,6 +66,14 @@ test-unit:
 
 sonarcloud:
   stage: 🤞 test
+  only:
+    refs:
+      - master
+      - tags
+      - merge_request
+    changes:
+      - "**/*.py"
+      - ".gitlab-ci.yml"
   needs:
     - test-unit
   variables:
@@ -80,11 +88,6 @@ sonarcloud:
       - .sonar/cache
   script:
     - sonar-scanner
-  only:
-    - master
-    - master
-    - tags
-    - merge_requests
 
 # -- BUILD JOBS -------------------------------------------------------------------------
 builder:
