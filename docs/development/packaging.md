@@ -25,6 +25,6 @@ qgis-plugin-ci package latest
 Everything is done through git workflow and GitLab CI/CD:
 
 1. Add the new version to the `CHANGELOG.md`
-1. Change the version number in `__about__.py`
-1. Apply a git tag with the relevant version: `git tag -a 0.3.0 {git commit hash} -m "This version rocks!"`
-1. Push tag to main branch: `git push origin 0.3.0`
+1. Optionally change the version number in `metadata.txt`
+1. Apply a git tag with the relevant version: `git tag -a X.y.z {git commit hash} -m "This version rocks!"`
+1. Push tag to main branch: `git push origin X.y.z`
