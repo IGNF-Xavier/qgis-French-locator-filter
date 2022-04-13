@@ -63,6 +63,26 @@ test-unit:
       junit: junit/test-results.xml
       cobertura: coverage.xml
 
+test-qgis:
+  image: qgis/qgis:release-3_22
+  stage: 🤞 test
+  only:
+    refs:
+      - master
+      - tags
+      - merge_request
+    changes:
+      - "**/*.py"
+      - ".gitlab-ci.yml"
+  before_script:
+    - python3 -m pip install -U -r requirements/testing.txt
+  script:
+    - env PYTHONPATH=/usr/share/qgis/python:. pytest tests/qgis
+  artifacts:
+    when: always
+    reports:
+      junit: junit/test-results.xml
+      cobertura: coverage.xml
 
 sonarcloud:
   stage: 🤞 test
@@ -76,6 +96,7 @@ sonarcloud:
       - ".gitlab-ci.yml"
   needs:
     - test-unit
+    - test-qgis
   variables:
     GIT_DEPTH: "0" # Tells git to fetch all the branches of the project, required by the analysis task
     SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar" # Defines the location of the analysis task cache
