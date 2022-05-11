@@ -54,14 +54,14 @@ test-unit:
     - python -m pip install -U -r requirements/testing.txt
   script:
     - python3 -m pytest tests/unit
+  coverage: '/TOTAL.*\s([.\d]+)%/'
   artifacts:
     when: always
-    paths:
-      - coverage.xml
-      - junit/test-results.xml
     reports:
       junit: junit/test-results.xml
-      cobertura: coverage.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
 
 test-qgis:
   image: qgis/qgis:release-3_22
@@ -78,11 +78,14 @@ test-qgis:
     - python3 -m pip install -U -r requirements/testing.txt
   script:
     - env PYTHONPATH=/usr/share/qgis/python:. pytest tests/qgis
+  coverage: '/TOTAL.*\s([.\d]+)%/'
   artifacts:
     when: always
     reports:
       junit: junit/test-results.xml
-      cobertura: coverage.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
 
 sonarcloud:
   stage: 🤞 test
