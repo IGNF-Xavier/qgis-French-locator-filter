@@ -127,13 +127,11 @@ sonarcloud-check:
       - .sonar/cache
   script:
     - sonar-scanner
-  only:
-    refs:
-      - merge_requests
-      - master
-    changes:
-      - "**/*.py"
-      - ".gitlab-ci.yml"
+  rules:
+    - if: $CI_PROJECT_NAMESPACE == "Oslandia"  &&  ($CI_COMMIT_BRANCH == "master" || $CI_PIPELINE_SOURCE == 'merge_request_event')
+      changes:
+        - "**/*.py"
+        - ".gitlab-ci.yml"
 
 # -- BUILD JOBS -------------------------------------------------------------------------
 build:translation:
