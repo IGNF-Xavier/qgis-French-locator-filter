@@ -63,7 +63,7 @@ class PlgOptionsManager:
             ),
             min_search_length=settings.value(
                 key="min_search_length",
-                defaultValue=2,
+                defaultValue=3,
                 type=int,
             ),
             request_url=settings.value(
