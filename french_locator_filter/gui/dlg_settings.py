@@ -64,7 +64,10 @@ class ConfigOptionsPage(FORM_CLASS, QgsOptionsPageWidget):
             QIcon(QgsApplication.iconPath("console/iconSyntaxErrorConsole.svg"))
         )
         self.btn_report.pressed.connect(
-            partial(QDesktopServices.openUrl, QUrl(f"{__uri_tracker__}/new/"))
+            partial(
+                QDesktopServices.openUrl,
+                QUrl(f"{__uri_tracker__}/new?issuable_template=bug_report"),
+            )
         )
 
         # load previously saved settings
