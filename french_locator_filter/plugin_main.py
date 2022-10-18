@@ -27,6 +27,8 @@ class FrenchGeocoderLocatorFilterPlugin:
     def __init__(self):
         """Constructor."""
         self.log = PlgLogger().log
+        self.locator_filter = None
+        self.options_factory = None
 
         # translation
         self.locale: str = QgsSettings().value("locale/userLocale", QLocale().name())[
@@ -61,13 +63,20 @@ class FrenchGeocoderLocatorFilterPlugin:
     def initGui(self):
         """Set up plugin UI elements."""
         # settings page within the QGIS preferences menu
-        self.options_factory = PlgOptionsFactory()
-        self.iface.registerOptionsWidgetFactory(self.options_factory)
+        if not self.options_factory:
+            self.options_factory = PlgOptionsFactory()
+            iface.registerOptionsWidgetFactory(self.options_factory)
+
+        # locator
+        if not self.locator_filter:
+            self.locator_filter = FrenchBanGeocoderLocatorFilter(iface)
+            iface.registerLocatorFilter(self.locator_filter)
 
     def unload(self):
         """Cleans up when plugin is disabled/uninstalled."""
         # -- Clean up preferences panel in QGIS settings
-        self.iface.unregisterOptionsWidgetFactory(self.options_factory)
+        if self.options_factory:
+            iface.unregisterOptionsWidgetFactory(self.options_factory)
 
         # remove filter from locator
         if self.locator_filter:
