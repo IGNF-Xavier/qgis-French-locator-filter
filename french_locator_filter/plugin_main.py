@@ -48,17 +48,16 @@ class FrenchGeocoderLocatorFilterPlugin:
         else:
             self.log(
                 message=f"Translation file does not exist: {self.locale}, {locale_path}",
-                log_level=2,
+                log_level=1,
             )
 
-        if __debug__:
-            self.log(
-                message=(
-                    "DEBUG - French (BAN Geocoder) Locator Filter"
-                    f" ({__title__} {__version__}) installed."
-                ),
-                log_level=4,
-            )
+        self.log(
+            message=(
+                "DEBUG - French (BAN Geocoder) Locator Filter"
+                f" ({__title__} {__version__}) installed."
+            ),
+            log_level=4,
+        )
 
     def initGui(self):
         """Set up plugin UI elements."""

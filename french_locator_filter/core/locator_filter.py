@@ -6,7 +6,6 @@
 
 # standard library
 import json
-import logging
 
 # PyQGIS
 from qgis.core import (
@@ -30,12 +29,6 @@ from french_locator_filter.toolbelt import (
     PlgLogger,
     PlgOptionsManager,
 )
-
-# ############################################################################
-# ########## Globals ###############
-# ##################################
-
-logger = logging.getLogger(__name__)
 
 # ############################################################################
 # ########## Classes ###############
