@@ -1,7 +1,7 @@
 #! python3  # noqa: E265
 
 """
-    Main plugin module.
+    Locator Filter.
 """
 
 # standard library
@@ -19,7 +19,6 @@ from qgis.core import (
     QgsProject,
 )
 from qgis.gui import QgisInterface
-from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtWidgets import QWidget
 from qgis.utils import iface
 
@@ -45,6 +44,7 @@ class FrenchBanGeocoderLocatorFilter(QgsLocatorFilter):
     """
 
     def __init__(self, iface: QgisInterface = iface):
+        self.iface = iface
         self.log = PlgLogger().log
         self.plg_settings = PlgOptionsManager.get_plg_settings()
 
@@ -161,14 +161,31 @@ class FrenchBanGeocoderLocatorFilter(QgsLocatorFilter):
         for the search result. E.g. a file search filter would open file associated \
         with the triggered result.
 
-        :param result: [description]
+        :param result: result selected by user
         :type result: QgsLocatorResult
         """
-        if __debug__:
+        # Newer Version of PyQT does not expose the .userData (Leading to core dump)
+        # Try via get Function, otherwise access attribute
+        try:
+            doc = result.getUserData()
             self.log(
-                message=f"DEBUG - Selected address: {result.displayString}", log_level=4
+                message=self.tr(
+                    "Result triggerred by the user received: {}".format(
+                        doc.get("properties").get("label")
+                    )
+                ),
+                log_level=4,
             )
-        doc = result.userData
+        except Exception as err:
+            self.log(
+                message=self.tr(
+                    "Something went wrong during result deserialization: {}. "
+                    "Trying another method...".format(err)
+                ),
+                log_level=2,
+            )
+            doc = result.userData
+
         x = doc["geometry"]["coordinates"][0]
         y = doc["geometry"]["coordinates"][1]
 
@@ -204,7 +221,7 @@ class FrenchBanGeocoderLocatorFilter(QgsLocatorFilter):
         """Opens the configuration widget for the filter (if it has one), with the \
         specified parent widget. self.hasConfigWidget() must return True.
 
-        :param parent: [description], defaults to None
+        :param parent: prent widget, defaults to None
         :type parent: QWidget, optional
         """
         iface.showOptionsDialog(parent=parent, currentPage=f"mOptionsPage{__title__}")
