@@ -5,7 +5,7 @@
 """
 
 # standard
-from typing import NamedTuple
+from dataclasses import asdict, dataclass, fields
 
 # PyQGIS
 from qgis.core import QgsSettings
@@ -19,7 +19,8 @@ from french_locator_filter.__about__ import __title__, __version__
 # ##################################
 
 
-class PlgSettingsStructure(NamedTuple):
+@dataclass
+class PlgSettingsStructure:
     """Plugin settings structure and defaults values."""
 
     # misc
@@ -43,40 +44,22 @@ class PlgOptionsManager:
         :return: plugin settings
         :rtype: PlgSettingsStructure
         """
+        # get dataclass fields definition
+        settings_fields = fields(PlgSettingsStructure)
+
+        # retrieve settings from QGIS/Qt
         settings = QgsSettings()
         settings.beginGroup(__title__)
 
-        options = PlgSettingsStructure(
-            # misc
-            debug_mode=settings.value(key="debug_mode", defaultValue=False, type=bool),
-            version=settings.value(key="version", defaultValue=__version__, type=str),
-            # network
-            http_content_type=settings.value(
-                key="http_content_type",
-                defaultValue="application/json",
-                type=str,
-            ),
-            http_user_agent=settings.value(
-                key="http_user_agent",
-                defaultValue=f"{__title__}/{__version__}",
-                type=str,
-            ),
-            min_search_length=settings.value(
-                key="min_search_length",
-                defaultValue=3,
-                type=int,
-            ),
-            request_url=settings.value(
-                key="request_url",
-                defaultValue="https://api-adresse.data.gouv.fr/search/",
-                type=str,
-            ),
-            request_url_query=settings.value(
-                key="request_url_query",
-                defaultValue="limit=10&autocomplete=1",
-                type=str,
-            ),
-        )
+        # map settings values to preferences object
+        li_settings_values = []
+        for i in settings_fields:
+            li_settings_values.append(
+                settings.value(key=i.name, defaultValue=i.default, type=i.type)
+            )
+
+        # instanciate new settings object
+        options = PlgSettingsStructure(*li_settings_values)
 
         settings.endGroup()
 
@@ -162,7 +145,7 @@ class PlgOptionsManager:
         settings = QgsSettings()
         settings.beginGroup(__title__)
 
-        for k, v in plugin_settings_obj._asdict().items():
+        for k, v in asdict(plugin_settings_obj).items():
             cls.set_value_from_key(k, v)
 
         settings.endGroup()

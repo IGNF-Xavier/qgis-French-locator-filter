@@ -13,7 +13,6 @@ from qgis.core import QgsApplication
 from qgis.gui import QgsOptionsPageWidget, QgsOptionsWidgetFactory
 from qgis.PyQt import uic
 from qgis.PyQt.Qt import QUrl
-from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtGui import QDesktopServices, QIcon
 
 # project
@@ -70,6 +69,9 @@ class ConfigOptionsPage(FORM_CLASS, QgsOptionsPageWidget):
             )
         )
 
+        self.btn_reset.setIcon(QIcon(QgsApplication.iconPath("mActionUndo.svg")))
+        self.btn_reset.pressed.connect(self.reset_settings)
+
         # load previously saved settings
         self.load_settings()
 
@@ -108,16 +110,15 @@ class ConfigOptionsPage(FORM_CLASS, QgsOptionsPageWidget):
         self.opt_debug.setChecked(settings.debug_mode)
         self.lbl_version_saved_value.setText(settings.version)
 
-    def tr(self, message: str) -> str:
-        """Get the translation for a string using Qt translation API.
+    def reset_settings(self):
+        """Reset settings to default values (set in preferences.py module)."""
+        default_settings = PlgSettingsStructure()
 
-        :param message: string to be translated.
-        :type message: str
+        # dump default settings into QgsSettings
+        self.plg_settings.save_from_object(default_settings)
 
-        :returns: Translated version of message.
-        :rtype: str
-        """
-        return QCoreApplication.translate(self.__class__.__name__, message)
+        # update the form
+        self.load_settings()
 
 
 class PlgOptionsFactory(QgsOptionsWidgetFactory):
@@ -132,3 +133,6 @@ class PlgOptionsFactory(QgsOptionsWidgetFactory):
 
     def title(self):
         return __title__
+
+    def helpId(self) -> str:
+        return __uri_homepage__
