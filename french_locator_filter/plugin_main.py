@@ -68,7 +68,7 @@ class FrenchGeocoderLocatorFilterPlugin:
 
         # locator
         if not self.locator_filter:
-            self.locator_filter = FrenchBanGeocoderLocatorFilter(iface)
+            self.locator_filter = FrenchBanGeocoderLocatorFilter()
             iface.registerLocatorFilter(self.locator_filter)
 
     def unload(self):

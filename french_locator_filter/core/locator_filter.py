@@ -21,6 +21,7 @@ from qgis.core import (
 from qgis.gui import QgisInterface
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtWidgets import QWidget
+from qgis.utils import iface
 
 # project
 from french_locator_filter.__about__ import __title__
@@ -43,8 +44,7 @@ class FrenchBanGeocoderLocatorFilter(QgsLocatorFilter):
     :type iface: QgisInterface
     """
 
-    def __init__(self, iface: QgisInterface):
-        self.iface = iface
+    def __init__(self, iface: QgisInterface = iface):
         self.log = PlgLogger().log
         self.plg_settings = PlgOptionsManager.get_plg_settings()
 
@@ -74,7 +74,7 @@ class FrenchBanGeocoderLocatorFilter(QgsLocatorFilter):
         :return: clone of the actual filter
         :rtype: QgsLocatorFilter
         """
-        return FrenchBanGeocoderLocatorFilter(self.iface)
+        return FrenchBanGeocoderLocatorFilter(iface)
 
     def displayName(self) -> str:
         """Returns a translated, user-friendly name for the filter.
@@ -182,7 +182,7 @@ class FrenchBanGeocoderLocatorFilter(QgsLocatorFilter):
         aTransform.transform(centerPoint)
 
         # centers to adress coordinates
-        self.iface.mapCanvas().setCenter(centerPointProjected)
+        iface.mapCanvas().setCenter(centerPointProjected)
 
         # zoom policy has we don't have extent in the results
         scale = 25000
@@ -197,19 +197,8 @@ class FrenchBanGeocoderLocatorFilter(QgsLocatorFilter):
             scale = 5000
 
         # finally zoom actually
-        self.iface.mapCanvas().zoomScale(scale)
-        self.iface.mapCanvas().refresh()
-
-    def tr(self, message: str) -> str:
-        """Get the translation for a string using Qt translation API.
-
-        :param message: string to be translated.
-        :type message: str
-
-        :returns: Translated version of message.
-        :rtype: str
-        """
-        return QCoreApplication.translate(self.__class__.__name__, message)
+        iface.mapCanvas().zoomScale(scale)
+        iface.mapCanvas().refresh()
 
     def openConfigWidget(self, parent: QWidget = None):
         """Opens the configuration widget for the filter (if it has one), with the \
@@ -218,6 +207,4 @@ class FrenchBanGeocoderLocatorFilter(QgsLocatorFilter):
         :param parent: [description], defaults to None
         :type parent: QWidget, optional
         """
-        self.iface.showOptionsDialog(
-            parent=parent, currentPage=f"mOptionsPage{__title__}"
-        )
+        iface.showOptionsDialog(parent=parent, currentPage=f"mOptionsPage{__title__}")
