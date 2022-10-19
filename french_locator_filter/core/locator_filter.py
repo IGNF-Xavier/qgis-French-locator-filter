@@ -175,11 +175,11 @@ class FrenchBanGeocoderLocatorFilter(QgsLocatorFilter):
         centerPoint = QgsPointXY(x, y)
         dest_crs = QgsProject.instance().crs()
         results_crs = QgsCoordinateReferenceSystem.fromEpsgId(4326)
-        aTransform = QgsCoordinateTransform(
+        coords_transform = QgsCoordinateTransform(
             results_crs, dest_crs, QgsProject.instance()
         )
-        centerPointProjected = aTransform.transform(centerPoint)
-        aTransform.transform(centerPoint)
+        centerPointProjected = coords_transform.transform(centerPoint)
+        coords_transform.transform(centerPoint)
 
         # centers to adress coordinates
         iface.mapCanvas().setCenter(centerPointProjected)
@@ -187,7 +187,7 @@ class FrenchBanGeocoderLocatorFilter(QgsLocatorFilter):
         # zoom policy has we don't have extent in the results
         scale = 25000
 
-        type_adress = doc["properties"]["type"]
+        type_adress = doc.get("properties").get("type")
 
         if type_adress == "housenumber":
             scale = 2000
