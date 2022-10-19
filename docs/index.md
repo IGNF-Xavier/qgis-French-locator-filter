@@ -51,5 +51,6 @@ development/environment
 development/documentation
 development/packaging
 development/testing
+development/translation
 development/history
 ```

@@ -7,6 +7,7 @@ def classFactory(iface):  # pylint: disable=invalid-name
     :param iface: A QGIS interface instance.
     :type iface: QgsInterface
     """
-    from .plugin_main import LocatorFilterPlugin
+    _ = iface
+    from .plugin_main import FrenchGeocoderLocatorFilterPlugin
 
-    return LocatorFilterPlugin(iface)
+    return FrenchGeocoderLocatorFilterPlugin()

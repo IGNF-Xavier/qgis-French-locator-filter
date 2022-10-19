@@ -1,12 +1,11 @@
 #! python3  # noqa: E265
 
 """
-    Main plugin module.
+    Locator Filter.
 """
 
 # standard library
 import json
-import logging
 
 # PyQGIS
 from qgis.core import (
@@ -20,8 +19,8 @@ from qgis.core import (
     QgsProject,
 )
 from qgis.gui import QgisInterface
-from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtWidgets import QWidget
+from qgis.utils import iface
 
 # project
 from french_locator_filter.__about__ import __title__
@@ -30,12 +29,6 @@ from french_locator_filter.toolbelt import (
     PlgLogger,
     PlgOptionsManager,
 )
-
-# ############################################################################
-# ########## Globals ###############
-# ##################################
-
-logger = logging.getLogger(__name__)
 
 # ############################################################################
 # ########## Classes ###############
@@ -50,7 +43,7 @@ class FrenchBanGeocoderLocatorFilter(QgsLocatorFilter):
     :type iface: QgisInterface
     """
 
-    def __init__(self, iface: QgisInterface):
+    def __init__(self, iface: QgisInterface = iface):
         self.iface = iface
         self.log = PlgLogger().log
         self.plg_settings = PlgOptionsManager.get_plg_settings()
@@ -81,7 +74,7 @@ class FrenchBanGeocoderLocatorFilter(QgsLocatorFilter):
         :return: clone of the actual filter
         :rtype: QgsLocatorFilter
         """
-        return FrenchBanGeocoderLocatorFilter(self.iface)
+        return FrenchBanGeocoderLocatorFilter(iface)
 
     def displayName(self) -> str:
         """Returns a translated, user-friendly name for the filter.
@@ -168,33 +161,50 @@ class FrenchBanGeocoderLocatorFilter(QgsLocatorFilter):
         for the search result. E.g. a file search filter would open file associated \
         with the triggered result.
 
-        :param result: [description]
+        :param result: result selected by user
         :type result: QgsLocatorResult
         """
-        if __debug__:
+        # Newer Version of PyQT does not expose the .userData (Leading to core dump)
+        # Try via get Function, otherwise access attribute
+        try:
+            doc = result.getUserData()
             self.log(
-                message=f"DEBUG - Selected address: {result.displayString}", log_level=4
+                message=self.tr(
+                    "Result triggerred by the user received: {}".format(
+                        doc.get("properties").get("label")
+                    )
+                ),
+                log_level=4,
             )
-        doc = result.userData
+        except Exception as err:
+            self.log(
+                message=self.tr(
+                    "Something went wrong during result deserialization: {}. "
+                    "Trying another method...".format(err)
+                ),
+                log_level=2,
+            )
+            doc = result.userData
+
         x = doc["geometry"]["coordinates"][0]
         y = doc["geometry"]["coordinates"][1]
 
         centerPoint = QgsPointXY(x, y)
         dest_crs = QgsProject.instance().crs()
         results_crs = QgsCoordinateReferenceSystem.fromEpsgId(4326)
-        aTransform = QgsCoordinateTransform(
+        coords_transform = QgsCoordinateTransform(
             results_crs, dest_crs, QgsProject.instance()
         )
-        centerPointProjected = aTransform.transform(centerPoint)
-        aTransform.transform(centerPoint)
+        centerPointProjected = coords_transform.transform(centerPoint)
+        coords_transform.transform(centerPoint)
 
         # centers to adress coordinates
-        self.iface.mapCanvas().setCenter(centerPointProjected)
+        iface.mapCanvas().setCenter(centerPointProjected)
 
         # zoom policy has we don't have extent in the results
         scale = 25000
 
-        type_adress = doc["properties"]["type"]
+        type_adress = doc.get("properties").get("type")
 
         if type_adress == "housenumber":
             scale = 2000
@@ -204,27 +214,14 @@ class FrenchBanGeocoderLocatorFilter(QgsLocatorFilter):
             scale = 5000
 
         # finally zoom actually
-        self.iface.mapCanvas().zoomScale(scale)
-        self.iface.mapCanvas().refresh()
-
-    def tr(self, message: str) -> str:
-        """Get the translation for a string using Qt translation API.
-
-        :param message: string to be translated.
-        :type message: str
-
-        :returns: Translated version of message.
-        :rtype: str
-        """
-        return QCoreApplication.translate(self.__class__.__name__, message)
+        iface.mapCanvas().zoomScale(scale)
+        iface.mapCanvas().refresh()
 
     def openConfigWidget(self, parent: QWidget = None):
         """Opens the configuration widget for the filter (if it has one), with the \
         specified parent widget. self.hasConfigWidget() must return True.
 
-        :param parent: [description], defaults to None
+        :param parent: prent widget, defaults to None
         :type parent: QWidget, optional
         """
-        self.iface.showOptionsDialog(
-            parent=parent, currentPage=f"mOptionsPage{__title__}"
-        )
+        iface.showOptionsDialog(parent=parent, currentPage=f"mOptionsPage{__title__}")

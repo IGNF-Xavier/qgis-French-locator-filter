@@ -9,7 +9,6 @@
 # ##################################
 
 # Standard library
-import logging
 from functools import lru_cache
 from urllib.parse import urlparse, urlunparse
 
@@ -21,12 +20,6 @@ from qgis.PyQt.QtNetwork import QNetworkRequest
 # project
 from french_locator_filter.toolbelt.log_handler import PlgLogger
 from french_locator_filter.toolbelt.preferences import PlgOptionsManager
-
-# ############################################################################
-# ########## Globals ###############
-# ##################################
-
-logger = logging.getLogger(__name__)
 
 # ############################################################################
 # ########## Classes ###############
@@ -125,12 +118,11 @@ class NetworkRequestsManager:
                 )
                 raise ConnectionError(self.ntwk_requester.errorMessage())
 
-            if __debug__:
-                self.log(
-                    message=f"DEBUG - Request to {self.build_url()} succeeded.",
-                    log_level=4,
-                    push=False,
-                )
+            self.log(
+                message=f"DEBUG - Request to {self.build_url()} succeeded.",
+                log_level=4,
+                push=False,
+            )
 
             # check reply
             req_reply = self.ntwk_requester.reply()
