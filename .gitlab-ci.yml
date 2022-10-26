@@ -50,6 +50,8 @@ git-hooks:
 linter:
   image: python:3.9-slim-buster
   stage: 🐍 lint
+  tags:
+    - docker
   only:
     changes:
       - "**/*.py"
@@ -115,6 +117,8 @@ test-qgis:
 
 sonarcloud-check:
   stage: 🤞 test
+  tags:
+    - docker
   needs: [test-unit, test-qgis]
   variables:
     SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar" # Defines the location of the analysis task cache
@@ -210,6 +214,8 @@ documentation:
 
 pages:
   stage: 🚀 deploy
+  tags:
+    - docker
   variables:
     GIT_STRATEGY: none
   only:
@@ -242,6 +248,8 @@ pages:
 release-from-tag:
   stage: 🚀 deploy
   image: registry.gitlab.com/gitlab-org/release-cli:latest
+  tags:
+    - docker
   variables:
     GIT_STRATEGY: none
   only:
@@ -260,9 +268,6 @@ release-from-tag:
       links:
         - name: "Packaged plugin"
           url: "https://gitlab.com/Oslandia/qgis/ign-geotuileur/-/jobs/${ARTIFACT_JOB_ID}/artifacts/download?job=builder"
-
-
-
 
 deploy-to-qgis-repository:
   stage: 🚀 deploy
