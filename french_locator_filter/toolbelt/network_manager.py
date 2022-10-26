@@ -8,7 +8,9 @@
 # ########## Imports ###############
 # ##################################
 
+
 # Standard library
+import json
 from functools import lru_cache
 from urllib.parse import urlparse, urlunparse
 
@@ -103,6 +105,7 @@ class NetworkRequestsManager:
                 log_level=2,
                 push=False,
             )
+            raise err
 
         # send request
         try:
@@ -113,15 +116,28 @@ class NetworkRequestsManager:
 
             # check if request is fine
             if req_status != QgsBlockingNetworkRequest.NoError:
-                self.log(
-                    message=self.ntwk_requester.errorMessage(), log_level=2, push=1
-                )
-                raise ConnectionError(self.ntwk_requester.errorMessage())
+                err_msg = f"{self.ntwk_requester.errorMessage()}."
+
+                # get the API response error to log it
+                req_reply = self.ntwk_requester.reply()
+                if req_reply and b"application/json" in req_reply.rawHeader(
+                    b"Content-Type"
+                ):
+                    api_response_error = json.loads(str(req_reply.content(), "UTF8"))
+                    if "message" in api_response_error:
+                        err_msg += (
+                            f"API error message: {api_response_error.get('message')}"
+                        )
+                    if "message" in api_response_error:
+                        err_msg += (
+                            f"API error message: {api_response_error.get('message')}"
+                        )
+
+                raise ConnectionError(err_msg)
 
             self.log(
                 message=f"DEBUG - Request to {self.build_url()} succeeded.",
                 log_level=4,
-                push=False,
             )
 
             # check reply
@@ -137,4 +153,5 @@ class NetworkRequestsManager:
 
         except Exception as err:
             err_msg = "Houston, we've got a problem: {}".format(err)
-            self.log(message=err_msg, log_level=2, push=1)
+            self.log(message=err_msg, log_level=2, push=False)
+            raise err
