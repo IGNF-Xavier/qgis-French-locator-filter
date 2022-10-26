@@ -6,6 +6,7 @@
 
 # standard
 from dataclasses import asdict, dataclass, field, fields
+from typing import Tuple
 
 # PyQGIS
 from qgis.core import QgsSettings
@@ -33,7 +34,7 @@ class PlgSettingsStructure:
     min_search_length: int = 2
     request_url: str = "https://api-adresse.data.gouv.fr/search/"
     request_url_query: str = "limit=10&autocomplete=1"
-    search_terms_to_ignore: tuple[str] = field(default=("null", "undefined"))
+    search_terms_to_ignore: Tuple[str] = field(default=("null", "undefined"))
 
 
 class PlgOptionsManager:
