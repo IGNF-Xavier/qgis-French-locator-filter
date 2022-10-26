@@ -115,11 +115,39 @@ class FrenchBanGeocoderLocatorFilter(QgsLocatorFilter):
         :param feedback: [description]
         :type feedback: QgsFeedback
         """
-        # ignore if search terms is inferior than 3 chars or equal to the prefix
-        if (
-            len(search) < self.plg_settings.min_search_length
-            or search.rstrip() == self.prefix
-        ):
+        # ignore if search terms is inferior than minimum number of chars
+        if len(search) < self.plg_settings.min_search_length:
+            self.log(
+                message=self.tr("API search not triggered. Reason: ")
+                + self.tr(
+                    "minimum chars {} not reached: {}".format(
+                        self.plg_settings.min_search_length, len(search)
+                    )
+                ),
+                log_level=4,
+            )
+            return
+
+        # ignore if search terms is equal to the prefix
+        if search.rstrip() == self.prefix:
+            self.log(
+                message=self.tr("API search not triggered. Reason: ")
+                + self.tr("search term is matching the prefix."),
+                log_level=4,
+            )
+            return
+
+        # ignore if search terms is one of special terms to ignore
+        if search.strip() in self.plg_settings.search_terms_to_ignore:
+            self.log(
+                message=self.tr("API search not triggered. Reason: ")
+                + self.tr(
+                    "Search term '{}' is one of special terms to be ignored.".format(
+                        search
+                    )
+                ),
+                log_level=4,
+            )
             return
 
         # request
