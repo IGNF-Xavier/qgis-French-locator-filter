@@ -5,7 +5,7 @@
 """
 
 # standard
-from dataclasses import asdict, dataclass, fields
+from dataclasses import asdict, dataclass, field, fields
 
 # PyQGIS
 from qgis.core import QgsSettings
@@ -33,6 +33,7 @@ class PlgSettingsStructure:
     min_search_length: int = 2
     request_url: str = "https://api-adresse.data.gouv.fr/search/"
     request_url_query: str = "limit=10&autocomplete=1"
+    search_terms_to_ignore: tuple[str] = field(default=("null", "undefined"))
 
 
 class PlgOptionsManager:
@@ -54,9 +55,14 @@ class PlgOptionsManager:
         # map settings values to preferences object
         li_settings_values = []
         for i in settings_fields:
-            li_settings_values.append(
-                settings.value(key=i.name, defaultValue=i.default, type=i.type)
-            )
+            try:
+                li_settings_values.append(
+                    settings.value(key=i.name, defaultValue=i.default, type=i.type)
+                )
+            except TypeError:
+                li_settings_values.append(
+                    settings.value(key=i.name, defaultValue=i.default)
+                )
 
         # instanciate new settings object
         options = PlgSettingsStructure(*li_settings_values)
@@ -149,3 +155,8 @@ class PlgOptionsManager:
             cls.set_value_from_key(k, v)
 
         settings.endGroup()
+
+
+if __name__ == "__main__":
+    fi = fields(PlgSettingsStructure)
+    print(fi)

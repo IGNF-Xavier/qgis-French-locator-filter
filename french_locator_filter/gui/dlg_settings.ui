@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>640</width>
-    <height>447</height>
+    <height>478</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -88,8 +88,8 @@
       <string>Features</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="0">
-       <widget class="QLabel" name="lbl_min_search_length">
+      <item row="6" column="0">
+       <widget class="QLabel" name="lbl_search_terms_to_ignore">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -103,26 +103,7 @@
          </size>
         </property>
         <property name="text">
-         <string>Minimal search length:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="lbl_url_query">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>35</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Request parameters:</string>
+         <string>Search terms to ignore:</string>
         </property>
        </widget>
       </item>
@@ -176,6 +157,44 @@
         </property>
        </widget>
       </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="lbl_url_query">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>35</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Request parameters:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="lbl_http_user_agent">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>35</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>HTTP user-agent:</string>
+        </property>
+       </widget>
+      </item>
       <item row="5" column="1">
        <widget class="QLabel" name="lbl_http_user_agent_value">
         <property name="minimumSize">
@@ -195,28 +214,6 @@
         </property>
         <property name="text">
          <string notr="true">http_user_agent</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLabel" name="lbl_url_path_value">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>35</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string notr="true"/>
-        </property>
-        <property name="text">
-         <string notr="true">api_url_base</string>
         </property>
        </widget>
       </item>
@@ -242,8 +239,44 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="lbl_http_user_agent">
+      <item row="4" column="0">
+       <widget class="QLabel" name="lbl_http_content_type">
+        <property name="text">
+         <string>HTTP content type:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLabel" name="lbl_url_path_value">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>35</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string notr="true"/>
+        </property>
+        <property name="text">
+         <string notr="true">api_url_base</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QLabel" name="lbl_http_content_type_value">
+        <property name="text">
+         <string notr="true">http_content_type</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="lbl_min_search_length">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -257,21 +290,38 @@
          </size>
         </property>
         <property name="text">
-         <string>HTTP user-agent:</string>
+         <string>Minimal search length:</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="lbl_http_content_type">
-        <property name="text">
-         <string>HTTP content type:</string>
+      <item row="6" column="1">
+       <widget class="QLineEdit" name="lne_search_terms_to_ignore">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>20</height>
+         </size>
         </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QLabel" name="lbl_http_content_type_value">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>35</height>
+         </size>
+        </property>
+        <property name="acceptDrops">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>List of strings to ignore in search bar, separated by commas.</string>
+        </property>
+        <property name="inputMethodHints">
+         <set>Qt::ImhPreferLatin|Qt::ImhPreferLowercase</set>
+        </property>
         <property name="text">
-         <string notr="true">http_content_type</string>
+         <string notr="true">null,undefined</string>
+        </property>
+        <property name="placeholderText">
+         <string notr="true">null,undefined</string>
         </property>
        </widget>
       </item>
