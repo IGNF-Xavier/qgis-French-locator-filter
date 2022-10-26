@@ -128,7 +128,7 @@ class FrenchBanGeocoderLocatorFilter(QgsLocatorFilter):
             qurl = qntwk.build_url(additional_query=f"&q={search}")
             response_content = qntwk.get_url(url=qurl)
         except Exception as err:
-            self.log(message=err, log_level=1, push=True)
+            self.log(message=err, log_level=1)
             return
 
         # process response
@@ -151,7 +151,7 @@ class FrenchBanGeocoderLocatorFilter(QgsLocatorFilter):
                 result.userData = loc
                 self.resultFetched.emit(result)
         except Exception:
-            self.log(message="Response processing failed.", log_level=1, push=True)
+            self.log(message="Response processing failed.", log_level=1)
             return
 
     def triggerResult(self, result: QgsLocatorResult):
