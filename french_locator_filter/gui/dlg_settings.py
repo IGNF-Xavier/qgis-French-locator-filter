@@ -82,6 +82,9 @@ class ConfigOptionsPage(FORM_CLASS, QgsOptionsPageWidget):
         new_settings = PlgSettingsStructure(
             # features
             min_search_length=self.sbx_min_search_length.value(),
+            search_terms_to_ignore=tuple(
+                self.lne_search_terms_to_ignore.text().split(",")
+            ),
             # misc
             debug_mode=self.opt_debug.isChecked(),
             version=__version__,
@@ -104,6 +107,9 @@ class ConfigOptionsPage(FORM_CLASS, QgsOptionsPageWidget):
         self.lbl_url_query_value.setText(settings.request_url_query)
         self.lbl_http_content_type_value.setText(settings.http_content_type)
         self.lbl_http_user_agent_value.setText(settings.http_user_agent)
+        self.lne_search_terms_to_ignore.setText(
+            ",".join(settings.search_terms_to_ignore)
+        )
         self.sbx_min_search_length.setValue(settings.min_search_length)
 
         # misc

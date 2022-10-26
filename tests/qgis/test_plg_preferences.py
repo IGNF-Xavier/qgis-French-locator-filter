@@ -6,16 +6,16 @@
     .. code-block:: bash
 
         # for whole tests
-        python -m unittest tests.test_plg_preferences
+        python -m unittest tests.qgis.test_plg_preferences
         # for specific test
-        python -m unittest tests.test_plg_preferences.TestPlgPreferences.test_plg_preferences_structure
+        python -m unittest tests.qgis.test_plg_preferences.TestPlgPreferences.test_plg_preferences_structure
 """
 
 # standard library
 import unittest
 
 # project
-from french_locator_filter.__about__ import DIR_PLUGIN_ROOT, __title__, __version__
+from french_locator_filter.__about__ import __version__
 from french_locator_filter.toolbelt.preferences import PlgSettingsStructure
 
 # ############################################################################
