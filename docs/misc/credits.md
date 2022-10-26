@@ -17,3 +17,4 @@ Thanks to the sponsors:
 
 - [Gendarmerie Nationale](https://www.gendarmerie.interieur.gouv.fr/)
 - [Bordeaux Métropole](https://www.bordeaux-metropole.fr/)
+- [Orange Concessions](https://orangeconcessions.com/)
