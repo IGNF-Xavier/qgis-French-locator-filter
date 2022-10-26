@@ -7,9 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 1.0.4 - 2022-10-20
 
+- Handle special search terms to API - #9
+- Reduce cases where a bug that can lead to a QGIS crash because of legacy method
+- Add a button to reset settings to factory default
 - Clean legacy code
-- Fix a bug that can lead to a QGIS crash because of legacy method
-- add a button to reset settings to factory default
 
 ## 1.0.3 - 2022-10-18
 
