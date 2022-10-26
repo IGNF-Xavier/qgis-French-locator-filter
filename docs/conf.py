@@ -81,7 +81,7 @@ pygments_style = "sphinx"
 
 html_favicon = str(__about__.__icon_path__)
 html_logo = str(__about__.__icon_path__)
-html_static_path = ["_static"]
+# html_static_path = ["_static"]
 html_theme = "furo"
 
 # -- EXTENSIONS --------------------------------------------------------
@@ -121,7 +121,7 @@ myst_substitutions = {
     "version": version,
 }
 
-myst_url_schemes = ["http", "https", "mailto"]
+myst_url_schemes = ("http", "https", "mailto")
 
 # OpenGraph
 ogp_image = (
