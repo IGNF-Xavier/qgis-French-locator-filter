@@ -31,7 +31,7 @@ class PlgSettingsStructure:
     # network
     http_content_type: str = "application/json"
     http_user_agent: str = f"{__title__}/{__version__}"
-    min_search_length: int = 2
+    min_search_length: int = 3
     request_url: str = "https://api-adresse.data.gouv.fr/search/"
     request_url_query: str = "limit=10&autocomplete=1"
     search_terms_to_ignore: Tuple[str] = field(default=("null", "undefined"))
