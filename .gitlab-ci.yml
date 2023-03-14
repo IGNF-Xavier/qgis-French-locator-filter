@@ -267,7 +267,7 @@ release-from-tag:
     assets:
       links:
         - name: "Packaged plugin"
-          url: "https://gitlab.com/Oslandia/qgis/ign-geotuileur/-/jobs/${ARTIFACT_JOB_ID}/artifacts/download?job=builder"
+          url: "https://gitlab.com/Oslandia/qgis/french_locator_filter/-/jobs/${ARTIFACT_JOB_ID}/artifacts/download?job=builder"
 
 deploy-to-qgis-repository:
   stage: 🚀 deploy
