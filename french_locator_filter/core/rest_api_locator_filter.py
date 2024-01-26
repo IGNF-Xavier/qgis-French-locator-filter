@@ -81,7 +81,6 @@ class RestAPILocatorFilter(QgsLocatorFilter):
         :return: True if search is valid, False otherwise
         :rtype: bool
         """
-        print(f"check_search {search=}")
         # ignore if search terms is inferior than minimum number of chars
         if len(search) < self.plg_settings.min_search_length:
             self.log(
