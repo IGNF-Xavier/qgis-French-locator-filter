@@ -120,6 +120,31 @@ class RestAPILocatorFilter(QgsLocatorFilter):
             "process_json_response must be implemented in RestAPILocatorFilter derived classes"
         )
 
+    @property
+    def request_url(self) -> str:
+        """Define request url
+
+        Raises:
+            NotImplementedError: method not implemented in derived class
+
+        Returns:
+            str: request url
+        """
+        raise NotImplementedError(
+            "request_url must be implemented in RestAPILocatorFilter derived classes"
+        )
+
+    @property
+    def request_url_query(self):
+        """Define default request url query
+
+        Returns:
+            str: request url query
+        """
+        raise NotImplementedError(
+            "request_url_query must be implemented in RestAPILocatorFilter derived classes"
+        )
+
     def fetchResults(
         self, search: str, context: QgsLocatorContext, feedback: QgsFeedback
     ):
@@ -147,7 +172,11 @@ class RestAPILocatorFilter(QgsLocatorFilter):
         # request
         try:
             qntwk = NetworkRequestsManager()
-            qurl = qntwk.build_url(additional_query=f"&q={search}")
+            qurl = qntwk.build_url(
+                request_url=self.request_url,
+                request_url_query=self.request_url_query,
+                additional_query=f"&q={search}",
+            )
             response_content = qntwk.get_url(url=qurl)
         except Exception as err:
             self.log(message=err, log_level=1)
@@ -163,7 +192,7 @@ class RestAPILocatorFilter(QgsLocatorFilter):
             self.log(message="Response processing failed.", log_level=1)
             return
 
-    def trigger_result_from_json_response(self, response : dict) -> None:
+    def trigger_result_from_json_response(self, response: dict) -> None:
         """Trigger locator result with json response from REST API
 
         Args:

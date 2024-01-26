@@ -80,6 +80,24 @@ class FrenchBanGeocoderLocatorFilter(RestAPILocatorFilter):
         """
         return "fra"
 
+    @property
+    def request_url(self) -> str:
+        """Define request url
+
+        Returns:
+            str: request url
+        """
+        return self.plg_settings.request_url
+
+    @property
+    def request_url_query(self):
+        """Define default request url query
+
+        Returns:
+            str: request url query
+        """
+        return self.plg_settings.request_url_query
+
     def process_json_response(self, response: dict) -> None:
         """Process json response from REST API
 

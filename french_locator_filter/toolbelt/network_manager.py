@@ -38,31 +38,40 @@ class NetworkRequestsManager:
         self.plg_settings = PlgOptionsManager.get_plg_settings()
 
     @lru_cache(maxsize=128)
-    def build_url(self, additional_query: str = None) -> QUrl:
+    def build_url(
+        self, request_url: str, request_url_query: str, additional_query: str = None
+    ) -> QUrl:
         """Build URL using plugin settings and returns it as QUrl.
 
         :return: complete URL
         :rtype: QUrl
         """
-        parsed_url = urlparse(self.plg_settings.request_url)
+        parsed_url = urlparse(request_url)
 
         if additional_query:
-            url_query = self.plg_settings.request_url_query + additional_query
+            url_query = request_url_query + additional_query
         else:
-            url_query = self.plg_settings.request_url_query
+            url_query = request_url_query
 
         clean_url = parsed_url._replace(query=url_query)
         return QUrl(urlunparse(clean_url))
 
-    def build_request(self, url: QUrl = None) -> QNetworkRequest:
-        """Build request object using plugin settings.
+    def build_request(
+        self, request_url: str = None, request_url_query: str = None, url: QUrl = None
+    ) -> QNetworkRequest:
+        """Build request object from an url and a query or a already defined QUrl
 
-        :return: network request object.
-        :rtype: QNetworkRequest
+        Args:
+            request_url (str, optional): Request url. Defaults to None.
+            request_url_query (str, optional): Request url query. Defaults to None.
+            url (QUrl, optional): for url for QNetworkRequest. Request url query and request url are not used. Defaults to None.
+
+        Returns:
+            QNetworkRequest: network request object.
         """
         # if URL is not specified, let's use the default one
         if not url:
-            url = self.build_url()
+            url = self.build_url(request_url, request_url_query)
 
         # create network object
         qreq = QNetworkRequest(url=url)
@@ -136,7 +145,7 @@ class NetworkRequestsManager:
                 raise ConnectionError(err_msg)
 
             self.log(
-                message=f"DEBUG - Request to {self.build_url()} succeeded.",
+                message=f"DEBUG - Request to {url} succeeded.",
                 log_level=4,
             )
 
