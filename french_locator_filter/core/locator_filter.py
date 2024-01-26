@@ -19,10 +19,7 @@ from qgis.utils import iface
 # project
 from french_locator_filter.__about__ import __title__
 from french_locator_filter.core.rest_api_locator_filter import RestAPILocatorFilter
-from french_locator_filter.toolbelt import (
-    PlgLogger,
-    PlgOptionsManager,
-)
+from french_locator_filter.toolbelt import PlgLogger, PlgOptionsManager
 
 # ############################################################################
 # ########## Classes ###############
