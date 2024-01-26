@@ -187,8 +187,8 @@ class RestAPILocatorFilter(QgsLocatorFilter):
             response = json.loads(str(response_content, "UTF8"))
             # process json response
             self.process_json_response(response)
-        except Exception:
-            self.log(message="Response processing failed.", log_level=1)
+        except Exception as exc:
+            self.log(message=f"Response processing failed. : {exc}", log_level=1)
             return
 
     def trigger_result_from_json_response(self, response: dict) -> None:
