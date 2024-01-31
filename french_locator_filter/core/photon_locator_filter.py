@@ -106,18 +106,24 @@ class PhotonGeocoderLocatorFilter(RestAPILocatorFilter):
             result = QgsLocatorResult()
             result.filter = self
             label = loc.get("properties").get("name")
-            if loc.get("properties").get("type") == "city":
-                # add city code to label
-                label += " " + loc.get("properties").get("postcode", "")
+            groupe = loc.get("properties").get("type")
 
-            if loc.get("properties").get("type") == "street":
+            if groupe == "house":
+                # add house number to label
+                label += " " + loc.get("properties").get("housenumber", "")
+                # add street to label
+                label += " " + loc.get("properties").get("street", "")
+
+            if groupe in ["house", "street"]:
                 # add city to label
                 label += " " + loc.get("properties").get("city", "")
+
+            if groupe in ["house", "street", "city"]:
                 # add city code to label
                 label += " " + loc.get("properties").get("postcode", "")
 
             result.displayString = label
-            result.group = loc.get("properties").get("type")
+            result.group = groupe
 
             # use the json full item as userData, so all info is in it:
             result.userData = loc
