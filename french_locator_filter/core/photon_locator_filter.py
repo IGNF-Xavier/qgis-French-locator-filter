@@ -155,11 +155,11 @@ class PhotonGeocoderLocatorFilter(RestAPILocatorFilter):
 
         type_adress = response.get("properties").get("type")
 
-        if type_adress == "housenumber":
+        if type_adress == "house":
             scale = 2000
         elif type_adress == "street":
             scale = 5000
-        elif type_adress == "locality":
+        elif type_adress == "city":
             scale = 5000
 
         # finally zoom actually
