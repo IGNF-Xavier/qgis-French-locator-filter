@@ -70,13 +70,12 @@ class FrenchGeocoderLocatorFilterPlugin:
         if not self.options_factory:
             self.options_factory = PlgOptionsFactory()
             iface.registerOptionsWidgetFactory(self.options_factory)
-            QgsSettings().setValue(
-                "help/helpSearchPath",
-                [
-                    "https://docs.qgis.org/$qgis_short_version/$qgis_locale/docs/user_manual/",
-                    f"{__uri_homepage__}",
-                ],
-            )
+
+            # Add search path for plugin
+            help_search_paths = QgsSettings().value("help/helpSearchPath")
+            if __uri_homepage__ not in help_search_paths:
+                help_search_paths.append(__uri_homepage__)
+            QgsSettings().setValue("help/helpSearchPath", help_search_paths)
 
         # locator
         if not self.locator_filter:
