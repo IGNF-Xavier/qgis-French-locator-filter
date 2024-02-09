@@ -20,6 +20,8 @@ from french_locator_filter.__about__ import __title__, __version__
 # ########## Classes ###############
 # ##################################
 
+PREFIX_ENV_VARIABLE = "QGIS_FRENCH_LOCATOR_"
+
 
 @dataclass
 class PlgEnvVariableSettings:
@@ -38,7 +40,7 @@ class PlgEnvVariableSettings:
         settings_env_variable = asdict(self)
         env_variable = settings_env_variable.get(attribute, "")
         if not env_variable and default_from_name:
-            env_variable = f"QGIS_{attribute}".upper()
+            env_variable = f"{PREFIX_ENV_VARIABLE}{attribute}".upper()
         return env_variable
 
 
