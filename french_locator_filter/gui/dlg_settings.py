@@ -61,11 +61,6 @@ class ConfigOptionsPage(FORM_CLASS, QgsOptionsPageWidget):
         self.lbl_title.setText(f"{__title__} - Version {__version__}")
 
         # customization
-        self.btn_help.setIcon(QIcon(QgsApplication.iconPath("mActionHelpContents.svg")))
-        self.btn_help.pressed.connect(
-            partial(QDesktopServices.openUrl, QUrl(__uri_homepage__))
-        )
-
         self.btn_report.setIcon(
             QIcon(QgsApplication.iconPath("console/iconSyntaxErrorConsole.svg"))
         )
