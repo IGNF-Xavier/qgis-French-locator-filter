@@ -13,7 +13,12 @@ from qgis.PyQt.QtCore import QCoreApplication, QLocale, QTranslator
 from qgis.utils import iface
 
 # project
-from french_locator_filter.__about__ import DIR_PLUGIN_ROOT, __title__, __version__
+from french_locator_filter.__about__ import (
+    DIR_PLUGIN_ROOT,
+    __title__,
+    __uri_homepage__,
+    __version__,
+)
 from french_locator_filter.core import FrenchBanGeocoderLocatorFilter
 from french_locator_filter.gui.dlg_settings import PlgOptionsFactory
 from french_locator_filter.toolbelt import PlgLogger
@@ -66,6 +71,12 @@ class FrenchGeocoderLocatorFilterPlugin:
             self.options_factory = PlgOptionsFactory()
             iface.registerOptionsWidgetFactory(self.options_factory)
 
+            # Add search path for plugin
+            help_search_paths = QgsSettings().value("help/helpSearchPath")
+            if __uri_homepage__ not in help_search_paths:
+                help_search_paths.append(__uri_homepage__)
+            QgsSettings().setValue("help/helpSearchPath", help_search_paths)
+
         # locator
         if not self.locator_filter:
             self.locator_filter = FrenchBanGeocoderLocatorFilter()
@@ -76,6 +87,10 @@ class FrenchGeocoderLocatorFilterPlugin:
         # -- Clean up preferences panel in QGIS settings
         if self.options_factory:
             iface.unregisterOptionsWidgetFactory(self.options_factory)
+            # pop from help path
+            help_path: list = QgsSettings().value("help/helpSearchPath")
+            help_path.remove(__uri_homepage__)
+            QgsSettings().setValue("help/helpSearchPath", help_path)
 
         # remove filter from locator
         if self.locator_filter:
