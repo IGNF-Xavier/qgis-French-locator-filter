@@ -34,3 +34,16 @@ Les réglages utilisés par le plugin sont intégrés au menu des Préférences 
 ![Settings of French Locator Filter](/_static/images/french_locator_settings.png "'Settings of French Locator Filter")
 
 Certaines informations ne sont pas modifiables par l'utilisateur final.
+
+### Variables d'environnement
+
+Ces paramètres peuvent être définis via des variables d'environnement. Ceci permet une configuration du plugin directement par la Direction des Systèmes d'Information (DSI).
+
+Le tableau suivant reprend les paramètres disponibles avec la variable d'environnement associée et la valeur par défaut:
+
+|Paramètre                               | Variable d'environnement                       | Valeur par défaut                          |
+|----------------------------------------|------------------------------------------------|--------------------------------------------|
+|URL requête API BAN                     | `QGIS_FRENCH_LOCATOR_REQUEST_URL`              | `https://api-adresse.data.gouv.fr/search/` |
+|Paramètre par défaut requête API BAN    | `QGIS_FRENCH_LOCATOR_REQUEST_URL_QUERY`        | `limit=10&autocomplete=1`                  |
+|URL requête API Photon                  | `QGIS_FRENCH_LOCATOR_REQUEST_PHOTON_URL`       | `https://photon.komoot.io/api/`            |
+|Paramètre par défaut requête API Photon | `QGIS_FRENCH_LOCATOR_REQUEST_PHOTON_URL_QUERY` | `limit=10&lang=fr`                         |
