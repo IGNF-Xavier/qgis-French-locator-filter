@@ -73,8 +73,13 @@ class FrenchGeocoderLocatorFilterPlugin:
 
             # Add search path for plugin
             help_search_paths = QgsSettings().value("help/helpSearchPath")
-            if __uri_homepage__ not in help_search_paths:
+            if (
+                isinstance(help_search_paths, list)
+                and __uri_homepage__ not in help_search_paths
+            ):
                 help_search_paths.append(__uri_homepage__)
+            else:
+                help_search_paths = [help_search_paths, __uri_homepage__]
             QgsSettings().setValue("help/helpSearchPath", help_search_paths)
 
         # locator
