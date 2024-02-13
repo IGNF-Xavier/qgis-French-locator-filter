@@ -102,7 +102,6 @@ class PlgLogger(logging.Handler):
 
         # optionally, display message on QGIS Message bar (above the map canvas)
         if push:
-
             # calc duration
             if not duration:
                 duration = (log_level + 1) * 3

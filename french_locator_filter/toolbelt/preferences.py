@@ -5,6 +5,7 @@
 """
 
 # standard
+import os
 from dataclasses import asdict, dataclass, field, fields
 from typing import Tuple
 
@@ -19,6 +20,29 @@ from french_locator_filter.__about__ import __title__, __version__
 # ########## Classes ###############
 # ##################################
 
+PREFIX_ENV_VARIABLE = "QGIS_FRENCH_LOCATOR_"
+
+
+@dataclass
+class PlgEnvVariableSettings:
+    """Plugin settings from environnement variable"""
+
+    def env_variable_used(self, attribute: str, default_from_name: bool = True) -> str:
+        """Get environnement variable used for environnement variable settings
+
+        :param attribute: attribute to check
+        :type attribute: str
+        :param default_from_name: define default environnement value from attribute name QGIS_<upper case attribute>
+        :type default_from_name: bool
+        :return: environnement variable used
+        :rtype: str
+        """
+        settings_env_variable = asdict(self)
+        env_variable = settings_env_variable.get(attribute, "")
+        if not env_variable and default_from_name:
+            env_variable = f"{PREFIX_ENV_VARIABLE}{attribute}".upper()
+        return env_variable
+
 
 @dataclass
 class PlgSettingsStructure:
@@ -32,9 +56,15 @@ class PlgSettingsStructure:
     http_content_type: str = "application/json"
     http_user_agent: str = f"{__title__}/{__version__}"
     min_search_length: int = 3
+    search_terms_to_ignore: Tuple[str] = field(default=("null", "undefined"))
+
+    # API BAN
     request_url: str = "https://api-adresse.data.gouv.fr/search/"
     request_url_query: str = "limit=10&autocomplete=1"
-    search_terms_to_ignore: Tuple[str] = field(default=("null", "undefined"))
+
+    # API Photon
+    request_photon_url: str = "https://photon.komoot.io/api/"
+    request_photon_url_query: str = "limit=10&lang=fr"
 
 
 class PlgOptionsManager:
@@ -48,6 +78,7 @@ class PlgOptionsManager:
         """
         # get dataclass fields definition
         settings_fields = fields(PlgSettingsStructure)
+        env_variable_settings = PlgEnvVariableSettings()
 
         # retrieve settings from QGIS/Qt
         settings = QgsSettings()
@@ -57,9 +88,12 @@ class PlgOptionsManager:
         li_settings_values = []
         for i in settings_fields:
             try:
-                li_settings_values.append(
-                    settings.value(key=i.name, defaultValue=i.default, type=i.type)
-                )
+                value = settings.value(key=i.name, defaultValue=i.default, type=i.type)
+                # If environnement variable used, get value from environnement variable
+                env_variable = env_variable_settings.env_variable_used(i.name)
+                if env_variable:
+                    value = os.getenv(env_variable, value)
+                li_settings_values.append(value)
             except TypeError:
                 li_settings_values.append(
                     settings.value(key=i.name, defaultValue=i.default)
@@ -156,8 +190,3 @@ class PlgOptionsManager:
             cls.set_value_from_key(k, v)
 
         settings.endGroup()
-
-
-if __name__ == "__main__":
-    fi = fields(PlgSettingsStructure)
-    print(fi)

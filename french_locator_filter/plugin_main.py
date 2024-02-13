@@ -19,7 +19,10 @@ from french_locator_filter.__about__ import (
     __uri_homepage__,
     __version__,
 )
-from french_locator_filter.core import FrenchBanGeocoderLocatorFilter
+from french_locator_filter.core.addok_ban_fr_locator_filter import (
+    FrenchBanGeocoderLocatorFilter,
+)
+from french_locator_filter.core.photon_locator_filter import PhotonGeocoderLocatorFilter
 from french_locator_filter.gui.dlg_settings import PlgOptionsFactory
 from french_locator_filter.toolbelt import PlgLogger
 
@@ -32,7 +35,8 @@ class FrenchGeocoderLocatorFilterPlugin:
     def __init__(self):
         """Constructor."""
         self.log = PlgLogger().log
-        self.locator_filter = None
+        self.ban_locator_filter = None
+        self.photon_locator_filter = None
         self.options_factory = None
 
         # translation
@@ -83,9 +87,13 @@ class FrenchGeocoderLocatorFilterPlugin:
             QgsSettings().setValue("help/helpSearchPath", help_search_paths)
 
         # locator
-        if not self.locator_filter:
-            self.locator_filter = FrenchBanGeocoderLocatorFilter()
-            iface.registerLocatorFilter(self.locator_filter)
+        if not self.ban_locator_filter:
+            self.ban_locator_filter = FrenchBanGeocoderLocatorFilter()
+            iface.registerLocatorFilter(self.ban_locator_filter)
+
+        if not self.photon_locator_filter:
+            self.photon_locator_filter = PhotonGeocoderLocatorFilter()
+            iface.registerLocatorFilter(self.photon_locator_filter)
 
     def unload(self):
         """Cleans up when plugin is disabled/uninstalled."""
@@ -98,8 +106,12 @@ class FrenchGeocoderLocatorFilterPlugin:
             QgsSettings().setValue("help/helpSearchPath", help_path)
 
         # remove filter from locator
-        if self.locator_filter:
-            iface.deregisterLocatorFilter(self.locator_filter)
+        if self.ban_locator_filter:
+            iface.deregisterLocatorFilter(self.ban_locator_filter)
+
+        # remove filter from locator
+        if self.photon_locator_filter:
+            iface.deregisterLocatorFilter(self.photon_locator_filter)
 
     def tr(self, message):
         """Get the translation for a string using Qt translation API.
