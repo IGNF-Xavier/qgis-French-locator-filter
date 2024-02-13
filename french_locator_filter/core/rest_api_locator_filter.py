@@ -8,16 +8,7 @@
 import json
 
 # PyQGIS
-from qgis.core import (
-    QgsCoordinateReferenceSystem,
-    QgsCoordinateTransform,
-    QgsFeedback,
-    QgsLocatorContext,
-    QgsLocatorFilter,
-    QgsLocatorResult,
-    QgsPointXY,
-    QgsProject,
-)
+from qgis.core import QgsFeedback, QgsLocatorContext, QgsLocatorFilter, QgsLocatorResult
 from qgis.gui import QgisInterface
 from qgis.PyQt.QtWidgets import QWidget
 from qgis.utils import iface
