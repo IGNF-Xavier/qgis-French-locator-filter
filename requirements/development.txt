@@ -2,8 +2,8 @@
 # -------------------------------------------
 
 black
-flake8-builtins>=1.5,<3
-flake8-eradicate>=1.0,<2
-flake8-isort>=4.0,<6.1
-flake8-qgis>=1,<1.1
-pre-commit>=2.17,<3.1
+flake8-builtins>=1.5
+flake8-eradicate>=1.0
+flake8-isort>=6
+flake8-qgis>=1
+pre-commit>=3,<4
