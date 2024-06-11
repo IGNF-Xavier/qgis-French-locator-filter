@@ -101,9 +101,13 @@ class FrenchGeocoderLocatorFilterPlugin:
         if self.options_factory:
             iface.unregisterOptionsWidgetFactory(self.options_factory)
             # pop from help path
-            help_path: list = QgsSettings().value("help/helpSearchPath")
-            help_path.remove(__uri_homepage__)
-            QgsSettings().setValue("help/helpSearchPath", help_path)
+            help_search_paths = QgsSettings().value("help/helpSearchPath")
+            if (
+                isinstance(help_search_paths, list)
+                and __uri_homepage__ in help_search_paths
+            ):
+                help_search_paths.remove(__uri_homepage__)
+            QgsSettings().setValue("help/helpSearchPath", help_search_paths)
 
         # remove filter from locator
         if self.ban_locator_filter:
