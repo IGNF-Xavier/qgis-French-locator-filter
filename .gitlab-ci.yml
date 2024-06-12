@@ -175,6 +175,8 @@ builder:
     - apt install git
     - python -m pip install -U -r requirements/packaging.txt
   script:
+    # Temporary fix : copy license file to plugin folder
+    - cp ./LICENSE ./${PROJECT_FOLDER}/LICENSE
     # Amend gitignore to include translation with qgis-plugin-ci
     - sed -i "s|^*.qm.*| |" .gitignore
     - git add $PROJECT_FOLDER/resources/i18n/*.qm
@@ -283,6 +285,8 @@ deploy-to-qgis-repository:
     - apt install git
     - python -m pip install -U -r requirements/packaging.txt
   script:
+    # Temporary fix : copy license file to plugin folder
+    - cp ./LICENSE ./${PROJECT_FOLDER}/LICENSE
     # List files
     - ls -R
     # Print some info
