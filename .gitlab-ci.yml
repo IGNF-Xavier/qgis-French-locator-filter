@@ -296,6 +296,7 @@ deploy-to-qgis-repository:
     - sed -i "s|^*.qm.*| |" .gitignore
     # git tracks new files
     - git add $PROJECT_FOLDER/resources/i18n/*.qm
+    - git add $PROJECT_FOLDER/LICENSE
     # release it
     - qgis-plugin-ci release ${CI_COMMIT_TAG}
       --allow-uncommitted-changes
