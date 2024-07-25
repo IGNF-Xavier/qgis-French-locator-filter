@@ -13,7 +13,7 @@ Plugin is free to use, not to develop. If you use it quite intensively or are in
 
 ## Sponsors
 
-Thanks to the sponsors:
+[Oslandia](https://oslandia.com) carries out part of its development work with its own funds (cash flow via internal Grant Open Source), but stabilization and functional enrichment were financed by organizations that are commited to the virtuous circle of open source:
 
 - [Gendarmerie Nationale](https://www.gendarmerie.interieur.gouv.fr/)
 - [Bordeaux Métropole](https://www.bordeaux-metropole.fr/)
