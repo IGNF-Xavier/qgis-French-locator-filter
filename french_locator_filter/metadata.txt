@@ -32,3 +32,9 @@ qgisMaximumVersion=3.99
 # versioning
 version=1.1.1
 changelog=
+
+[oslandia]
+funders=ANFSI,Bordeaux Métropole,Grand Lyon,Orange
+screenshot=docs/_static/images/french_locator_sample_basque_qgis_details.png
+issue_to_be_funded=https://gitlab.com/Oslandia/qgis/french_locator_filter/-/issues/?sort=updated_desc&state=opened&label_name%5B%5D=To%20be%20funded&first_page_size=100
+blog_link=https://oslandia.com/2024/05/31/plugin-qgis-french-locator-filter-1-1-0-api-photon/
