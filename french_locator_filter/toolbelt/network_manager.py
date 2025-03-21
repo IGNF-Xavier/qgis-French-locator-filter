@@ -124,7 +124,7 @@ class NetworkRequestsManager:
             )
 
             # check if request is fine
-            if req_status != QgsBlockingNetworkRequest.NoError:
+            if req_status != QgsBlockingNetworkRequest.ErrorCode.NoError:
                 err_msg = f"{self.ntwk_requester.errorMessage()}."
 
                 # get the API response error to log it
