@@ -8,7 +8,7 @@ Main plugin module.
 from pathlib import Path
 
 # PyQGIS
-from qgis.core import Qgis, QgsSettings
+from qgis.core import QgsApplication, Qgis, QgsSettings
 from qgis.PyQt.QtCore import QCoreApplication, QLocale, QTranslator
 from qgis.utils import iface
 
@@ -26,6 +26,7 @@ from french_locator_filter.core.locator_filter.photon_locator_filter import (
     PhotonGeocoderLocatorFilter,
 )
 from french_locator_filter.gui.dlg_settings import PlgOptionsFactory
+from french_locator_filter.processing.provider import FrenchLocatorProcessingProvider
 from french_locator_filter.toolbelt import PlgLogger
 
 # ############################################################################
@@ -37,6 +38,7 @@ class FrenchGeocoderLocatorFilterPlugin:
     def __init__(self):
         """Constructor."""
         self.log = PlgLogger().log
+        self.provider = None
         self.ban_locator_filter = None
         self.photon_locator_filter = None
         self.options_factory = None
@@ -100,6 +102,10 @@ class FrenchGeocoderLocatorFilterPlugin:
                 canvas=iface.mapCanvas()
             )
             iface.registerLocatorFilter(self.photon_locator_filter)
+
+        # -- Processing
+        self.provider = FrenchLocatorProcessingProvider()
+        QgsApplication.processingRegistry().addProvider(self.provider)
 
     def unload(self):
         """Cleans up when plugin is disabled/uninstalled."""
