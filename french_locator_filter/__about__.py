@@ -1,8 +1,8 @@
 #! python3  # noqa: E265
 
 """
-    Metadata about the package to easily retrieve informations about it.
-    See: https://packaging.python.org/guides/single-sourcing-package-version/
+Metadata about the package to easily retrieve informations about it.
+See: https://packaging.python.org/guides/single-sourcing-package-version/
 """
 
 # ############################################################################
@@ -46,7 +46,7 @@ def plugin_metadata_as_dict() -> dict:
     Returns:
         dict: dict of dicts.
     """
-    config = ConfigParser()
+    config = ConfigParser(interpolation=None)
     if PLG_METADATA_FILE.is_file():
         config.read(PLG_METADATA_FILE.resolve(), encoding="UTF-8")
         return {s: dict(config.items(s)) for s in config.sections()}
