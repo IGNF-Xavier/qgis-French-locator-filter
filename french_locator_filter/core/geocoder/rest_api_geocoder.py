@@ -61,7 +61,7 @@ class RestAPIGeocoder(QgsGeocoderInterface):
         for attribute in self._attributes:
             fields.append(QgsField(attribute))
 
-        return super().appendedFields()
+        return fields
 
     def wkbType(self) -> Qgis.WkbType:
         """Returns the WKB type of geometries returned by the geocoder.
