@@ -90,11 +90,15 @@ class FrenchGeocoderLocatorFilterPlugin:
 
         # locator
         if not self.ban_locator_filter:
-            self.ban_locator_filter = FrenchBanGeocoderLocatorFilter()
+            self.ban_locator_filter = FrenchBanGeocoderLocatorFilter(
+                canvas=iface.mapCanvas()
+            )
             iface.registerLocatorFilter(self.ban_locator_filter)
 
         if not self.photon_locator_filter:
-            self.photon_locator_filter = PhotonGeocoderLocatorFilter()
+            self.photon_locator_filter = PhotonGeocoderLocatorFilter(
+                canvas=iface.mapCanvas()
+            )
             iface.registerLocatorFilter(self.photon_locator_filter)
 
     def unload(self):

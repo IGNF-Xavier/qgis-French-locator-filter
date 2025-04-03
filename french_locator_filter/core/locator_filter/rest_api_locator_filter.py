@@ -5,17 +5,18 @@ Locator Filter.
 """
 
 # standard library
-import json
+from typing import Optional
+
+from qgis.core import QgsFeedback, QgsLocatorContext
 
 # PyQGIS
 from qgis.core import (
     Qgis,
     QgsFeedback,
     QgsLocatorContext,
-    QgsLocatorFilter,
     QgsLocatorResult,
 )
-from qgis.gui import QgisInterface
+from qgis.gui import QgsGeocoderLocatorFilter, QgsMapCanvas
 from qgis.PyQt.QtWidgets import QWidget
 from qgis.utils import iface
 
@@ -32,24 +33,30 @@ from french_locator_filter.toolbelt import (
 # ##################################
 
 
-class RestAPILocatorFilter(QgsLocatorFilter):
-    """Abstract class for QgsLocatorFilter from a REST API
+class RestAPILocatorFilter(QgsGeocoderLocatorFilter):
+    """Abstract class for QgsGeocoderLocatorFilter from a REST API
 
     Must implement at least these method:
-    - process_json_response
-    - trigger_result_from_json_response
+    - _create_geocoder
+    - name
+    - displayName
 
-    :param iface: An interface instance that will be passed to this class which \
-    provides the hook by which you can manipulate the QGIS application at run time.
-    :type iface: QgisInterface
+    :param canvas: canvas used to display search result
+    :type canvas: QgsMapCanvas
     """
 
-    def __init__(self, iface: QgisInterface = iface):
-        self.iface = iface
+    def __init__(self, canvas: Optional[QgsMapCanvas]):
         self.log = PlgLogger().log
         self.plg_settings = PlgOptionsManager.get_plg_settings()
-
-        super(QgsLocatorFilter, self).__init__()
+        self._geocoder = self._create_geocoder()
+        self._canvas = canvas
+        super().__init__(
+            name=self.name(),
+            displayName=self.name(),  # Can't call displayName from implementation for tr use
+            prefix=self.prefix(),
+            geocoder=self._geocoder,
+            canvas=canvas,
+        )
 
     def hasConfigWidget(self) -> bool:
         """Should return True if the filter has a configuration widget.
@@ -66,9 +73,7 @@ class RestAPILocatorFilter(QgsLocatorFilter):
         :param parent: prent widget, defaults to None
         :type parent: QWidget, optional
         """
-        self.iface.showOptionsDialog(
-            parent=parent, currentPage=f"mOptionsPage{__title__}"
-        )
+        iface.showOptionsDialog(parent=parent, currentPage=f"mOptionsPage{__title__}")
 
     def check_search(self, search: str) -> bool:
         """Check search from current configuration
@@ -102,45 +107,6 @@ class RestAPILocatorFilter(QgsLocatorFilter):
 
         return True
 
-    def process_json_response(self, response: dict) -> None:
-        """Process json response from REST API.
-        QgsLocatorResult sent MUST have a dict in userData
-
-        Args:
-            response (dict): json response
-
-        Raises:
-            NotImplementedError: method not implemented in derived class
-        """
-        raise NotImplementedError(
-            "process_json_response must be implemented in RestAPILocatorFilter derived classes"
-        )
-
-    @property
-    def request_url(self) -> str:
-        """Define request url
-
-        Raises:
-            NotImplementedError: method not implemented in derived class
-
-        Returns:
-            str: request url
-        """
-        raise NotImplementedError(
-            "request_url must be implemented in RestAPILocatorFilter derived classes"
-        )
-
-    @property
-    def request_url_query(self):
-        """Define default request url query
-
-        Returns:
-            str: request url query
-        """
-        raise NotImplementedError(
-            "request_url_query must be implemented in RestAPILocatorFilter derived classes"
-        )
-
     def fetchResults(
         self, search: str, context: QgsLocatorContext, feedback: QgsFeedback
     ):
@@ -165,75 +131,4 @@ class RestAPILocatorFilter(QgsLocatorFilter):
         if not self.check_search(search):
             return
 
-        # request
-        try:
-            qntwk = NetworkRequestsManager()
-            qurl = qntwk.build_url(
-                request_url=self.request_url,
-                request_url_query=self.request_url_query,
-                additional_query=f"&q={search}",
-            )
-            response_content = qntwk.get_url(url=qurl)
-        except Exception as err:
-            self.log(message=err, log_level=1)
-            return
-
-        # process response
-        try:
-            # load response as a dict
-            response = json.loads(str(response_content, "UTF8"))
-            # process json response
-            self.process_json_response(response)
-        except Exception as exc:
-            self.log(message=f"Response processing failed. : {exc}", log_level=1)
-            return
-
-    def trigger_result_from_json_response(self, response: dict) -> None:
-        """Trigger locator result with json response from REST API
-
-        Args:
-            response (dict): json response
-
-        Raises:
-            NotImplementedError: method not implemented in derived class
-        """
-        raise NotImplementedError(
-            "trigger_result_from_json_response must be implemented in RestAPILocatorFilter derived classes"
-        )
-
-    def triggerResult(self, result: QgsLocatorResult) -> None:
-        """Triggers a filter result from this filter. This is called when one of the \
-        results obtained by a call to fetchResults() is triggered by a user. \
-        The filter subclass must implement logic here to perform the desired operation \
-        for the search result. E.g. a file search filter would open file associated \
-        with the triggered result.
-
-        :param result: result selected by user
-        :type result: QgsLocatorResult
-        """
-        # Newer Version of PyQT does not expose the .userData (Leading to core dump)
-        # Try via get Function, otherwise access attribute
-        # Since 3.38, it changed again for a _userData() method.
-        # See: https://github.com/qgis/QGIS/pull/56550
-        try:
-            doc = result._userData()
-            self.log(
-                message=self.tr(
-                    "Result triggerred by the user received: {}".format(
-                        doc.get("properties").get("label")
-                    )
-                ),
-                log_level=Qgis.MessageLevel.NoLevel,
-            )
-        except Exception as err:
-            # fallback to former method getUserData() just in case
-            doc = result.getUserData()
-            self.log(
-                message=self.tr(
-                    "Something went wrong during result deserialization: {}. "
-                    "Trying another method...".format(err)
-                ),
-                log_level=Qgis.MessageLevel.Warning,
-            )
-
-        self.trigger_result_from_json_response(doc)
+        super().fetchResults(search, context, feedback)
