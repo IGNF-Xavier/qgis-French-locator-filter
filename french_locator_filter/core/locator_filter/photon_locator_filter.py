@@ -17,7 +17,9 @@ from qgis.gui import QgisInterface
 from qgis.utils import iface
 
 # project
-from french_locator_filter.core.rest_api_locator_filter import RestAPILocatorFilter
+from french_locator_filter.core.locator_filter.rest_api_locator_filter import (
+    RestAPILocatorFilter,
+)
 from french_locator_filter.toolbelt import PlgLogger, PlgOptionsManager
 
 # ############################################################################

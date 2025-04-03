@@ -19,10 +19,12 @@ from french_locator_filter.__about__ import (
     __uri_homepage__,
     __version__,
 )
-from french_locator_filter.core.addok_ban_fr_locator_filter import (
+from french_locator_filter.core.locator_filter.addok_ban_fr_locator_filter import (
     FrenchBanGeocoderLocatorFilter,
 )
-from french_locator_filter.core.photon_locator_filter import PhotonGeocoderLocatorFilter
+from french_locator_filter.core.locator_filter.photon_locator_filter import (
+    PhotonGeocoderLocatorFilter,
+)
 from french_locator_filter.gui.dlg_settings import PlgOptionsFactory
 from french_locator_filter.toolbelt import PlgLogger
 
