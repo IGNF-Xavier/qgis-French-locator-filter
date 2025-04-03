@@ -129,6 +129,9 @@ class FrenchGeocoderLocatorFilterPlugin:
         if self.photon_locator_filter:
             iface.deregisterLocatorFilter(self.photon_locator_filter)
 
+        if self.provider:
+            QgsApplication.processingRegistry().removeProvider(self.provider)
+
     def tr(self, message):
         """Get the translation for a string using Qt translation API.
         We implement this ourselves since we do not inherit QObject.

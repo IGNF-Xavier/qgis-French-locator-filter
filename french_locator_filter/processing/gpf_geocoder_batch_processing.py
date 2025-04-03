@@ -1,4 +1,5 @@
 from qgis.analysis import QgsBatchGeocodeAlgorithm
+from qgis.core import QgsCoordinateReferenceSystem
 from qgis.PyQt.QtCore import QCoreApplication
 
 from french_locator_filter.core.geocoder.addok_ban_fr_geocoder import FrenchBanGeocoder
@@ -30,6 +31,13 @@ class GpfGeocoderBatchProcessing(QgsBatchGeocodeAlgorithm):
         :rtype: str
         """
         return QCoreApplication.translate(self.__class__.__name__, message)
+
+    def outputCrs(
+        self, input_crs: QgsCoordinateReferenceSystem
+    ) -> QgsCoordinateReferenceSystem:
+        if input_crs.isValid():
+            return input_crs
+        return QgsCoordinateReferenceSystem("EPSG:4326")
 
     def tags(self):
         return ["geocode", "géoplateforme", "batch"]
