@@ -74,7 +74,7 @@ class NetworkRequestsManager:
             url = self.build_url(request_url, request_url_query)
 
         # create network object
-        qreq = QNetworkRequest(url=url)
+        qreq = QNetworkRequest(url)
 
         # headers
         headers = {
