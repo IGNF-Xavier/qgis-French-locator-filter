@@ -1,14 +1,14 @@
 #! python3  # noqa: E265
 
 """
-    Main plugin module.
+Main plugin module.
 """
 
 # standard library
 from pathlib import Path
 
 # PyQGIS
-from qgis.core import QgsSettings
+from qgis.core import Qgis, QgsSettings
 from qgis.PyQt.QtCore import QCoreApplication, QLocale, QTranslator
 from qgis.utils import iface
 
@@ -52,12 +52,12 @@ class FrenchGeocoderLocatorFilterPlugin:
             QCoreApplication.installTranslator(self.translator)
             self.log(
                 message=f"Translation loaded from file: {self.locale}, {locale_path}",
-                log_level=4,
+                log_level=Qgis.MessageLevel.NoLevel,
             )
         else:
             self.log(
                 message=f"Translation file does not exist: {self.locale}, {locale_path}",
-                log_level=1,
+                log_level=Qgis.MessageLevel.Warning,
             )
 
         self.log(
@@ -65,7 +65,7 @@ class FrenchGeocoderLocatorFilterPlugin:
                 "DEBUG - French (BAN Geocoder) Locator Filter"
                 f" ({__title__} {__version__}) installed."
             ),
-            log_level=4,
+            log_level=Qgis.MessageLevel.NoLevel,
         )
 
     def initGui(self):

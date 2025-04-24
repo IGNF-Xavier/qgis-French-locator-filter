@@ -1,7 +1,7 @@
 #! python3  # noqa: E265
 
 """
-    Plugin settings dialog.
+Plugin settings dialog.
 """
 
 # standard
@@ -12,10 +12,10 @@ from pathlib import Path
 from typing import Union
 
 # PyQGIS
-from qgis.core import QgsApplication
+from qgis.core import Qgis, QgsApplication
 from qgis.gui import QgsFilterLineEdit, QgsOptionsPageWidget, QgsOptionsWidgetFactory
 from qgis.PyQt import uic
-from qgis.PyQt.Qt import QUrl
+from qgis.PyQt.QtCore import QUrl
 from qgis.PyQt.QtGui import QDesktopServices, QIcon
 from qgis.PyQt.QtWidgets import QCheckBox, QLabel, QSpinBox
 
@@ -178,7 +178,7 @@ class ConfigOptionsPage(FORM_CLASS, QgsOptionsPageWidget):
 
         self.log(
             message="DEBUG - Settings successfully saved.",
-            log_level=4,
+            log_level=Qgis.MessageLevel.NoLevel,
         )
 
     def load_settings(self) -> dict:
