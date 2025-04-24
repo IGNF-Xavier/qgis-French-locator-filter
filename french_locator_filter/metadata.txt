@@ -13,8 +13,8 @@ description[fr]=Ajoute un filtre de géocodage basé sur l'API de la BAN dans le
 
 icon=resources/images/icon.svg
 
-tags=geocoder, locator, filter, addok, France, french
-tags[fr]=geocodeur, recherche, adresse, France, ADDOK, Etalab, BAN, BANO
+tags=geocoder, locator, filter, addok, France, french, address, open data
+tags[fr]=geocodeur, recherche, adresse, France, ADDOK, Etalab, BAN, BANO, IGN, Géoplateforme
 
 # credits and contact
 author=Régis Haubourg (Oslandia), Richard Duivenvoorde, Julien Moura (Oslandia)
@@ -23,14 +23,15 @@ homepage=https://oslandia.gitlab.io/qgis/french_locator_filter/
 repository=https://gitlab.com/Oslandia/qgis/french_locator_filter/
 tracker=https://gitlab.com/Oslandia/qgis/french_locator_filter/-/issues
 
-# status
+# QGIS status
 deprecated=False
 experimental=False
 qgisMinimumVersion=3.16
 qgisMaximumVersion=3.99
+supportsQt6=True
 
 # versioning
-version=1.1.1
+version=1.2.0-DEV
 changelog=
 
 [oslandia]
