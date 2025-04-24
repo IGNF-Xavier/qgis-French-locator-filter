@@ -1,7 +1,7 @@
 #! python3  # noqa: E265
 
 """
-    Perform network request.
+Perform network request.
 """
 
 # ############################################################################
@@ -15,8 +15,8 @@ from functools import lru_cache
 from urllib.parse import urlparse, urlunparse
 
 # PyQGIS
-from qgis.core import QgsBlockingNetworkRequest
-from qgis.PyQt.Qt import QByteArray, QUrl
+from qgis.core import Qgis, QgsBlockingNetworkRequest
+from qgis.PyQt.QtCore import QByteArray, QUrl
 from qgis.PyQt.QtNetwork import QNetworkRequest
 
 # project
@@ -111,7 +111,7 @@ class NetworkRequestsManager:
         except Exception as err:
             self.log(
                 message=f"Something went wrong during request preparation: {err}",
-                log_level=2,
+                log_level=Qgis.MessageLevel.Critical,
                 push=False,
             )
             raise err
@@ -124,7 +124,7 @@ class NetworkRequestsManager:
             )
 
             # check if request is fine
-            if req_status != QgsBlockingNetworkRequest.NoError:
+            if req_status != QgsBlockingNetworkRequest.ErrorCode.NoError:
                 err_msg = f"{self.ntwk_requester.errorMessage()}."
 
                 # get the API response error to log it
@@ -146,7 +146,7 @@ class NetworkRequestsManager:
 
             self.log(
                 message=f"DEBUG - Request to {url} succeeded.",
-                log_level=4,
+                log_level=Qgis.MessageLevel.NoLevel,
             )
 
             # check reply
@@ -162,5 +162,5 @@ class NetworkRequestsManager:
 
         except Exception as err:
             err_msg = "Houston, we've got a problem: {}".format(err)
-            self.log(message=err_msg, log_level=2, push=False)
+            self.log(message=err_msg, log_level=Qgis.MessageLevel.Critical, push=False)
             raise err

@@ -1,14 +1,20 @@
 #! python3  # noqa: E265
 
 """
-    Locator Filter.
+Locator Filter.
 """
 
 # standard library
 import json
 
 # PyQGIS
-from qgis.core import QgsFeedback, QgsLocatorContext, QgsLocatorFilter, QgsLocatorResult
+from qgis.core import (
+    Qgis,
+    QgsFeedback,
+    QgsLocatorContext,
+    QgsLocatorFilter,
+    QgsLocatorResult,
+)
 from qgis.gui import QgisInterface
 from qgis.PyQt.QtWidgets import QWidget
 from qgis.utils import iface
@@ -81,7 +87,7 @@ class RestAPILocatorFilter(QgsLocatorFilter):
                         self.plg_settings.min_search_length, len(search)
                     )
                 ),
-                log_level=4,
+                log_level=Qgis.MessageLevel.NoLevel,
             )
             return False
 
@@ -90,7 +96,7 @@ class RestAPILocatorFilter(QgsLocatorFilter):
             self.log(
                 message=self.tr("API search not triggered. Reason: ")
                 + self.tr("search term is matching the prefix."),
-                log_level=4,
+                log_level=Qgis.MessageLevel.NoLevel,
             )
             return False
 
@@ -215,7 +221,7 @@ class RestAPILocatorFilter(QgsLocatorFilter):
                         doc.get("properties").get("label")
                     )
                 ),
-                log_level=4,
+                log_level=Qgis.MessageLevel.NoLevel,
             )
         except Exception as err:
             self.log(
@@ -223,7 +229,7 @@ class RestAPILocatorFilter(QgsLocatorFilter):
                     "Something went wrong during result deserialization: {}. "
                     "Trying another method...".format(err)
                 ),
-                log_level=2,
+                log_level=Qgis.MessageLevel.Critical,
             )
             doc = result.userData
 
