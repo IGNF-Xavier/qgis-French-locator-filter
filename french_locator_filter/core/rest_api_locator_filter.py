@@ -201,7 +201,7 @@ class RestAPILocatorFilter(QgsLocatorFilter):
             "trigger_result_from_json_response must be implemented in RestAPILocatorFilter derived classes"
         )
 
-    def triggerResult(self, result: QgsLocatorResult):
+    def triggerResult(self, result: QgsLocatorResult) -> None:
         """Triggers a filter result from this filter. This is called when one of the \
         results obtained by a call to fetchResults() is triggered by a user. \
         The filter subclass must implement logic here to perform the desired operation \
@@ -213,8 +213,10 @@ class RestAPILocatorFilter(QgsLocatorFilter):
         """
         # Newer Version of PyQT does not expose the .userData (Leading to core dump)
         # Try via get Function, otherwise access attribute
+        # Since 3.38, it changed again for a _userData() method.
+        # See: https://github.com/qgis/QGIS/pull/56550
         try:
-            doc = result.getUserData()
+            doc = result._userData()
             self.log(
                 message=self.tr(
                     "Result triggerred by the user received: {}".format(
@@ -224,13 +226,14 @@ class RestAPILocatorFilter(QgsLocatorFilter):
                 log_level=Qgis.MessageLevel.NoLevel,
             )
         except Exception as err:
+            # fallback to former method getUserData() just in case
+            doc = result.getUserData()
             self.log(
                 message=self.tr(
                     "Something went wrong during result deserialization: {}. "
                     "Trying another method...".format(err)
                 ),
-                log_level=Qgis.MessageLevel.Critical,
+                log_level=Qgis.MessageLevel.Warning,
             )
-            doc = result.userData
 
         self.trigger_result_from_json_response(doc)
