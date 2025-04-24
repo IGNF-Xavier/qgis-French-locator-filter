@@ -309,6 +309,25 @@ release:prepare:
     paths:
       - RELEASE_DESCRIPTION.md
 
+release:upload:
+  stage: 🚀 deploy
+  image: curlimages/curl:latest
+  tags:
+    - docker
+  rules:
+    - if: $CI_COMMIT_TAG
+  needs:
+    - job: build:plugin
+      artifacts: true
+  script:
+    - |
+      PACKAGE_NAME=$(ls ${PROJECT_FOLDER}.*.zip)
+      curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file ${PACKAGE_NAME} ${PACKAGE_REGISTRY_URL}/${CI_COMMIT_TAG}/${PACKAGE_NAME}
+      echo "PACKAGE_NAME=$PACKAGE_NAME" >> release.env
+  artifacts:
+    reports:
+      dotenv: release.env
+
 release:publish:
   stage: 🚀 deploy
   tags:
