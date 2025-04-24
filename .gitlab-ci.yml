@@ -9,7 +9,8 @@ stages:
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
   PROJECT_FOLDER: "french_locator_filter"
-  REPO_PLUGIN_URL: "https://oslandia.gitlab.io/qgis/french_locator_filter/"
+  PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PROJECT_FOLDER}"
+  PYTHON_MINIMAL_VERSION: "3.9"
 
 # Pip's cache doesn't store the python packages
 # https://pip.pypa.io/en/stable/reference/pip_install/#caching
@@ -26,35 +27,30 @@ cache:
 # -- LINT JOBS -------------------------------------------------------------------------
 lint:git-hooks:
   stage: 🐍 lint
-  image: python:3.9
+  image: python:${PYTHON_MINIMAL_VERSION}
   tags:
-    - docker
+    - oslandia_docker
   variables:
     PRE_COMMIT_HOME: ${CI_PROJECT_DIR}/.cache/pre-commit
   cache:
     paths:
       - ${PRE_COMMIT_HOME}
-  only:
-    refs:
-      - merge_requests
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   before_script:
-    - apt install git
-    - python3 -m pip install -U pip
-    - python3 -m pip install -U setuptools wheel
-    - python3 -m pip install -U -r requirements/development.txt
-    - pre-commit install
+    - apt update && apt install -y git pipx
     - git fetch origin
   script:
-    - pre-commit run --from-ref "origin/$CI_DEFAULT_BRANCH" --to-ref "$CI_COMMIT_SHA";
+    - pipx run pre-commit run --from-ref "origin/$CI_DEFAULT_BRANCH" --to-ref "$CI_COMMIT_SHA";
 
 lint:flake8:
-  image: python:3.9-slim-buster
+  image: python:${PYTHON_MINIMAL_VERSION}-slim-bookworm
   stage: 🐍 lint
   tags:
-    - docker
-  only:
-    changes:
-      - "**/*.py"
+    - oslandia_docker
+  rules:
+    - changes:
+        - "**/*.py"
   before_script:
     - python -m pip install -U flake8
   script:
@@ -64,6 +60,8 @@ lint:flake8:
 lint:qt6:
   stage: 🐍 lint
   image: registry.gitlab.com/oslandia/qgis/pyqgis-4-checker/pyqgis-qt-checker:latest
+  tags:
+    - oslandia_docker
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       changes:
@@ -86,64 +84,80 @@ lint:qt6:
     expire_in: 3 days
 
 # -- TEST JOBS -------------------------------------------------------------------------
-test-unit:
+tests:unit:
   stage: 🤞 test
-  image: python:3.9-slim-buster
+  image: python:${PYTHON_MINIMAL_VERSION}-slim-bookworm
   tags:
-    - docker
-  only:
-    changes:
-      - "**/*.py"
-      - ".gitlab-ci.yml"
-    refs:
-      - master
-      - merge_requests
+    - oslandia_docker
+  rules:
+    - changes:
+        - "**/*.py"
+        - ".gitlab-ci.yml"
   before_script:
     - python3 -m pip install -U -r requirements/development.txt
     - python3 -m pip install -U -r requirements/testing.txt
   script:
     - env PYTHONPATH=/usr/share/qgis/python:. pytest -p no:qgis tests/unit --junitxml=junit/test-results-unit.xml --cov-report=xml:coverage-reports/coverage-unit.xml
+  coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
-    when: always
+    paths:
+      - coverage-reports/coverage-unit.xml
+      - junit/test-results-unit.xml
     reports:
       junit: junit/test-results-unit.xml
       coverage_report:
         coverage_format: cobertura
         path: coverage-reports/coverage-unit.xml
-
-test-qgis:
-  stage: 🤞 test
-  image: qgis/qgis:release-3_22
-  tags:
-    - docker
-  variables:
-    DISPLAY: ":1"
-    PYTHONPATH: "/usr/share/qgis/python/plugins:/usr/share/qgis/python:."
-  only:
-    changes:
-      - "**/*.py"
-      - ".gitlab-ci.yml"
-    refs:
-      - master
-      - merge_requests
-  before_script:
-    - python3 -m pip install -U -r requirements/testing.txt
-    - Xvfb :1 &
-  script:
-    - env PYTHONPATH=/usr/share/qgis/python:. pytest tests/qgis --junitxml=junit/test-results-qgis.xml --cov-report=xml:coverage-reports/coverage-qgis.xml
-  artifacts:
     when: always
+
+tests:qgis:
+  stage: 🤞 test
+  image: qgis/qgis:3.40
+  tags:
+    - oslandia_docker
+  rules:
+    - changes:
+        - "**/*.py"
+        - ".gitlab-ci.yml"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  before_script:
+    # Install pipx
+    - apt update && apt install -y pipx
+    # Install QGIS venv creator
+    - pipx run qgis-venv-creator --venv-name ".venv"
+    # Activate the virtual environment
+    - . .venv/bin/activate
+    # Install the requirements
+    - python3 -m pip install -U -r requirements/testing.txt
+  script:
+    # Activate the virtual environment
+    - . .venv/bin/activate
+    # quick test that everything is ok
+    - python3 -c "from qgis.core import Qgis; print(Qgis.QGIS_VERSION)"
+    - python3 -m pip list --local # check that the requirements are installed
+    # Run the tests
+    # xvfb-run is used to run the tests in a virtual framebuffer
+    # This is necessary because QGIS requires a display to run
+    - xvfb-run python3 -m pytest tests/qgis --junitxml=junit/test-results-qgis.xml --cov-report=xml:coverage-reports/coverage-qgis.xml
+  coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
+  artifacts:
+    paths:
+      - coverage-reports/coverage-qgis.xml
+      - junit/test-results-qgis.xml
     reports:
       junit: junit/test-results-qgis.xml
       coverage_report:
         coverage_format: cobertura
         path: coverage-reports/coverage-qgis.xml
+    when: always
 
-sonarcloud-check:
+tests:sonarcloud:
   stage: 🤞 test
   tags:
-    - docker
-  needs: [test-unit, test-qgis]
+    - oslandia_docker
+  needs:
+    - tests:qgis
+    - tests:unit
   variables:
     SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar" # Defines the location of the analysis task cache
     GIT_DEPTH: "0" # Tells git to fetch all the branches of the project, required by the analysis task
@@ -162,18 +176,39 @@ sonarcloud-check:
         - ".gitlab-ci.yml"
 
 # -- BUILD JOBS -------------------------------------------------------------------------
+build:documentation:
+  stage: 📦 build
+  image: python:${PYTHON_MINIMAL_VERSION}-slim-bookworm
+  tags:
+    - oslandia_docker
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_TAG
+  before_script:
+    - python -m pip install -U -r requirements/documentation.txt
+  script:
+    - sphinx-build -b html docs target/docs
+  artifacts:
+    name: documentation
+    expose_as: "Built documentation static website"
+    paths:
+      - target/docs
+    when: always
+
 build:translation:
   stage: 📦 build
-  image: python:3.9-slim-buster
+  image: python:${PYTHON_MINIMAL_VERSION}-slim-bookworm
   tags:
-    - docker
-  only:
-    refs:
-      - master
-      - tags
+    - oslandia_docker
+  rules:
+    # on a MR if previous jobs are successful
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      when: on_success
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_TAG
   before_script:
     - apt update
-    - apt install -y qttools5-dev-tools qt5-default g++
+    - apt install -y qt5-qmake qttools5-dev-tools
     - python -m pip install -U pyqt5-tools
   script:
     - pylupdate5 -noobsolete -verbose $PROJECT_FOLDER/resources/i18n/plugin_translation.pro
@@ -184,81 +219,63 @@ build:translation:
       - $PROJECT_FOLDER/resources/i18n/*qm
     when: always
 
-builder:
+build:plugin:
   stage: 📦 build
-  image: python:3.9
+  image: python:${PYTHON_MINIMAL_VERSION}
   tags:
-    - docker
-  only:
-    refs:
-      - master
-      - tags
+    - oslandia_docker
+  rules:
+    # on default branch
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+      when: always
+    # on a tag
+    - if: $CI_COMMIT_TAG
+    # on a MR if previous jobs are successful
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      when: on_success
   needs:
     - build:translation
   before_script:
     - apt install git
     - python -m pip install -U -r requirements/packaging.txt
   script:
-    # Temporary fix : copy license file to plugin folder
-    - cp ./LICENSE ./${PROJECT_FOLDER}/LICENSE
     # Amend gitignore to include translation with qgis-plugin-ci
     - sed -i "s|^*.qm.*| |" .gitignore
     - git add $PROJECT_FOLDER/resources/i18n/*.qm
 
     # Package the latest version listed in the changelog
-    - qgis-plugin-ci package latest --allow-uncommitted-changes --plugin-repo-url $REPO_PLUGIN_URL
-    - qgis-plugin-ci changelog latest >> release.md
+    - qgis-plugin-ci package latest --allow-uncommitted-changes --plugin-repo-url $CI_PAGES_URL/
+    - qgis-plugin-ci changelog latest >> RELEASE_DESCRIPTION.md
   artifacts:
     name: "$PROJECT_FOLDER_b$CI_COMMIT_REF_NAME-c$CI_COMMIT_SHORT_SHA-j$CI_JOB_ID"
     paths:
       - "${PROJECT_FOLDER}.*.zip"
       - plugins.xml
-      - release.md
+      - RELEASE_DESCRIPTION.md
     expire_in: never
 
-documentation:
-  stage: 📦 build
-  image: python:3.9-slim-buster
-  tags:
-    - docker
-  only:
-    refs:
-      - master
-      - tags
-  before_script:
-    - python -m pip install -U -r requirements/documentation.txt
-  script:
-    - sphinx-build -b html -d docs/_build/cache -j auto docs target/docs
-  artifacts:
-    name: documentation
-    expose_as: "Built documentation static website"
-    paths:
-      - target/docs
-    when: always
-
 # -- DEPLOYMENT JOBS -------------------------------------------------------------------
-
 pages:
   stage: 🚀 deploy
   tags:
-    - docker
+    - oslandia_docker
   variables:
     GIT_STRATEGY: none
-  only:
-    changes:
-      - "**/*.md"
-      - "**/*.rst"
-      - "**/*.ts"
-      - ".gitlab-ci.yml"
-      - "$PROJECT_FOLDER/**/*"
-      - requirements/documentation.txt
-      - requirements/packaging.txt
-    refs:
-      - master
-      - tags
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - "**/*.md"
+        - "**/*.rst"
+        - ".gitlab-ci.yml"
+        - "$PROJECT_FOLDER/**/*"
+        - requirements/documentation.txt
+        - requirements/packaging.txt
+    - if: $CI_COMMIT_TAG
   needs:
-    - builder
-    - documentation
+    - job: build:plugin
+      artifacts: true
+    - job: build:documentation
+      artifacts: true
   script:
     - mkdir -p public
     # copy generated plugin
@@ -271,37 +288,81 @@ pages:
       - public
     when: always
 
-release-from-tag:
+release:prepare:
   stage: 🚀 deploy
-  image: registry.gitlab.com/gitlab-org/release-cli:latest
   tags:
-    - docker
+    - oslandia_docker
+  image:
+    name: alpine/git:latest
+    entrypoint: [""]
+  rules:
+    - if: $CI_COMMIT_TAG
+  allow_failure: true
+  needs:
+    - job: build:plugin
+      artifacts: true
+  script:
+    - echo -e '\n\n## Technical changelog\n' >> RELEASE_DESCRIPTION.md
+    - git tag -l -n9 $CI_COMMIT_TAG >> RELEASE_DESCRIPTION.md
+    - echo -e '\n### Merges\n' >> RELEASE_DESCRIPTION.md
+    - git log --merges --pretty="- %s (%h)" $(git tag --sort=-creatordate | head -2)...$(git tag --sort=-creatordate | head -1) >> RELEASE_DESCRIPTION.md
+    - echo -e '\n### AUTHORS\n' >> RELEASE_DESCRIPTION.md
+    - git log --pretty="- %an%n- %cn" $(git tag --sort=-creatordate | head -2)...$(git tag --sort=-creatordate | head -1) | sort | uniq >> RELEASE_DESCRIPTION.md
+  artifacts:
+    paths:
+      - RELEASE_DESCRIPTION.md
+
+release:upload:
+  stage: 🚀 deploy
+  image: curlimages/curl:latest
+  tags:
+    - oslandia_docker
+  rules:
+    - if: $CI_COMMIT_TAG
+  needs:
+    - job: build:plugin
+      artifacts: true
+  script:
+    - |
+      PACKAGE_NAME=$(ls ${PROJECT_FOLDER}.*.zip)
+      curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file ${PACKAGE_NAME} ${PACKAGE_REGISTRY_URL}/${CI_COMMIT_TAG}/${PACKAGE_NAME}
+      echo "PACKAGE_NAME=$PACKAGE_NAME" >> release.env
+  artifacts:
+    reports:
+      dotenv: release.env
+
+release:publish:
+  stage: 🚀 deploy
+  tags:
+    - oslandia_docker
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
   variables:
     GIT_STRATEGY: none
-  only:
-    - tags
+  rules:
+    - if: $CI_COMMIT_TAG
   needs:
-    - job: builder
+    - job: release:prepare
+      artifacts: true
+    - job: release:upload
       artifacts: true
   script:
     - echo "Creating release from $CI_COMMIT_TAG"
-    - description=$(<release.md)
-  release:
-    name: "$CI_COMMIT_TAG"
-    description: "Version $CI_COMMIT_TAG\n\n$description\n\n> Created using the GitLab release-cli during the job $CI_JOB_ID."
-    tag_name: $CI_COMMIT_TAG
+  release: # See https://docs.gitlab.com/ee/ci/yaml/#release for available properties
+    description: RELEASE_DESCRIPTION.md
+    name: $CI_COMMIT_TAG
+    tag_name: "$CI_COMMIT_TAG"
     assets:
       links:
-        - name: "Packaged plugin"
-          url: "https://gitlab.com/Oslandia/qgis/french_locator_filter/-/jobs/${ARTIFACT_JOB_ID}/artifacts/download?job=builder"
+        - name: "${PACKAGE_NAME}"
+          url: "${PACKAGE_REGISTRY_URL}/${CI_COMMIT_TAG}/${PACKAGE_NAME}"
 
-deploy-to-qgis-repository:
+deploy:qgis-repository:
   stage: 🚀 deploy
-  image: python:3.9
-  only:
-    - tags
   tags:
-    - docker
+    - oslandia_docker
+  image: python:3.11
+  rules:
+    - if: $CI_COMMIT_TAG
   needs:
     - job: build:translation
       artifacts: true
@@ -309,18 +370,12 @@ deploy-to-qgis-repository:
     - apt install git
     - python -m pip install -U -r requirements/packaging.txt
   script:
-    # Temporary fix : copy license file to plugin folder
-    - cp ./LICENSE ./${PROJECT_FOLDER}/LICENSE
-    # List files
-    - ls -R
-    # Print some info
     - echo "Deploying the version ${CI_COMMIT_TAG} plugin to QGIS Plugins Repository with the user ${OSGEO_USER_NAME}"
     - python ${PROJECT_FOLDER}/__about__.py
     # Amend gitignore to include embedded libs with qgis-plugin-ci
     - sed -i "s|^*.qm.*| |" .gitignore
     # git tracks new files
     - git add $PROJECT_FOLDER/resources/i18n/*.qm
-    - git add $PROJECT_FOLDER/LICENSE
     # release it
     - qgis-plugin-ci release ${CI_COMMIT_TAG}
       --allow-uncommitted-changes
