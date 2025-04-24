@@ -26,7 +26,7 @@ tracker=https://gitlab.com/Oslandia/qgis/french_locator_filter/-/issues
 # QGIS status
 deprecated=False
 experimental=False
-qgisMinimumVersion=3.16
+qgisMinimumVersion=3.40.4
 qgisMaximumVersion=3.99
 supportsQt6=True
 
