@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.2.0 - 2025-04-25
+
+- project: set minimal QGIS version to 3.40.4
+- feature: make plugin compatible with Qt6 (QGIS 4) #25 !34 !40
+- feature: use the new endpoint for French BAN API #20 !41
+- ci: modernize workflow !38
+- fix: use new way to retrieve QgsLocatorResult._userData() to fix warnings !42
+- tooling: bump dependencies !43
+- contributors: Landry Breuil, Nicolas Godet, Jean-Marie Kerloch, Julien Moura
+
 ## 1.1.1 - 2024-06-12
 
 - ValueError lors du déchargement du plugin #23

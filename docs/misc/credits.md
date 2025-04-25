@@ -19,3 +19,4 @@ Plugin is free to use, not to develop. If you use it quite intensively or are in
 - [Bordeaux Métropole](https://www.bordeaux-metropole.fr/)
 - [Orange Concessions](https://orangeconcessions.com/)
 - [Grand Lyon métropole](https://www.grandlyon.com/)
+- [Institut Géographique National (IGN)](https://www.ign.fr/)
