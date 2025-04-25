@@ -8,7 +8,6 @@ Perform network request.
 # ########## Imports ###############
 # ##################################
 
-
 # Standard library
 import json
 from functools import lru_cache

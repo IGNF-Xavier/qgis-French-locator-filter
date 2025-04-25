@@ -1,9 +1,10 @@
 # Develop matching the development guidelines
 # -------------------------------------------
 
-black
-flake8-builtins>=1.5
-flake8-eradicate>=1.0
-flake8-isort>=6
+flake8-builtins>=2.2
+flake8-eradicate>=1.5
+flake8-isort>=6.1
 flake8-qgis>=1
-pre-commit>=3,<4
+isort>=5.13
+pre-commit>=4,<5
+ruff>=0.11.5,<0.12.0
