@@ -7,26 +7,15 @@ Locator Filter.
 # standard library
 from typing import Optional
 
-from qgis.core import QgsFeedback, QgsLocatorContext
-
 # PyQGIS
-from qgis.core import (
-    Qgis,
-    QgsFeedback,
-    QgsLocatorContext,
-    QgsLocatorResult,
-)
+from qgis.core import Qgis, QgsFeedback, QgsLocatorContext
 from qgis.gui import QgsGeocoderLocatorFilter, QgsMapCanvas
 from qgis.PyQt.QtWidgets import QWidget
 from qgis.utils import iface
 
 # project
 from french_locator_filter.__about__ import __title__
-from french_locator_filter.toolbelt import (
-    NetworkRequestsManager,
-    PlgLogger,
-    PlgOptionsManager,
-)
+from french_locator_filter.toolbelt import PlgLogger, PlgOptionsManager
 
 # ############################################################################
 # ########## Classes ###############
