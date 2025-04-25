@@ -8,7 +8,7 @@ Main plugin module.
 from pathlib import Path
 
 # PyQGIS
-from qgis.core import QgsApplication, Qgis, QgsSettings
+from qgis.core import Qgis, QgsApplication, QgsSettings
 from qgis.PyQt.QtCore import QCoreApplication, QLocale, QTranslator
 from qgis.utils import iface
 
