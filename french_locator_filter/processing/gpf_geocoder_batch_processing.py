@@ -18,6 +18,12 @@ class GpfGeocoderBatchProcessing(QgsBatchGeocodeAlgorithm):
     def name(self):
         return "gpf_geocoder_batch"
 
+    def group(self):
+        return ""
+
+    def groupId(self):
+        return ""
+
     def createInstance(self):
         return GpfGeocoderBatchProcessing()
 
