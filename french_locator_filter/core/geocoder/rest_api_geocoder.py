@@ -115,7 +115,7 @@ class RestAPIGeocoder(QgsGeocoderInterface):
         context: QgsGeocoderContext,
         feedback: Optional[QgsFeedback] = None,
     ) -> List[QgsGeocoderResult]:
-        """Geocode string with Photon API
+        """Geocode string with a REST API. Result are defined with _result_from_json method.
 
         Args:
             string (str): search string
