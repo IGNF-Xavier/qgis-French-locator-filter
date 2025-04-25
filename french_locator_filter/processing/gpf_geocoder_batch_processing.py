@@ -35,9 +35,10 @@ class GpfGeocoderBatchProcessing(QgsBatchGeocodeAlgorithm):
     def outputCrs(
         self, input_crs: QgsCoordinateReferenceSystem
     ) -> QgsCoordinateReferenceSystem:
+        use_crs = QgsCoordinateReferenceSystem("EPSG:4326")
         if input_crs.isValid():
-            return input_crs
-        return QgsCoordinateReferenceSystem("EPSG:4326")
+            use_crs = input_crs
+        return super().outputCrs(use_crs)
 
     def tags(self):
         return ["geocode", "géoplateforme", "batch"]
