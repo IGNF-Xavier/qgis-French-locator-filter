@@ -8,7 +8,6 @@ geocoder = FrenchBanGeocoder()
 
 
 class GpfGeocoderBatchProcessing(QgsBatchGeocodeAlgorithm):
-
     def __init__(self):
         super().__init__(geocoder)
 
