@@ -1,9 +1,11 @@
 # standard library
-from typing import List
+from typing import List, Optional
 
 # PyQGIS
 from qgis.core import (
+    Qgis,
     QgsCoordinateReferenceSystem,
+    QgsFeature,
     QgsGeocoderResult,
     QgsGeometry,
     QgsPointXY,
@@ -81,6 +83,27 @@ class PhotonGeocoder(RestAPIGeocoder):
         """
         return self.plg_settings.request_photon_url_query
 
+    def get_reverse_geocode_query(self, feature: QgsFeature) -> Optional[str]:
+        """Get query for reverse geocode
+        For point we use &lon&lat
+        For all other geometry type centroid is use as point
+
+        :param feature: input feature
+        :type feature: QgsFeature
+        :return: reverse geocode query, None is feature geometry is None
+        :rtype: Optional[str]
+        """
+        geometry = feature.geometry()
+        if geometry:
+            if geometry.type() == Qgis.GeometryType.Point:
+                point = geometry.asPoint()
+                query = f"&lon={point.x()}&lat={point.y()}"
+            else:
+                center = geometry.centroid().asPoint()
+                query = f"&lon={center.x()}&lat={center.y()}"
+            return query
+        return None
+
     def _result_from_json(self, response: dict) -> QgsGeocoderResult:
         """Create a QgsGeocoderResult from json content
 
@@ -94,8 +117,8 @@ class PhotonGeocoder(RestAPIGeocoder):
         y = response["geometry"]["coordinates"][1]
 
         properties = response.get("properties")
-        label = properties.get("name")
-        groupe = properties.get("type")
+        label = properties.get("name", "")
+        groupe = properties.get("type", "")
 
         if groupe == "house":
             # add house number to label
@@ -120,8 +143,7 @@ class PhotonGeocoder(RestAPIGeocoder):
         )
         attributes = {}
         for attribute in self._attributes:
-            if attribute in properties:
-                attributes[attribute] = properties[attribute]
+            attributes[attribute] = properties.get(attribute, None)
 
         if "extent" in properties:
             extent = properties["extent"]

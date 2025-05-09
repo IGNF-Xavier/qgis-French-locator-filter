@@ -1,9 +1,11 @@
 # standard library
-from typing import List
+from typing import List, Optional
 
 # PyQGIS
 from qgis.core import (
+    Qgis,
     QgsCoordinateReferenceSystem,
+    QgsFeature,
     QgsGeocoderResult,
     QgsGeometry,
     QgsPointXY,
@@ -89,6 +91,32 @@ class FrenchBanGeocoder(RestAPIGeocoder):
         """
         return self.plg_settings.request_url_query
 
+    def get_reverse_geocode_query(self, feature: QgsFeature) -> Optional[str]:
+        """Get query for reverse geocode
+        For point we use &lon&lat
+        For polygon we searchgeom associated with centroid
+        For all other geometry type centroid is use as point
+
+        :param feature: input feature
+        :type feature: QgsFeature
+        :return: reverse geocode query, None is feature geometry is None
+        :rtype: Optional[str]
+        """
+        geometry = feature.geometry()
+        if geometry:
+            center = geometry.centroid().asPoint()
+            if geometry.type() == Qgis.GeometryType.Point:
+                point = geometry.asPoint()
+                query = f"&lon={point.x()}&lat={point.y()}"
+            elif geometry.type() == Qgis.GeometryType.Polygon:
+                query = (
+                    f"searchgeom={geometry.asJson()}&lon={center.x()}&lat={center.y()}"
+                )
+            else:
+                query = f"&lon={center.x()}&lat={center.y()}"
+            return query
+        return None
+
     def _result_from_json(self, response: dict) -> QgsGeocoderResult:
         """Create a QgsGeocoderResult from json content
 
@@ -118,8 +146,7 @@ class FrenchBanGeocoder(RestAPIGeocoder):
         )
         attributes = {}
         for attribute in self._attributes:
-            if attribute in properties:
-                attributes[attribute] = properties[attribute]
+            attributes[attribute] = properties.get(attribute, None)
 
         # Define viewport from extent or define default from type
         if "extent" in properties:
