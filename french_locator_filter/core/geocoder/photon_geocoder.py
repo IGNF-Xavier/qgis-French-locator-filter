@@ -55,10 +55,16 @@ class PhotonGeocoder(RestAPIGeocoder):
             "postcode",
             "state",
             "country",
-            "countycode",
+            "countrycode",
+            "osm_id",
             "osm_key",
             "osm_value",
             "osm_type",
+            "city",
+            "locality",
+            "county",
+            "type",
+            "district",
         ]
 
     def request_url(self, reverse: bool = False) -> str:
