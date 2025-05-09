@@ -59,14 +59,18 @@ class PhotonGeocoder(RestAPIGeocoder):
             "osm_type",
         ]
 
-    @property
-    def request_url(self) -> str:
+    def request_url(self, reverse: bool = False) -> str:
         """Define request url
 
-        Returns:
-            str: request url
+        :param reverse: True for reverse geocoding, False otherwise, defaults to False
+        :type reverse: bool, optional
+        :raises NotImplementedError: method not implemented in derived class
+        :return: request url for geocoding
+        :rtype: str
         """
-        return self.plg_settings.request_photon_url
+        if reverse:
+            return f"{self.plg_settings.request_photon_url}/reverse"
+        return f"{self.plg_settings.request_photon_url}/api/"
 
     @property
     def request_url_query(self):

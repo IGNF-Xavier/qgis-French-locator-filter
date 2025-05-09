@@ -86,15 +86,14 @@ class RestAPIGeocoder(QgsGeocoderInterface):
             "_result_from_json must be implemented in RestAPIGeocoder derived classes"
         )
 
-    @property
-    def request_url(self) -> str:
+    def request_url(self, reverse: bool = False) -> str:
         """Define request url
 
-        Raises:
-            NotImplementedError: method not implemented in derived class
-
-        Returns:
-            str: request url
+        :param reverse: True for reverse geocoding, False otherwise, defaults to False
+        :type reverse: bool, optional
+        :raises NotImplementedError: method not implemented in derived class
+        :return: request url for geocoding
+        :rtype: str
         """
         raise NotImplementedError(
             "request_url must be implemented in RestAPIGeocoder derived classes"
@@ -164,7 +163,7 @@ class RestAPIGeocoder(QgsGeocoderInterface):
         try:
             qntwk = NetworkRequestsManager()
             qurl = qntwk.build_url(
-                request_url=self.request_url,
+                request_url=self.request_url(reverse=False),
                 request_url_query=self.request_url_query,
                 additional_query=f"&q={string}",
             )
