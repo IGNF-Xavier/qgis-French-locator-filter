@@ -34,16 +34,19 @@ class InverseGeocoderBatchProcessing(QgsProcessingFeatureBasedAlgorithm):
         :param configuration: configuration, defaults to {}
         :type configuration: Dict[str, Any], optional
         """
-
-        self.addParameter(
-            QgsProcessingParameterNumber(
-                name=self.NB_RESULT_BY_FEATURE,
-                description=self.tr("Nombre de résultat par ligne."),
-                defaultValue=1,
-                minValue=0,
-                maxValue=10,
-            )
+        maximum_nb_result_by_feature = (
+            self.geocoder.maximum_result_for_inverse_geocoding()
         )
+        if maximum_nb_result_by_feature != 1:
+            self.addParameter(
+                QgsProcessingParameterNumber(
+                    name=self.NB_RESULT_BY_FEATURE,
+                    description=self.tr("Nombre de résultat par ligne."),
+                    defaultValue=1,
+                    minValue=0,
+                    maxValue=maximum_nb_result_by_feature,
+                )
+            )
 
     def outputFields(self, inputFields: QgsFields) -> QgsFields:
         """Define output fields for sink creation
@@ -94,9 +97,15 @@ class InverseGeocoderBatchProcessing(QgsProcessingFeatureBasedAlgorithm):
         :return: True if the parameter are valid, False otherwise
         :rtype: bool
         """
-        self._nb_result_by_feature = self.parameterAsInt(
-            parameters, self.NB_RESULT_BY_FEATURE, context
+        maximum_nb_result_by_feature = (
+            self.geocoder.maximum_result_for_inverse_geocoding()
         )
+        if maximum_nb_result_by_feature != 1:
+            self._nb_result_by_feature = self.parameterAsInt(
+                parameters, self.NB_RESULT_BY_FEATURE, context
+            )
+        else:
+            self._nb_result_by_feature = 1
 
         return True
 

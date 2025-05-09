@@ -91,6 +91,14 @@ class FrenchBanGeocoder(RestAPIGeocoder):
         """
         return self.plg_settings.request_url_query
 
+    def maximum_result_for_inverse_geocoding(self) -> int:
+        """Maximum result for an inverse geocoding
+
+        :return: maximum result
+        :rtype: int
+        """
+        return 50
+
     def get_reverse_geocode_query(self, feature: QgsFeature) -> Optional[str]:
         """Get query for reverse geocode
         For point we use &lon&lat

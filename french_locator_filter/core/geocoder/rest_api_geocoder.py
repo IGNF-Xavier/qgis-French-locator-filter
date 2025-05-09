@@ -160,6 +160,14 @@ class RestAPIGeocoder(QgsGeocoderInterface):
             "get_reverse_geocode_query must be implemented in RestAPIGeocoder derived classes"
         )
 
+    def maximum_result_for_inverse_geocoding(self) -> int:
+        """Maximum result for an inverse geocoding
+
+        :return: maximum result
+        :rtype: int
+        """
+        return 1
+
     def geocodeFeature(
         self,
         feature: QgsFeature,
