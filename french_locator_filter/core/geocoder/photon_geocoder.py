@@ -17,8 +17,27 @@ from french_locator_filter.core.geocoder.rest_api_geocoder import RestAPIGeocode
 class PhotonGeocoder(RestAPIGeocoder):
     """Geocoder for Photon API"""
 
+    _last_request_timestamp: int = 0
+
     def __init__(self):
         super().__init__()
+        self.max_request_per_second = 10
+
+    def set_last_request_timestamp(self, timestamp: int) -> int:
+        """Define timestamp for last request
+
+        :param timestamp: request timestamp
+        :type timestamp: int
+        """
+        PhotonGeocoder._last_request_timestamp = timestamp
+
+    def last_request_timestamp(self) -> int:
+        """Get last request timestamp
+
+        :return: last request timestamp
+        :rtype: int
+        """
+        return PhotonGeocoder._last_request_timestamp
 
     @property
     def _attributes(self) -> List[str]:
