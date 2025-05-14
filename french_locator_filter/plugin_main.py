@@ -135,6 +135,7 @@ class FrenchGeocoderLocatorFilterPlugin:
 
         if self.provider:
             QgsApplication.processingRegistry().removeProvider(self.provider)
+            self.provider = None
 
     def tr(self, message):
         """Get the translation for a string using Qt translation API.
