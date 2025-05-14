@@ -8,7 +8,7 @@ Main plugin module.
 from pathlib import Path
 
 # PyQGIS
-from qgis.core import Qgis, QgsSettings
+from qgis.core import Qgis, QgsApplication, QgsSettings
 from qgis.PyQt.QtCore import QCoreApplication, QLocale, QTranslator
 from qgis.utils import iface
 
@@ -26,6 +26,7 @@ from french_locator_filter.core.locator_filter.photon_locator_filter import (
     PhotonGeocoderLocatorFilter,
 )
 from french_locator_filter.gui.dlg_settings import PlgOptionsFactory
+from french_locator_filter.processing.provider import FrenchLocatorProcessingProvider
 from french_locator_filter.toolbelt import PlgLogger
 
 # ############################################################################
@@ -37,6 +38,7 @@ class FrenchGeocoderLocatorFilterPlugin:
     def __init__(self):
         """Constructor."""
         self.log = PlgLogger().log
+        self.provider = None
         self.ban_locator_filter = None
         self.photon_locator_filter = None
         self.options_factory = None
@@ -101,6 +103,14 @@ class FrenchGeocoderLocatorFilterPlugin:
             )
             iface.registerLocatorFilter(self.photon_locator_filter)
 
+        # -- Processing
+        self.initProcessing()
+
+    def initProcessing(self):
+        """Init processing without GUI"""
+        self.provider = FrenchLocatorProcessingProvider()
+        QgsApplication.processingRegistry().addProvider(self.provider)
+
     def unload(self):
         """Cleans up when plugin is disabled/uninstalled."""
         # -- Clean up preferences panel in QGIS settings
@@ -122,6 +132,10 @@ class FrenchGeocoderLocatorFilterPlugin:
         # remove filter from locator
         if self.photon_locator_filter:
             iface.deregisterLocatorFilter(self.photon_locator_filter)
+
+        if self.provider:
+            QgsApplication.processingRegistry().removeProvider(self.provider)
+            self.provider = None
 
     def tr(self, message):
         """Get the translation for a string using Qt translation API.
