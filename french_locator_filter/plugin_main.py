@@ -104,6 +104,10 @@ class FrenchGeocoderLocatorFilterPlugin:
             iface.registerLocatorFilter(self.photon_locator_filter)
 
         # -- Processing
+        self.initProcessing()
+
+    def initProcessing(self):
+        """Init processing without GUI"""
         self.provider = FrenchLocatorProcessingProvider()
         QgsApplication.processingRegistry().addProvider(self.provider)
 
