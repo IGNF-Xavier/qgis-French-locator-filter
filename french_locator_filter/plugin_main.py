@@ -10,6 +10,7 @@ from pathlib import Path
 # PyQGIS
 from qgis.core import Qgis, QgsApplication, QgsSettings
 from qgis.PyQt.QtCore import QCoreApplication, QLocale, QTranslator
+from qgis.PyQt.QtWidgets import QAction, QMenu, QWidget
 from qgis.utils import iface
 
 # project
@@ -27,6 +28,9 @@ from french_locator_filter.core.locator_filter.photon_locator_filter import (
 )
 from french_locator_filter.gui.dlg_settings import PlgOptionsFactory
 from french_locator_filter.processing.provider import FrenchLocatorProcessingProvider
+from french_locator_filter.processing.utils import (
+    create_processing_action,
+)
 from french_locator_filter.toolbelt import PlgLogger
 
 # ############################################################################
@@ -105,6 +109,43 @@ class FrenchGeocoderLocatorFilterPlugin:
 
         # -- Processing
         self.initProcessing()
+
+    def create_gpf_plugins_actions(self, parent: QWidget) -> list[QAction]:
+        """Create action to be inserted a Geoplateforme plugin
+
+        :param parent: parent widget
+        :type parent: QWidget
+        :return: list of action to add in Geoplateforme plugin
+        :rtype: list[QAction]
+        """
+        available_actions = []
+
+        # Geocoding action
+        geocoding_action = QAction(
+            self.tr("Géocodage"),
+            parent,
+        )
+        geocoding_menu = QMenu()
+
+        # Geocoding Processings
+        geocoding_action_processing = QAction(self.tr("Traitements"), parent)
+        geocoding_menu_processing = QMenu(parent)
+        geocoding_menu_processing.addAction(
+            create_processing_action(
+                "french_locator_filter:gpf_geocoder_batch",
+                geocoding_menu_processing,
+            )
+        )
+
+        geocoding_action_processing.setMenu(geocoding_menu_processing)
+
+        geocoding_menu.addAction(geocoding_action_processing)
+
+        geocoding_action.setMenu(geocoding_menu)
+
+        available_actions.append(geocoding_action)
+
+        return available_actions
 
     def initProcessing(self):
         """Init processing without GUI"""
