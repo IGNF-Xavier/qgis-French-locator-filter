@@ -8,6 +8,7 @@ from qgis.core import (
     Qgis,
     QgsCoordinateReferenceSystem,
     QgsCoordinateTransform,
+    QgsFeature,
     QgsFeedback,
     QgsField,
     QgsFields,
@@ -17,7 +18,6 @@ from qgis.core import (
     QgsPointXY,
     QgsProject,
     QgsRectangle,
-    QgsFeature,
 )
 from qgis.PyQt.QtCore import QCoreApplication, QDateTime
 
@@ -186,6 +186,15 @@ class RestAPIGeocoder(QgsGeocoderInterface):
         :rtype: List[QgsGeocoderResult]
         """
 
+        # Limit number of request per second
+        while (
+            QDateTime.currentMSecsSinceEpoch() - self.last_request_timestamp()
+            < 1000 / self.max_request_per_second
+        ):
+            time.sleep(0.05)
+            if feedback and feedback.isCanceled():
+                return []
+
         query = self.get_reverse_geocode_query(feature)
         if query:
             # request
@@ -212,6 +221,8 @@ class RestAPIGeocoder(QgsGeocoderInterface):
                 )
                 self.log(message=err, log_level=1)
                 return []
+            finally:
+                self.set_last_request_timestamp(QDateTime.currentMSecsSinceEpoch())
         return []
 
     def geocodeString(
