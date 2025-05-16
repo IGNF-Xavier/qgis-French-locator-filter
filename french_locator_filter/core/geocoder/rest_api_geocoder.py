@@ -1,5 +1,6 @@
 # standard library
 import json
+import time
 from typing import List, Optional
 
 # PyQGIS
@@ -17,6 +18,7 @@ from qgis.core import (
     QgsProject,
     QgsRectangle,
 )
+from qgis.PyQt.QtCore import QDateTime
 
 # project
 from french_locator_filter.toolbelt.log_handler import PlgLogger
@@ -109,6 +111,28 @@ class RestAPIGeocoder(QgsGeocoderInterface):
             "request_url_query must be implemented in RestAPIGeocoder derived classes"
         )
 
+    def set_last_request_timestamp(self, timestamp: int) -> None:
+        """Define timestamp for last request
+
+        :param timestamp: request timestamp
+        :type timestamp: int
+        :raises NotImplementedError: method not implemented in derived class
+        """
+        raise NotImplementedError(
+            "set_last_request_timestamp must be implemented in RestAPIGeocoder derived classes"
+        )
+
+    def last_request_timestamp(self) -> int:
+        """Get last request timestamp
+
+        :raises NotImplementedError: method not implemented in derived class
+        :return: last request timestamp
+        :rtype: int
+        """
+        raise NotImplementedError(
+            "last_request_timestamp must be implemented in RestAPIGeocoder derived classes"
+        )
+
     def geocodeString(
         self,
         string: str,
@@ -128,6 +152,14 @@ class RestAPIGeocoder(QgsGeocoderInterface):
 
         # TODO : for now to bounding box from context and feedback
 
+        # Limit number of request per second
+        while (
+            QDateTime.currentMSecsSinceEpoch() - self.last_request_timestamp()
+            < 1000 / self.max_request_per_second
+        ):
+            time.sleep(0.05)
+            if feedback and feedback.isCanceled():
+                return []
         # request
         try:
             qntwk = NetworkRequestsManager()
@@ -146,6 +178,8 @@ class RestAPIGeocoder(QgsGeocoderInterface):
         except Exception as err:
             self.log(message=err, log_level=1)
             return []
+        finally:
+            self.set_last_request_timestamp(QDateTime.currentMSecsSinceEpoch())
 
     def create_rectangle_around_point(
         self,
