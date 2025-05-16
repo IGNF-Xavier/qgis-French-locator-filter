@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.3.0 - 2025-05-16
+
+New implementation of QgsLocatorFilter using QgsGeocoderInterface. Adds a processing for batch geocoding.
+
+- feat(geocoder): implement QgsGeocoderInterface for photon and BAN !30 #21
+- feat(batch): add batch processing for FrenchBanGeocoder !37 #17
+- feat(gpf): add function create_gpf_plugins_actions to be called by geoplateforme plugin !46
+- feat(rest api): limit number of request per seconds (10 for photon, 50 for gpf)  !47 #29
+
 ## 1.2.0 - 2025-04-25
 
 - project: set minimal QGIS version to 3.40.4
