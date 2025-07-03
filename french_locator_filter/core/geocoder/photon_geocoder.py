@@ -103,10 +103,10 @@ class PhotonGeocoder(RestAPIGeocoder):
         if geometry:
             if geometry.type() == Qgis.GeometryType.Point:
                 point = geometry.asPoint()
-                query = f"&lon={point.x()}&lat={point.y()}"
+                query = f"lon={point.x()}&lat={point.y()}"
             else:
                 center = geometry.centroid().asPoint()
-                query = f"&lon={center.x()}&lat={center.y()}"
+                query = f"lon={center.x()}&lat={center.y()}"
             return query
         return None
 
