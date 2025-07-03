@@ -1,4 +1,7 @@
+import copy
+
 import pytest
+import pytest_httpserver
 from qgis.core import (
     QgsApplication,
     QgsFeature,
@@ -14,6 +17,53 @@ from french_locator_filter.processing.photon_inverse_geocoder_batch_processing i
     PhotonInverseGeocoderBatchProcessing,
 )
 from french_locator_filter.processing.provider import FrenchLocatorProcessingProvider
+
+PHOTON_SRV_MOCK_RESPOND = {
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "osm_type": "W",
+                "osm_id": 109075797,
+                "osm_key": "highway",
+                "osm_value": "tertiary",
+                "type": "street",
+                "postcode": "13010",
+                "countrycode": "FR",
+                "name": "Avenue Benjamin Delessert",
+                "country": "France",
+                "city": "Marseille",
+                "district": "10th Arrondissement",
+                "locality": "La Capelette",
+                "state": "Provence-Alpes-Côte d'Azur",
+                "county": "Bouches-du-Rhône",
+                "extent": [5.4047413, 43.2823088, 5.4051329, 43.281555],
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [5.405081, 43.2819925],
+            },
+        }
+    ],
+}
+
+GEOCODING_RESULT_ATTRIBUTES = {
+    "osm_type": "W",
+    "osm_id": "109075797",
+    "osm_key": "highway",
+    "osm_value": "tertiary",
+    "type": "street",
+    "postcode": "13010",
+    "countrycode": "FR",
+    "name": "Avenue Benjamin Delessert",
+    "country": "France",
+    "city": "Marseille",
+    "district": "10th Arrondissement",
+    "locality": "La Capelette",
+    "state": "Provence-Alpes-Côte d'Azur",
+    "county": "Bouches-du-Rhône",
+}
 
 
 @pytest.fixture()
@@ -54,12 +104,22 @@ def test_geocode_no_input(alg: QgsProcessingAlgorithm):
     assert output_layer.featureCount() == input_layer.featureCount()
 
 
-def test_inverse_geocode_with_input(alg: QgsProcessingAlgorithm):
+def test_inverse_geocode_with_input(
+    photon_srv: pytest_httpserver.HTTPServer, alg: QgsProcessingAlgorithm
+):
     """Test geocoding with a feature
 
+    :param photon_srv: pytest fixture to simulate server and mock plugin settings
+    :type photon_srv: pytest_httpserver.HTTPServer
     :param alg: geocoding algorithm
     :type alg: QgsProcessingAlgorithm
     """
+
+    # Respond with mock
+    photon_srv.expect_oneshot_request("/reverse", method="GET").respond_with_json(
+        PHOTON_SRV_MOCK_RESPOND
+    )
+
     input_layer = QgsVectorLayer(
         "Point",
         "test",
@@ -90,35 +150,27 @@ def test_inverse_geocode_with_input(alg: QgsProcessingAlgorithm):
     assert geocoded_point.x() == pytest.approx(5.405081)
     assert geocoded_point.y() == pytest.approx(43.2819925)
 
-    expected_attributes = [
-        {
-            "osm_id": "109075797",
-            "country": "France",
-            "city": "Marseille",
-            "countrycode": "FR",
-            "postcode": "13010",
-            "locality": "La Capelette",
-            "county": "Bouches-du-Rhône",
-            "type": "street",
-            "osm_type": "W",
-            "osm_key": "highway",
-            "district": "10th Arrondissement",
-            "osm_value": "tertiary",
-            "name": "Avenue Benjamin Delessert",
-            "state": "Provence-Alpes-Côte d'Azur",
-        }
-    ]
+    expected_attributes = [GEOCODING_RESULT_ATTRIBUTES]
     for i, f in enumerate(output_layer.getFeatures()):
         for key, value in expected_attributes[i].items():
             assert f.attribute(key) == value
 
 
-def test_inverse_geocode_with_crs(alg: QgsProcessingAlgorithm):
+def test_inverse_geocode_with_crs(
+    photon_srv: pytest_httpserver.HTTPServer, alg: QgsProcessingAlgorithm
+):
     """Test geocoding with CRS different than 4326. Input CRS should be kept
 
+    :param photon_srv: pytest fixture to simulate server and mock plugin settings
+    :type photon_srv: pytest_httpserver.HTTPServer
     :param alg: geocoding algorithm
     :type alg: QgsProcessingAlgorithm
     """
+
+    # Respond with mock
+    photon_srv.expect_oneshot_request("/reverse", method="GET").respond_with_json(
+        PHOTON_SRV_MOCK_RESPOND
+    )
     input_layer = QgsVectorLayer(
         "Point?&crs=EPSG:3857&field=adresse:string",
         "test",
@@ -150,38 +202,29 @@ def test_inverse_geocode_with_crs(alg: QgsProcessingAlgorithm):
     features = [f for f in output_layer.getFeatures()]
     geocoded_point = features[0].geometry().asPoint()
 
-    assert geocoded_point.x() == pytest.approx(601690.8646163979)
+    assert geocoded_point.x() == pytest.approx(601690.864616)
     assert geocoded_point.y() == pytest.approx(5354994.10118988)
 
-    expected_attributes = [
-        {
-            "osm_id": "109075797",
-            "country": "France",
-            "city": "Marseille",
-            "countrycode": "FR",
-            "postcode": "13010",
-            "locality": "La Capelette",
-            "county": "Bouches-du-Rhône",
-            "type": "street",
-            "osm_type": "W",
-            "osm_key": "highway",
-            "district": "10th Arrondissement",
-            "osm_value": "tertiary",
-            "name": "Avenue Benjamin Delessert",
-            "state": "Provence-Alpes-Côte d'Azur",
-        }
-    ]
+    expected_attributes = [GEOCODING_RESULT_ATTRIBUTES]
     for i, f in enumerate(output_layer.getFeatures()):
         for key, value in expected_attributes[i].items():
             assert f.attribute(key) == value
 
 
-def test_geocode_keep_attributes(alg: QgsProcessingAlgorithm):
+def test_geocode_keep_attributes(
+    photon_srv: pytest_httpserver.HTTPServer, alg: QgsProcessingAlgorithm
+):
     """Test that input attributes are kept
 
+    :param photon_srv: pytest fixture to simulate server and mock plugin settings
+    :type photon_srv: pytest_httpserver.HTTPServer
     :param alg: geocoding algorithm
     :type alg: QgsProcessingAlgorithm
     """
+    # Respond with mock
+    photon_srv.expect_oneshot_request("/reverse", method="GET").respond_with_json(
+        PHOTON_SRV_MOCK_RESPOND
+    )
     input_layer = QgsVectorLayer(
         "Point?field=other_field:string",
         "test",
@@ -207,25 +250,9 @@ def test_geocode_keep_attributes(alg: QgsProcessingAlgorithm):
     assert output_layer.featureCount() == input_layer.featureCount()
     assert output_layer.crs().authid() == "EPSG:4326"
 
-    expected_attributes = [
-        {
-            "osm_id": "109075797",
-            "country": "France",
-            "city": "Marseille",
-            "countrycode": "FR",
-            "postcode": "13010",
-            "locality": "La Capelette",
-            "county": "Bouches-du-Rhône",
-            "type": "street",
-            "osm_type": "W",
-            "osm_key": "highway",
-            "district": "10th Arrondissement",
-            "osm_value": "tertiary",
-            "name": "Avenue Benjamin Delessert",
-            "state": "Provence-Alpes-Côte d'Azur",
-            "other_field": "Other field value",
-        }
-    ]
+    result = copy.deepcopy(GEOCODING_RESULT_ATTRIBUTES)
+    result["other_field"] = "Other field value"
+    expected_attributes = [result]
     for i, f in enumerate(output_layer.getFeatures()):
         for key, value in expected_attributes[i].items():
             assert f.attribute(key) == value
