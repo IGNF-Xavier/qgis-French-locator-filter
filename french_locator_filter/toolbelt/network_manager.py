@@ -14,9 +14,9 @@ from functools import lru_cache
 from urllib.parse import urlparse, urlunparse
 
 # PyQGIS
-from qgis.core import Qgis, QgsBlockingNetworkRequest
+from qgis.core import Qgis, QgsBlockingNetworkRequest, QgsNetworkReplyContent
 from qgis.PyQt.QtCore import QByteArray, QUrl
-from qgis.PyQt.QtNetwork import QNetworkRequest
+from qgis.PyQt.QtNetwork import QNetworkReply, QNetworkRequest
 
 # project
 from french_locator_filter.toolbelt.log_handler import PlgLogger
@@ -85,6 +85,70 @@ class NetworkRequestsManager:
 
         return qreq
 
+    def get_error_description_from_reply(
+        self, req_reply: QgsNetworkReplyContent
+    ) -> str:
+        """Define error description from reply.
+        Check if `error` and `error_description` are available in request reply content
+
+        :param req_reply: request reply
+        :type req_reply: QgsNetworkReplyContent
+        :return: error description
+        :rtype: str
+        """
+
+        data = json.loads(req_reply.content().data().decode("utf-8"))
+
+        if "error" in data:
+            error = data["error"]
+        else:
+            error = req_reply.errorString()
+
+        error_description = ""
+        if "error_description" in data:
+            error_description = ",".join(data["error_description"])
+
+        if "detail" in data:
+            error_description += ",".join(data["detail"])
+
+        return f"{error} : {error_description}"
+
+    def check_request_result(
+        self, req_status: QgsBlockingNetworkRequest.ErrorCode
+    ) -> QgsNetworkReplyContent:
+        """Check request result and content
+
+        :param req_status: request status
+        :type req_status: QgsBlockingNetworkRequest.ErrorCode
+        :raises ConnectionError: an error occured in request
+        :return: request reply content
+        :rtype: QgsNetworkReplyContent
+        """
+
+        req_reply = self.ntwk_requester.reply()
+
+        # check if request is fine
+        if req_status != QgsBlockingNetworkRequest.ErrorCode.NoError:
+            error = self.get_error_description_from_reply(req_reply)
+            self.log(
+                message=error,
+                log_level=Qgis.MessageLevel.Critical,
+                push=False,
+            )
+            raise ConnectionError(error)
+
+        # check if reply is fine
+        if req_reply.error() != QNetworkReply.NetworkError.NoError:
+            error = self.get_error_description_from_reply(req_reply)
+            self.log(
+                message=error,
+                log_level=Qgis.MessageLevel.Critical,
+                push=False,
+            )
+            raise ConnectionError(error)
+
+        return req_reply
+
     def get_url(self, url: QUrl = None, headers: dict = None) -> QByteArray:
         """Send a get method., using cache and plugin settings.
 
@@ -122,26 +186,7 @@ class NetworkRequestsManager:
                 forceRefresh=False,
             )
 
-            # check if request is fine
-            if req_status != QgsBlockingNetworkRequest.ErrorCode.NoError:
-                err_msg = f"{self.ntwk_requester.errorMessage()}."
-
-                # get the API response error to log it
-                req_reply = self.ntwk_requester.reply()
-                if req_reply and b"application/json" in req_reply.rawHeader(
-                    b"Content-Type"
-                ):
-                    api_response_error = json.loads(str(req_reply.content(), "UTF8"))
-                    if "message" in api_response_error:
-                        err_msg += (
-                            f"API error message: {api_response_error.get('message')}"
-                        )
-                    if "message" in api_response_error:
-                        err_msg += (
-                            f"API error message: {api_response_error.get('message')}"
-                        )
-
-                raise ConnectionError(err_msg)
+            req_reply = self.check_request_result(req_status)
 
             self.log(
                 message=f"DEBUG - Request to {url} succeeded.",
@@ -158,7 +203,8 @@ class NetworkRequestsManager:
                 )
 
             return req_reply.content()
-
+        except ConnectionError as err:
+            raise err
         except Exception as err:
             err_msg = "Houston, we've got a problem: {}".format(err)
             self.log(message=err_msg, log_level=Qgis.MessageLevel.Critical, push=False)

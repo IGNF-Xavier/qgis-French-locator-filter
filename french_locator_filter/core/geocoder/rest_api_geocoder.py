@@ -8,6 +8,7 @@ from qgis.core import (
     Qgis,
     QgsCoordinateReferenceSystem,
     QgsCoordinateTransform,
+    QgsFeature,
     QgsFeedback,
     QgsField,
     QgsFields,
@@ -18,7 +19,7 @@ from qgis.core import (
     QgsProject,
     QgsRectangle,
 )
-from qgis.PyQt.QtCore import QDateTime
+from qgis.PyQt.QtCore import QCoreApplication, QDateTime
 
 # project
 from french_locator_filter.toolbelt.log_handler import PlgLogger
@@ -34,13 +35,27 @@ class RestAPIGeocoder(QgsGeocoderInterface):
         self.plg_settings = PlgOptionsManager.get_plg_settings()
         super(QgsGeocoderInterface, self).__init__()
 
+    def tr(self, message: str) -> str:
+        """Get the translation for a string using Qt translation API.
+
+        :param message: string to be translated.
+        :type message: str
+
+        :returns: Translated version of message.
+        :rtype: str
+        """
+        return QCoreApplication.translate(self.__class__.__name__, message)
+
     def flags(self) -> QgsGeocoderInterface.Flags:
         """Returns the geocoder's capability flags.
 
         Returns:
             QgsGeocoderInterface.Flags: flags
         """
-        return QgsGeocoderInterface.Flag.GeocodesStrings
+        return (
+            QgsGeocoderInterface.Flag.GeocodesStrings
+            | QgsGeocoderInterface.Flag.GeocodesFeatures
+        )
 
     @property
     def _attributes(self) -> List[str]:
@@ -86,15 +101,14 @@ class RestAPIGeocoder(QgsGeocoderInterface):
             "_result_from_json must be implemented in RestAPIGeocoder derived classes"
         )
 
-    @property
-    def request_url(self) -> str:
+    def request_url(self, reverse: bool = False) -> str:
         """Define request url
 
-        Raises:
-            NotImplementedError: method not implemented in derived class
-
-        Returns:
-            str: request url
+        :param reverse: True for reverse geocoding, False otherwise, defaults to False
+        :type reverse: bool, optional
+        :raises NotImplementedError: method not implemented in derived class
+        :return: request url for geocoding
+        :rtype: str
         """
         raise NotImplementedError(
             "request_url must be implemented in RestAPIGeocoder derived classes"
@@ -133,6 +147,84 @@ class RestAPIGeocoder(QgsGeocoderInterface):
             "last_request_timestamp must be implemented in RestAPIGeocoder derived classes"
         )
 
+    def get_reverse_geocode_query(self, feature: QgsFeature) -> Optional[str]:
+        """Get query for reverse geocode
+
+        :param feature: input feature
+        :type feature: QgsFeature
+        :raises NotImplementedError: method not implemented in derived class
+        :return: reverse geocode query
+        :rtype: Optional[str]
+        """
+        raise NotImplementedError(
+            "get_reverse_geocode_query must be implemented in RestAPIGeocoder derived classes"
+        )
+
+    def maximum_result_for_inverse_geocoding(self) -> int:
+        """Maximum result for an inverse geocoding
+
+        :return: maximum result
+        :rtype: int
+        """
+        return 1
+
+    def geocodeFeature(
+        self,
+        feature: QgsFeature,
+        context: QgsGeocoderContext,
+        feedback: Optional[QgsFeedback] = None,
+    ) -> List[QgsGeocoderResult]:
+        """Geocode a feature
+
+        :param feature: input feature
+        :type feature: QgsFeature
+        :param context: geocoder context
+        :type context: QgsGeocoderContext
+        :param feedback: feedback, defaults to None
+        :type feedback: Optional[QgsFeedback], optional
+        :return: list of result for feature
+        :rtype: List[QgsGeocoderResult]
+        """
+
+        # Limit number of request per second
+        while (
+            QDateTime.currentMSecsSinceEpoch() - self.last_request_timestamp()
+            < 1000 / self.max_request_per_second
+        ):
+            time.sleep(0.05)
+            if feedback and feedback.isCanceled():
+                return []
+
+        query = self.get_reverse_geocode_query(feature)
+        if query:
+            # request
+            try:
+                qntwk = NetworkRequestsManager()
+                qurl = qntwk.build_url(
+                    request_url=self.request_url(reverse=True),
+                    request_url_query=query,
+                )
+                response_content = qntwk.get_url(url=qurl)
+                # load response as a dict
+                responses = json.loads(str(response_content, "UTF8"))
+                return [
+                    self._result_from_json(response)
+                    for response in responses.get("features")
+                ]
+            except Exception as err:
+                feedback.reportError(
+                    self.tr(
+                        "Erreur lors de la demande de géocodage inversé : {}".format(
+                            err
+                        )
+                    )
+                )
+                self.log(message=err, log_level=1)
+                return []
+            finally:
+                self.set_last_request_timestamp(QDateTime.currentMSecsSinceEpoch())
+        return []
+
     def geocodeString(
         self,
         string: str,
@@ -164,7 +256,7 @@ class RestAPIGeocoder(QgsGeocoderInterface):
         try:
             qntwk = NetworkRequestsManager()
             qurl = qntwk.build_url(
-                request_url=self.request_url,
+                request_url=self.request_url(reverse=False),
                 request_url_query=self.request_url_query,
                 additional_query=f"&q={string}",
             )
@@ -176,6 +268,9 @@ class RestAPIGeocoder(QgsGeocoderInterface):
                 for response in responses.get("features")
             ]
         except Exception as err:
+            feedback.reportError(
+                self.tr("Erreur lors de la demande de géocodage : {}".format(err))
+            )
             self.log(message=err, log_level=1)
             return []
         finally:

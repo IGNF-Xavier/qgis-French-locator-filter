@@ -4,3 +4,4 @@
 packaging>=23
 pytest-cov>=4
 pytest-qgis>=2.1.0
+pytest_httpserver>=1.1.3

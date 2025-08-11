@@ -14,6 +14,12 @@ from french_locator_filter.__about__ import __icon_path__, __title__, __version_
 from french_locator_filter.processing.gpf_geocoder_batch_processing import (
     GpfGeocoderBatchProcessing,
 )
+from french_locator_filter.processing.gpf_inverse_geocoder_batch_processing import (
+    GpfInverseGeocoderBatchProcessing,
+)
+from french_locator_filter.processing.photon_inverse_geocoder_batch_processing import (
+    PhotonInverseGeocoderBatchProcessing,
+)
 
 # ############################################################################
 # ########## Classes ###############
@@ -28,6 +34,8 @@ class FrenchLocatorProcessingProvider(QgsProcessingProvider):
     def loadAlgorithms(self):
         """Loads all algorithms belonging to this provider."""
         self.addAlgorithm(GpfGeocoderBatchProcessing())
+        self.addAlgorithm(GpfInverseGeocoderBatchProcessing())
+        self.addAlgorithm(PhotonInverseGeocoderBatchProcessing())
 
     def id(self) -> str:
         """Unique provider id, used for identifying it. This string should be unique, \
