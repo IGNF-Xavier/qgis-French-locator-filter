@@ -7,10 +7,18 @@ Main plugin module.
 # standard library
 from pathlib import Path
 
+from qgis.core import (
+    Qgis,
+    QgsApplication,
+    QgsCoordinateReferenceSystem,
+    QgsPointXY,
+    QgsSettings,
+)
+
 # PyQGIS
-from qgis.core import Qgis, QgsApplication, QgsSettings
-from qgis.PyQt.QtCore import QCoreApplication, QLocale, QTranslator
-from qgis.PyQt.QtWidgets import QAction, QMenu, QWidget
+from qgis.gui import QgisInterface
+from qgis.PyQt.QtCore import QCoreApplication, QLocale, Qt, QTranslator
+from qgis.PyQt.QtWidgets import QAction, QDockWidget, QMenu, QWidget
 from qgis.utils import iface
 
 # project
@@ -27,6 +35,7 @@ from french_locator_filter.core.locator_filter.photon_locator_filter import (
     PhotonGeocoderLocatorFilter,
 )
 from french_locator_filter.gui.dlg_settings import PlgOptionsFactory
+from french_locator_filter.gui.wdg_reverse_geocoding import ReverseGeocodingWidget
 from french_locator_filter.processing.provider import FrenchLocatorProcessingProvider
 from french_locator_filter.processing.utils import (
     create_processing_action,
@@ -39,13 +48,23 @@ from french_locator_filter.toolbelt import PlgLogger
 
 
 class FrenchGeocoderLocatorFilterPlugin:
-    def __init__(self):
-        """Constructor."""
+    def __init__(self, iface: QgisInterface):
+        """Constructor.
+
+        :param iface: An interface instance that will be passed to this class which \
+        provides the hook by which you can manipulate the QGIS application at run time.
+        :type iface: QgsInterface
+        """
+        self.iface = iface
         self.log = PlgLogger().log
         self.provider = None
         self.ban_locator_filter = None
         self.photon_locator_filter = None
         self.options_factory = None
+
+        self.docks = []
+        self.actions = []
+        self.reverse_geocoding_widget_action = None
 
         # translation
         self.locale: str = QgsSettings().value("locale/userLocale", QLocale().name())[
@@ -110,6 +129,61 @@ class FrenchGeocoderLocatorFilterPlugin:
         # -- Processing
         self.initProcessing()
 
+        # Create widget for itinerary
+        reverse_geocoding_widget = ReverseGeocodingWidget(self.iface.mainWindow())
+        # Define default position
+        reverse_geocoding_widget.wdg_selection.set_crs(
+            QgsCoordinateReferenceSystem("EPSG:4326")
+        )
+        reverse_geocoding_widget.wdg_selection.set_display_point(
+            QgsPointXY(2.42412, 48.84572)
+        )
+
+        self.reverse_geocoding_widget_action = self.add_dock_widget_and_action(
+            title=self.tr("Géocodage inversé"),
+            name="reverse_geocode",
+            widget=reverse_geocoding_widget,
+        )
+
+    def add_dock_widget_and_action(
+        self, title: str, name: str, widget: QWidget
+    ) -> QAction:
+        """Add widget display as QDockWidget with an QAction in plugin toolbar
+
+
+        :param name: dockwidget name for position save
+        :type name: str
+        :param widget: widget to insert
+        :type widget: QWidget
+        """
+
+        # Create dockwidget
+        dock = QDockWidget(title, iface.mainWindow())
+        dock.setObjectName(name)
+        dock.setWindowIcon(widget.windowIcon())
+
+        # Add widget
+        dock.setWidget(widget)
+
+        # Add to QGIS
+        iface.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, dock)
+
+        # Default close
+        dock.close()
+
+        # Append to dock list for unload
+        self.docks.append(dock)
+        dock.toggleViewAction().setIcon(widget.windowIcon())
+
+        # Append to action list for unload
+        action = dock.toggleViewAction()
+        self.actions.append(action)
+
+        # Add action to toolbar
+        iface.addToolBarIcon(action)
+
+        return action
+
     def create_gpf_plugins_actions(self, parent: QWidget) -> list[QAction]:
         """Create action to be inserted a Geoplateforme plugin
 
@@ -145,6 +219,33 @@ class FrenchGeocoderLocatorFilterPlugin:
 
         available_actions.append(geocoding_action)
 
+        # Reverse Geocoding action
+        reverse_geocoding_action = QAction(
+            self.tr("Géocodage inversé"),
+            parent,
+        )
+        reverse_geocoding_menu = QMenu()
+
+        reverse_geocoding_menu.addAction(self.reverse_geocoding_widget_action)
+
+        # Reverse Geocoding Processings
+        reverse_geocoding_action_processing = QAction(self.tr("Traitements"), parent)
+        reverse_geocoding_menu_processing = QMenu(parent)
+        reverse_geocoding_menu_processing.addAction(
+            create_processing_action(
+                "french_locator_filter:gpf_inverse_geocoder_batch",
+                reverse_geocoding_menu_processing,
+            )
+        )
+
+        reverse_geocoding_action_processing.setMenu(reverse_geocoding_menu_processing)
+
+        reverse_geocoding_menu.addAction(reverse_geocoding_action_processing)
+
+        reverse_geocoding_action.setMenu(reverse_geocoding_menu)
+
+        available_actions.append(reverse_geocoding_action)
+
         return available_actions
 
     def initProcessing(self):
@@ -154,6 +255,14 @@ class FrenchGeocoderLocatorFilterPlugin:
 
     def unload(self):
         """Cleans up when plugin is disabled/uninstalled."""
+        for _actions in self.actions:
+            self.iface.removeToolBarIcon(_actions)
+            del _actions
+        for _dock in self.docks:
+            self.iface.removeDockWidget(_dock)
+            _dock.deleteLater()
+        self.docks.clear()
+
         # -- Clean up preferences panel in QGIS settings
         if self.options_factory:
             iface.unregisterOptionsWidgetFactory(self.options_factory)
