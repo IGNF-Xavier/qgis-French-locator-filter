@@ -52,7 +52,7 @@ def data_geopf_srv(monkeypatch) -> pytest_httpserver.HTTPServer:
     :rtype: pytest_httpserver.HTTPServer
     """
     server = start_srv("127.0.0.1", 5000)
-    monkeypatch.setattr(PlgSettingsStructure, "request_url", GPF_SRV_URL)
+    monkeypatch.setattr(PlgSettingsStructure, "gpf_url", GPF_SRV_URL)
     yield from server
 
 
@@ -65,6 +65,6 @@ def photon_srv(monkeypatch) -> pytest_httpserver.HTTPServer:
     :yield: server started
     :rtype: pytest_httpserver.HTTPServer
     """
-    server = start_srv("127.0.0.1", 5000)
-    monkeypatch.setattr(PlgSettingsStructure, "request_photon_url", PHOTON_SRV_URL)
+    server = start_srv("127.0.0.1", 6000)
+    monkeypatch.setattr(PlgSettingsStructure, "photon_url", PHOTON_SRV_URL)
     yield from server

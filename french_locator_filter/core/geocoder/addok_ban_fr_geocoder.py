@@ -79,8 +79,8 @@ class FrenchBanGeocoder(RestAPIGeocoder):
         :rtype: str
         """
         if reverse:
-            return f"{self.plg_settings.request_url}/reverse"
-        return f"{self.plg_settings.request_url}/search"
+            return f"{self.plg_settings.gpf_url}/reverse"
+        return f"{self.plg_settings.gpf_url}/search"
 
     @property
     def request_url_query(self):
