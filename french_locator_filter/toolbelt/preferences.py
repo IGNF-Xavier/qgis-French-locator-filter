@@ -66,6 +66,16 @@ class PlgSettingsStructure:
     request_photon_url: str = "https://photon.komoot.io/"
     request_photon_url_query: str = "limit=10&lang=fr"
 
+    @property
+    def gpf_url(self) -> str:
+        """Return the URL for geoplateforme use"""
+        return f"{self.request_url}"
+
+    @property
+    def photon_url(self) -> str:
+        """Return the URL for photon use"""
+        return f"{self.request_photon_url}"
+
 
 class PlgOptionsManager:
     @staticmethod
