@@ -18,6 +18,7 @@ from qgis.PyQt.QtGui import QColor, QIcon
 from qgis.PyQt.QtWidgets import QHeaderView, QWidget
 
 # project
+from french_locator_filter.__about__ import DIR_PLUGIN_ROOT
 from french_locator_filter.core.geocoder.addok_ban_fr_geocoder import FrenchBanGeocoder
 from french_locator_filter.gui.mdl_geocoder_result import QgsGeocoderResultModel
 
@@ -33,6 +34,10 @@ class ReverseGeocodingWidget(QWidget):
         super().__init__(parent)
         ui_path = Path(__file__).resolve(True).parent / "wdg_reverse_geocoding.ui"
         uic.loadUi(ui_path, self)
+
+        self.setWindowIcon(
+            QIcon(str(DIR_PLUGIN_ROOT / "resources/images/gpf-geocodage.png"))
+        )
 
         self.btn_run.setIcon(QIcon(":images/themes/default/mActionStart.svg"))
         self.btn_run.clicked.connect(self._reverse_geocoding)
