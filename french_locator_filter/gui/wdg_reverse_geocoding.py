@@ -6,6 +6,8 @@ from typing import Optional
 
 # PyQGIS
 from qgis.core import (
+    QgsCoordinateReferenceSystem,
+    QgsCoordinateTransform,
     QgsCoordinateTransformContext,
     QgsFeature,
     QgsGeocoderContext,
@@ -48,9 +50,19 @@ class ReverseGeocodingWidget(QWidget):
         selected_point = self.wdg_selection.get_referenced_displayed_point()
 
         feature = QgsFeature()
-        feature.setGeometry(QgsGeometry.fromPointXY(selected_point))
+        geometry = QgsGeometry.fromPointXY(selected_point)
+        transform_context = QgsCoordinateTransformContext()
+        transform = None
+        if self.wdg_selection.get_crs() != QgsCoordinateReferenceSystem("EPSG:4326"):
+            transform = QgsCoordinateTransform(
+                self.wdg_selection.get_crs(),
+                QgsCoordinateReferenceSystem("EPSG:4326"),
+                transform_context,
+            )
+            geometry.transform(transform)
+        feature.setGeometry(geometry)
 
-        context = QgsGeocoderContext(QgsCoordinateTransformContext())
+        context = QgsGeocoderContext(transform_context)
         geocoder = FrenchBanGeocoder()
         results = geocoder.geocodeFeature(feature, context)
 
