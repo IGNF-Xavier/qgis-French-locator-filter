@@ -21,6 +21,7 @@ maxdepth: 1
 ---
 Installation <usage/fr_installation>
 Utilisation <usage/fr_how_to_use>
+Traitements <usage/fr_processings>
 ```
 
 ```{toctree}
@@ -30,6 +31,7 @@ maxdepth: 1
 ---
 Installation <usage/en_installation>
 Usage <usage/en_how_to_use>
+Processings <usage/en_processings>
 ```
 
 ```{toctree}

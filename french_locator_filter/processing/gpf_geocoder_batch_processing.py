@@ -3,6 +3,7 @@ from qgis.core import QgsCoordinateReferenceSystem
 from qgis.PyQt.QtCore import QCoreApplication
 
 from french_locator_filter.core.geocoder.addok_ban_fr_geocoder import FrenchBanGeocoder
+from french_locator_filter.processing.utils import get_short_string, get_user_manual_url
 
 geocoder = FrenchBanGeocoder()
 
@@ -13,6 +14,12 @@ class GpfGeocoderBatchProcessing(QgsBatchGeocodeAlgorithm):
 
     def displayName(self):
         return self.tr("Batch Géoplateforme geocoding")
+
+    def helpUrl(self):
+        return get_user_manual_url(self.name())
+
+    def shortHelpString(self):
+        return get_short_string(self.name(), self.displayName())
 
     def name(self):
         return "gpf_geocoder_batch"
