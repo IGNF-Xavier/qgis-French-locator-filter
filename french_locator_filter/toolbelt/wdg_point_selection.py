@@ -209,6 +209,9 @@ class PointSelectionWidget(QWidget):
             crs.bounds(), QgsCoordinateReferenceSystem("EPSG:4326"), crs
         )
 
+        self.spb_x.valueChanged.disconnect(self._update_marker_position)
+        self.spb_y.valueChanged.disconnect(self._update_marker_position)
+
         self.spb_x.setMinimum(bounds.xMinimum())
         self.spb_x.setMaximum(bounds.xMaximum())
         self.spb_y.setMinimum(bounds.yMinimum())
@@ -225,6 +228,9 @@ class PointSelectionWidget(QWidget):
         self.spb_x.setSingleStep(step)
         self.spb_y.setDecimals(decimal)
         self.spb_y.setSingleStep(step)
+
+        self.spb_x.valueChanged.connect(self._update_marker_position)
+        self.spb_y.valueChanged.connect(self._update_marker_position)
 
     def _selection_clicked(self) -> None:
         """Update maptool used and display marker if activated"""
