@@ -6,14 +6,14 @@ To display all QGIS processing algorithms: `Processing > Toolbox`
 
 (gpf_geocoder_batch)=
 
-## Batch geocoding Géoplatforme
+## Batch geocoding Géoplateforme
 
 ```{include} ../../french_locator_filter/resources/help/en_gpf_geocoder_batch.md
 ```
 
 (gpf_inverse_geocoder_batch)=
 
-## Batch reverse geocoding Géoplatforme
+## Batch reverse geocoding Géoplateforme
 
 ```{include} ../../french_locator_filter/resources/help/en_gpf_inverse_geocoder_batch.md
 ```
