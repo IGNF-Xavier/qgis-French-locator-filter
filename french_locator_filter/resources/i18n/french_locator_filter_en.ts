@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="fr_FR">
+<TS version="2.1" language="en_US" sourcelanguage="fr">
 <context>
     <name>ConfigOptionsPage</name>
     <message>
         <location filename="../../gui/dlg_settings.py" line="130"/>
         <source>Value defined from &apos;{}&apos; environnement variable</source>
-        <translation>Valeur définie depuis la variable d&apos;environnement &apos;{}&apos;</translation>
+        <translation>Value defined from &apos;{}&apos; environnement variable</translation>
     </message>
 </context>
 <context>
@@ -27,7 +27,7 @@
     <message>
         <location filename="../../core/locator_filter/addok_ban_fr_locator_filter.py" line="56"/>
         <source>French Adress geocoder</source>
-        <translation>Géocodeur API Géoplateforme</translation>
+        <translation>Geocoder API Géoplateforme</translation>
     </message>
 </context>
 <context>
@@ -35,17 +35,17 @@
     <message>
         <location filename="../../plugin_main.py" line="223"/>
         <source>Géocodage inversé</source>
-        <translation>Géocodage inversé</translation>
+        <translation>Reverse geocoding</translation>
     </message>
     <message>
         <location filename="../../plugin_main.py" line="198"/>
         <source>Géocodage</source>
-        <translation>Géocodage</translation>
+        <translation>Geocoding</translation>
     </message>
     <message>
         <location filename="../../plugin_main.py" line="232"/>
         <source>Traitements</source>
-        <translation>Traitements</translation>
+        <translation>Processing</translation>
     </message>
 </context>
 <context>
@@ -53,7 +53,7 @@
     <message>
         <location filename="../../processing/provider.py" line="67"/>
         <source>{} - Tools</source>
-        <translation>Outils {}</translation>
+        <translation>{} - Tools</translation>
     </message>
 </context>
 <context>
@@ -61,7 +61,7 @@
     <message>
         <location filename="../../processing/gpf_geocoder_batch_processing.py" line="16"/>
         <source>Batch Géoplateforme geocoding</source>
-        <translation>Géocodage Géoplateforme en lot</translation>
+        <translation>Batch Géoplateforme geocoding</translation>
     </message>
 </context>
 <context>
@@ -69,7 +69,7 @@
     <message>
         <location filename="../../processing/gpf_inverse_geocoder_batch_processing.py" line="15"/>
         <source>Géocodage inversé avec la Géoplateforme</source>
-        <translation>Géocodage inversé avec la Géoplateforme</translation>
+        <translation>Reverse geocoding with Géoplateforme</translation>
     </message>
 </context>
 <context>
@@ -77,12 +77,12 @@
     <message>
         <location filename="../../processing/inverse_geocoder_batch_processing.py" line="41"/>
         <source>Nombre de résultat par ligne.</source>
-        <translation>Nombre de résultat par ligne.</translation>
+        <translation>Number of result by feature.</translation>
     </message>
     <message>
         <location filename="../../processing/inverse_geocoder_batch_processing.py" line="197"/>
         <source>Geocoding inversé</source>
-        <translation>Geocoding inversé</translation>
+        <translation>Reverse geocoding</translation>
     </message>
 </context>
 <context>
@@ -90,7 +90,7 @@
     <message>
         <location filename="../../core/locator_filter/photon_locator_filter.py" line="56"/>
         <source>Photon Adress geocoder</source>
-        <translation>Géocodeur adresse Photon</translation>
+        <translation>Photon Adress geocoder</translation>
     </message>
 </context>
 <context>
@@ -98,7 +98,7 @@
     <message>
         <location filename="../../processing/photon_inverse_geocoder_batch_processing.py" line="15"/>
         <source>Géocodage inversé avec Photon</source>
-        <translation>Géocodage inversé avec Photon</translation>
+        <translation>Reverse geocoding with Photon</translation>
     </message>
 </context>
 <context>
@@ -126,17 +126,17 @@
     <message>
         <location filename="../../toolbelt/wdg_point_selection.py" line="52"/>
         <source>Visibilité marqueur</source>
-        <translation>Visibilité marqueur</translation>
+        <translation>Marker visibility</translation>
     </message>
     <message>
         <location filename="../../toolbelt/wdg_point_selection.py" line="71"/>
         <source>Sélection point</source>
-        <translation>Sélection point</translation>
+        <translation>Point selection</translation>
     </message>
     <message>
         <location filename="../../toolbelt/wdg_point_selection.py" line="77"/>
         <source>Sélection projection</source>
-        <translation>Sélection projection</translation>
+        <translation>Projection selection</translation>
     </message>
 </context>
 <context>
@@ -144,7 +144,7 @@
     <message>
         <location filename="../../gui/mdl_geocoder_result.py" line="18"/>
         <source>Nom</source>
-        <translation>Nom</translation>
+        <translation>Name</translation>
     </message>
 </context>
 <context>
@@ -152,12 +152,12 @@
     <message>
         <location filename="../../core/geocoder/rest_api_geocoder.py" line="215"/>
         <source>Erreur lors de la demande de géocodage inversé : {}</source>
-        <translation>Erreur lors de la demande de géocodage inversé : {}</translation>
+        <translation>Error during reverse geocoding: {}</translation>
     </message>
     <message>
         <location filename="../../core/geocoder/rest_api_geocoder.py" line="271"/>
         <source>Erreur lors de la demande de géocodage : {}</source>
-        <translation>Erreur lors de la demande de géocodage : {}</translation>
+        <translation>Error during geocoding : {}</translation>
     </message>
 </context>
 <context>
@@ -165,17 +165,17 @@
     <message>
         <location filename="../../core/locator_filter/rest_api_locator_filter.py" line="90"/>
         <source>API search not triggered. Reason: </source>
-        <translation>Recherche API non déclenchée. Raison : </translation>
+        <translation>API search not triggered. Reason: </translation>
     </message>
     <message>
         <location filename="../../core/locator_filter/rest_api_locator_filter.py" line="77"/>
         <source>minimum chars {} not reached: {}</source>
-        <translation>nombre minimum de caractére {} non atteint : {}</translation>
+        <translation>minimum chars {} not reached: {}</translation>
     </message>
     <message>
         <location filename="../../core/locator_filter/rest_api_locator_filter.py" line="90"/>
         <source>search term is matching the prefix.</source>
-        <translation>le terme de recherche correspond au préfixe.</translation>
+        <translation>search term is matching the prefix.</translation>
     </message>
 </context>
 <context>
@@ -183,97 +183,97 @@
     <message>
         <location filename="../../gui/dlg_settings.ui" line="6"/>
         <source>Settings</source>
-        <translation>Paramètres</translation>
+        <translation>Settings</translation>
     </message>
     <message>
         <location filename="../../gui/dlg_settings.ui" line="56"/>
         <source>Features</source>
-        <translation>Fonctionnalités</translation>
-    </message>
-    <message>
-        <location filename="../../gui/dlg_settings.ui" line="88"/>
-        <source>HTTP user-agent:</source>
-        <translation>HTTP user-agent :</translation>
-    </message>
-    <message>
-        <location filename="../../gui/dlg_settings.ui" line="216"/>
-        <source>Request URL:</source>
-        <translation>Base de l&apos;URL de requête :</translation>
-    </message>
-    <message>
-        <location filename="../../gui/dlg_settings.ui" line="209"/>
-        <source>Request parameters:</source>
-        <translation>Paramètres de la requête :</translation>
-    </message>
-    <message>
-        <location filename="../../gui/dlg_settings.ui" line="240"/>
-        <source>Miscellaneous</source>
-        <translation>Divers</translation>
-    </message>
-    <message>
-        <location filename="../../gui/dlg_settings.ui" line="267"/>
-        <source>Enable debug mode.</source>
-        <translation>Activer le mode debug.</translation>
-    </message>
-    <message>
-        <location filename="../../gui/dlg_settings.ui" line="276"/>
-        <source>Debug mode (degraded performances)</source>
-        <translation>Activer le mode debug (performances dégradées)</translation>
-    </message>
-    <message>
-        <location filename="../../gui/dlg_settings.ui" line="260"/>
-        <source>Version used to save settings:</source>
-        <translation>Paramètres sauvegardés avec la version :</translation>
-    </message>
-    <message>
-        <location filename="../../gui/dlg_settings.ui" line="249"/>
-        <source>Report an issue</source>
-        <translation>Signaler une anomalie</translation>
-    </message>
-    <message>
-        <location filename="../../gui/dlg_settings.ui" line="69"/>
-        <source>Minimal search length</source>
-        <translation>Nombre minimal de caractères avant de déclencher la requête à l&apos;API</translation>
-    </message>
-    <message>
-        <location filename="../../gui/dlg_settings.ui" line="75"/>
-        <source> characters</source>
-        <translation> caractères</translation>
-    </message>
-    <message>
-        <location filename="../../gui/dlg_settings.ui" line="119"/>
-        <source>Minimal search length:</source>
-        <translation>Longueur minimale de la recherche :</translation>
-    </message>
-    <message>
-        <location filename="../../gui/dlg_settings.ui" line="105"/>
-        <source>HTTP content type:</source>
-        <translation>Type de contenu HTTP :</translation>
-    </message>
-    <message>
-        <location filename="../../gui/dlg_settings.ui" line="129"/>
-        <source>List of strings to ignore in search bar, separated by commas.</source>
-        <translation>Liste de termes à ignorer dans la berre de recherche, séparés par des virgules.</translation>
-    </message>
-    <message>
-        <location filename="../../gui/dlg_settings.ui" line="286"/>
-        <source>Reset to factory default</source>
-        <translation>Réinitialise les paramètres par défaut</translation>
+        <translation>Features</translation>
     </message>
     <message>
         <location filename="../../gui/dlg_settings.ui" line="62"/>
         <source>Search terms to ignore:</source>
-        <translation>Paramètres de recherche à ignorer:</translation>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../../gui/dlg_settings.ui" line="69"/>
+        <source>Minimal search length</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../../gui/dlg_settings.ui" line="75"/>
+        <source> characters</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../../gui/dlg_settings.ui" line="88"/>
+        <source>HTTP user-agent:</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../../gui/dlg_settings.ui" line="105"/>
+        <source>HTTP content type:</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../../gui/dlg_settings.ui" line="119"/>
+        <source>Minimal search length:</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../../gui/dlg_settings.ui" line="129"/>
+        <source>List of strings to ignore in search bar, separated by commas.</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../gui/dlg_settings.ui" line="148"/>
         <source>BAN API configuration</source>
-        <translation>Configuration API Géoplateforme</translation>
+        <translation>Géoplateforme API configuration</translation>
+    </message>
+    <message>
+        <location filename="../../gui/dlg_settings.ui" line="216"/>
+        <source>Request URL:</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../../gui/dlg_settings.ui" line="209"/>
+        <source>Request parameters:</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../gui/dlg_settings.ui" line="203"/>
         <source>Photon API configuration</source>
-        <translation>Configuration API Photon</translation>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../../gui/dlg_settings.ui" line="240"/>
+        <source>Miscellaneous</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../../gui/dlg_settings.ui" line="249"/>
+        <source>Report an issue</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../../gui/dlg_settings.ui" line="260"/>
+        <source>Version used to save settings:</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../../gui/dlg_settings.ui" line="267"/>
+        <source>Enable debug mode.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../../gui/dlg_settings.ui" line="276"/>
+        <source>Debug mode (degraded performances)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../../gui/dlg_settings.ui" line="286"/>
+        <source>Reset to factory default</source>
+        <translation></translation>
     </message>
 </context>
 </TS>
