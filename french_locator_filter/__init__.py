@@ -10,4 +10,4 @@ def classFactory(iface):  # pylint: disable=invalid-name
     _ = iface
     from .plugin_main import FrenchGeocoderLocatorFilterPlugin
 
-    return FrenchGeocoderLocatorFilterPlugin()
+    return FrenchGeocoderLocatorFilterPlugin(iface)
