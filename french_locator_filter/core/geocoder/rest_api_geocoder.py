@@ -212,14 +212,14 @@ class RestAPIGeocoder(QgsGeocoderInterface):
                     for response in responses.get("features")
                 ]
             except Exception as err:
-                feedback.reportError(
-                    self.tr(
+                self.log(
+                    message=self.tr(
                         "Erreur lors de la demande de géocodage inversé : {}".format(
                             err
                         )
-                    )
+                    ),
+                    log_level=1,
                 )
-                self.log(message=err, log_level=1)
                 return []
             finally:
                 self.set_last_request_timestamp(QDateTime.currentMSecsSinceEpoch())
@@ -268,10 +268,12 @@ class RestAPIGeocoder(QgsGeocoderInterface):
                 for response in responses.get("features")
             ]
         except Exception as err:
-            feedback.reportError(
-                self.tr("Erreur lors de la demande de géocodage : {}".format(err))
+            self.log(
+                message=self.tr(
+                    "Erreur lors de la demande de géocodage : {}".format(err)
+                ),
+                log_level=1,
             )
-            self.log(message=err, log_level=1)
             return []
         finally:
             self.set_last_request_timestamp(QDateTime.currentMSecsSinceEpoch())
