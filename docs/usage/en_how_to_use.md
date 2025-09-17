@@ -41,6 +41,8 @@ A dock widget is displayed allowing you to select a point on the map and request
 
 ![Reverse geocoding](/_static/images/french_locator_reverse_geocode_widget.png "Reverse geocoding")
 
+You can load results as temporary layer with `Load` button.
+
 ----
 
 ## Settings
