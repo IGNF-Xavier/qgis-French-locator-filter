@@ -12,8 +12,11 @@ from qgis.core import (
     QgsFeature,
     QgsGeocoderContext,
     QgsGeometry,
+    QgsProject,
+    QgsVectorLayer,
 )
 from qgis.PyQt import uic
+from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QColor, QIcon
 from qgis.PyQt.QtWidgets import QHeaderView, QWidget
 
@@ -41,6 +44,10 @@ class ReverseGeocodingWidget(QWidget):
 
         self.btn_run.setIcon(QIcon(":images/themes/default/mActionStart.svg"))
         self.btn_run.clicked.connect(self._reverse_geocoding)
+
+        self.btn_load.setIcon(QIcon(":/images/themes/default/mActionCreateMemory.svg"))
+        self.btn_load.clicked.connect(self._load_results)
+
         self.wdg_selection.set_marker_color(QColor("green"))
 
         self.mdl_result = QgsGeocoderResultModel(self)
@@ -78,3 +85,49 @@ class ReverseGeocodingWidget(QWidget):
         # Add available results
         for result in results:
             self.mdl_result.add_geocoder_result(result)
+
+    def _load_results(self) -> None:
+        """Load result as QgsVectorLayer from current search"""
+        crs = None
+
+        geocoder = FrenchBanGeocoder()
+        feature_list = []
+        for row in range(0, self.mdl_result.rowCount()):
+            geocoder_result = self.mdl_result.data(
+                self.mdl_result.index(row, self.mdl_result.IDENTIFIER_COL),
+                Qt.ItemDataRole.UserRole,
+            )
+            if geocoder_result:
+                if crs is None:
+                    crs = geocoder_result.crs()
+
+                f = QgsFeature()
+                attr = f.attributes()
+                additional_attributes = geocoder_result.additionalAttributes()
+                for field in geocoder.appendedFields():
+                    attr.append(additional_attributes[field.name()])
+
+                f.setAttributes(attr)
+
+                f.setGeometry(geocoder_result.geometry())
+                feature_list.append(f)
+
+        if len(feature_list) != 0:
+            layer = QgsVectorLayer(
+                "Point",
+                self.tr("Résultats géocodage inversé"),
+                "memory",
+            )
+            layer.setCrs(crs)
+            provider = layer.dataProvider()
+            provider.addAttributes(geocoder.appendedFields())
+            layer.updateFields()
+
+            layer.startEditing()
+
+            for f in feature_list:
+                layer.addFeature(f)
+
+            layer.commitChanges()
+
+            QgsProject.instance().addMapLayer(layer)

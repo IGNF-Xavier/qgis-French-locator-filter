@@ -17,9 +17,14 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gui/wdg_reverse_geocoding.ui" line="23"/>
+        <location filename="../../gui/wdg_reverse_geocoding.ui" line="20"/>
         <source>...</source>
         <translation></translation>
+    </message>
+    <message>
+        <location filename="../../gui/wdg_reverse_geocoding.ui" line="33"/>
+        <source>Charger</source>
+        <translation>Load</translation>
     </message>
 </context>
 <context>
@@ -176,6 +181,14 @@
         <location filename="../../core/locator_filter/rest_api_locator_filter.py" line="90"/>
         <source>search term is matching the prefix.</source>
         <translation>search term is matching the prefix.</translation>
+    </message>
+</context>
+<context>
+    <name>ReverseGeocodingWidget</name>
+    <message>
+        <location filename="../../gui/wdg_reverse_geocoding.py" line="116"/>
+        <source>Résultats géocodage inversé</source>
+        <translation>Reverse geocoding results</translation>
     </message>
 </context>
 <context>

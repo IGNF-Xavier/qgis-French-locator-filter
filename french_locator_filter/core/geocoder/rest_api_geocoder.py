@@ -19,7 +19,7 @@ from qgis.core import (
     QgsProject,
     QgsRectangle,
 )
-from qgis.PyQt.QtCore import QCoreApplication, QDateTime
+from qgis.PyQt.QtCore import QCoreApplication, QDateTime, QMetaType
 
 # project
 from french_locator_filter.toolbelt.log_handler import PlgLogger
@@ -76,7 +76,7 @@ class RestAPIGeocoder(QgsGeocoderInterface):
         """
         fields = QgsFields()
         for attribute in self._attributes:
-            fields.append(QgsField(attribute))
+            fields.append(QgsField(attribute, QMetaType.Type.QString))
 
         return fields
 

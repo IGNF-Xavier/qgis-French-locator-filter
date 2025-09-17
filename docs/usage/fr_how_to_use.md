@@ -41,6 +41,8 @@ Un dockwidget est affiché permettant de sélectionner un point sur la carte et 
 
 ![Géocodage inversé](/_static/images/french_locator_reverse_geocode_widget.png "Géocodage inversé")
 
+Il est possible de charger le résultat dans une couche temporaire via le bouton `Charger`.
+
 ----
 
 ## Réglages
