@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.4.1 - 2025-09-18
+
+- feature: store geocoding result export to a memory layer (see !53)
+- fix: no reportError function available for QgsFeedback (misused as QgsProcessingFeedback) !52
+- fix: QMenu need a parent in Qt6 for correct use !54
+
 ## 1.4.0 - 2025-09-05
 
 - New feature: add reverse geocoding processing and UI !49
