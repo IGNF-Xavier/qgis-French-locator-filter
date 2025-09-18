@@ -199,7 +199,7 @@ class FrenchGeocoderLocatorFilterPlugin:
             self.tr("Géocodage"),
             parent,
         )
-        geocoding_menu = QMenu()
+        geocoding_menu = QMenu(parent)
 
         # Geocoding Processings
         geocoding_action_processing = QAction(self.tr("Traitements"), parent)
@@ -224,7 +224,7 @@ class FrenchGeocoderLocatorFilterPlugin:
             self.tr("Géocodage inversé"),
             parent,
         )
-        reverse_geocoding_menu = QMenu()
+        reverse_geocoding_menu = QMenu(parent)
 
         reverse_geocoding_menu.addAction(self.reverse_geocoding_widget_action)
 
