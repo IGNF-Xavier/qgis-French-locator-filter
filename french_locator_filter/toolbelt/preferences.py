@@ -59,11 +59,11 @@ class PlgSettingsStructure:
     search_terms_to_ignore: Tuple[str] = field(default=("null", "undefined"))
 
     # API BAN
-    request_url: str = "https://data.geopf.fr/geocodage/"
+    request_url: str = "https://data.geopf.fr/geocodage"
     request_url_query: str = "limit=10&autocomplete=1"
 
     # API Photon
-    request_photon_url: str = "https://photon.komoot.io/"
+    request_photon_url: str = "https://photon.komoot.io"
     request_photon_url_query: str = "limit=10&lang=fr"
 
     @property
