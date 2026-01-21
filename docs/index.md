@@ -20,6 +20,7 @@ caption: Manuel (Français)
 maxdepth: 1
 ---
 Installation <usage/fr_installation>
+usage/fr_with_qdt
 Utilisation <usage/fr_how_to_use>
 Traitements <usage/fr_processings>
 ```
@@ -30,6 +31,7 @@ caption: Manual (English)
 maxdepth: 1
 ---
 Installation <usage/en_installation>
+usage/en_with_qdt
 Usage <usage/en_how_to_use>
 Processings <usage/en_processings>
 ```
