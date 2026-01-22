@@ -7,6 +7,7 @@ Main plugin module.
 # standard library
 from functools import partial
 from pathlib import Path
+from typing import Optional
 
 from qgis.core import (
     Qgis,
@@ -68,13 +69,13 @@ class FrenchGeocoderLocatorFilterPlugin:
         self.docks = []
         self.actions = []
 
-        self.action_help = None
-        self.action_settings = None
-        self.action_geocoding = None
-        self.action_reverse_geocoding = None
-        self.reverse_geocoding_widget_action = None
+        self.action_help: Optional[QAction] = None
+        self.action_settings: Optional[QAction] = None
+        self.action_geocoding: Optional[QAction] = None
+        self.action_reverse_geocoding: Optional[QAction] = None
+        self.reverse_geocoding_widget_action: Optional[QAction] = None
 
-        self.action_help_plugin_menu_documentation = None
+        self.action_help_plugin_menu_documentation: Optional[QAction] = None
 
         # translation
         self.locale: str = QgsSettings().value("locale/userLocale", QLocale().name())[
@@ -158,8 +159,6 @@ class FrenchGeocoderLocatorFilterPlugin:
         )
 
         # -- Menu
-        self.iface.addPluginToMenu(__title__, self.action_settings)
-        self.iface.addPluginToMenu(__title__, self.action_help)
 
         # -- Processing
         self.initProcessing()
@@ -186,6 +185,9 @@ class FrenchGeocoderLocatorFilterPlugin:
             self.iface.mainWindow()
         )
         self.iface.addPluginToMenu(__title__, self.action_reverse_geocoding)
+
+        self.iface.addPluginToMenu(__title__, self.action_settings)
+        self.iface.addPluginToMenu(__title__, self.action_help)
 
         # -- Help menu
 
