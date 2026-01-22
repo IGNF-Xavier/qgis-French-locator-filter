@@ -5,6 +5,7 @@ Main plugin module.
 """
 
 # standard library
+from functools import partial
 from pathlib import Path
 
 from qgis.core import (
@@ -17,13 +18,15 @@ from qgis.core import (
 
 # PyQGIS
 from qgis.gui import QgisInterface
-from qgis.PyQt.QtCore import QCoreApplication, QLocale, Qt, QTranslator
+from qgis.PyQt.QtCore import QCoreApplication, QLocale, Qt, QTranslator, QUrl
+from qgis.PyQt.QtGui import QDesktopServices, QIcon
 from qgis.PyQt.QtWidgets import QAction, QDockWidget, QMenu, QWidget
 from qgis.utils import iface
 
 # project
 from french_locator_filter.__about__ import (
     DIR_PLUGIN_ROOT,
+    __icon_path__,
     __title__,
     __uri_homepage__,
     __version__,
@@ -64,7 +67,14 @@ class FrenchGeocoderLocatorFilterPlugin:
 
         self.docks = []
         self.actions = []
+
+        self.action_help = None
+        self.action_settings = None
+        self.action_geocoding = None
+        self.action_reverse_geocoding = None
         self.reverse_geocoding_widget_action = None
+
+        self.action_help_plugin_menu_documentation = None
 
         # translation
         self.locale: str = QgsSettings().value("locale/userLocale", QLocale().name())[
@@ -126,6 +136,31 @@ class FrenchGeocoderLocatorFilterPlugin:
             )
             iface.registerLocatorFilter(self.photon_locator_filter)
 
+        # -- Actions
+        self.action_help = QAction(
+            QgsApplication.getThemeIcon("mActionHelpContents.svg"),
+            self.tr("Help"),
+            self.iface.mainWindow(),
+        )
+        self.action_help.triggered.connect(
+            partial(QDesktopServices.openUrl, QUrl(__uri_homepage__))
+        )
+
+        self.action_settings = QAction(
+            QgsApplication.getThemeIcon("console/iconSettingsConsole.svg"),
+            self.tr("Settings"),
+            self.iface.mainWindow(),
+        )
+        self.action_settings.triggered.connect(
+            lambda: self.iface.showOptionsDialog(
+                currentPage="mOptionsPage{}".format(__title__)
+            )
+        )
+
+        # -- Menu
+        self.iface.addPluginToMenu(__title__, self.action_settings)
+        self.iface.addPluginToMenu(__title__, self.action_help)
+
         # -- Processing
         self.initProcessing()
 
@@ -143,6 +178,30 @@ class FrenchGeocoderLocatorFilterPlugin:
             title=self.tr("Géocodage inversé"),
             name="reverse_geocode",
             widget=reverse_geocoding_widget,
+        )
+        self.action_geocoding = self._create_geocoding_action(self.iface.mainWindow())
+        self.iface.addPluginToMenu(__title__, self.action_geocoding)
+
+        self.action_reverse_geocoding = self._create_reverse_geocoding_action(
+            self.iface.mainWindow()
+        )
+        self.iface.addPluginToMenu(__title__, self.action_reverse_geocoding)
+
+        # -- Help menu
+
+        # documentation
+        self.iface.pluginHelpMenu().addSeparator()
+        self.action_help_plugin_menu_documentation = QAction(
+            QIcon(str(__icon_path__)),
+            f"{__title__} - Documentation",
+            self.iface.mainWindow(),
+        )
+        self.action_help_plugin_menu_documentation.triggered.connect(
+            partial(QDesktopServices.openUrl, QUrl(__uri_homepage__))
+        )
+
+        self.iface.pluginHelpMenu().addAction(
+            self.action_help_plugin_menu_documentation
         )
 
     def add_dock_widget_and_action(
@@ -184,16 +243,14 @@ class FrenchGeocoderLocatorFilterPlugin:
 
         return action
 
-    def create_gpf_plugins_actions(self, parent: QWidget) -> list[QAction]:
-        """Create action to be inserted a Geoplateforme plugin
+    def _create_geocoding_action(self, parent: QWidget) -> QAction:
+        """Create action with menu for geocoding related function actions
 
         :param parent: parent widget
         :type parent: QWidget
-        :return: list of action to add in Geoplateforme plugin
-        :rtype: list[QAction]
+        :return: action for geocoding
+        :rtype: QAction
         """
-        available_actions = []
-
         # Geocoding action
         geocoding_action = QAction(
             self.tr("Géocodage"),
@@ -216,8 +273,16 @@ class FrenchGeocoderLocatorFilterPlugin:
         geocoding_menu.addAction(geocoding_action_processing)
 
         geocoding_action.setMenu(geocoding_menu)
+        return geocoding_action
 
-        available_actions.append(geocoding_action)
+    def _create_reverse_geocoding_action(self, parent: QWidget) -> QAction:
+        """Create action with menu for reverse geocoding related function actions
+
+        :param parent: parent widget
+        :type parent: QWidget
+        :return: action for geocoding
+        :rtype: QAction
+        """
 
         # Reverse Geocoding action
         reverse_geocoding_action = QAction(
@@ -244,8 +309,20 @@ class FrenchGeocoderLocatorFilterPlugin:
 
         reverse_geocoding_action.setMenu(reverse_geocoding_menu)
 
-        available_actions.append(reverse_geocoding_action)
+        return reverse_geocoding_action
 
+    def create_gpf_plugins_actions(self, parent: QWidget) -> list[QAction]:
+        """Create action to be inserted a Geoplateforme plugin
+
+        :param parent: parent widget
+        :type parent: QWidget
+        :return: list of action to add in Geoplateforme plugin
+        :rtype: list[QAction]
+        """
+        available_actions = []
+
+        available_actions.append(self._create_geocoding_action(parent))
+        available_actions.append(self._create_reverse_geocoding_action(parent))
         return available_actions
 
     def initProcessing(self):
@@ -262,6 +339,27 @@ class FrenchGeocoderLocatorFilterPlugin:
             self.iface.removeDockWidget(_dock)
             _dock.deleteLater()
         self.docks.clear()
+
+        # -- Clean up menu
+        self.iface.removePluginMenu(__title__, self.action_help)
+        self.iface.removePluginMenu(__title__, self.action_settings)
+        if self.action_reverse_geocoding:
+            self.iface.removePluginMenu(__title__, self.action_reverse_geocoding)
+        if self.action_geocoding:
+            self.iface.removePluginMenu(__title__, self.action_geocoding)
+
+        # -- Clean up preferences panel in QGIS settings
+        self.iface.unregisterOptionsWidgetFactory(self.options_factory)
+
+        # remove from QGIS help/extensions menu
+        if self.action_help_plugin_menu_documentation:
+            self.iface.pluginHelpMenu().removeAction(
+                self.action_help_plugin_menu_documentation
+            )
+
+        # remove actions
+        del self.action_settings
+        del self.action_help
 
         # -- Clean up preferences panel in QGIS settings
         if self.options_factory:
