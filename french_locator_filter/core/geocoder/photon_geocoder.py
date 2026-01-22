@@ -76,9 +76,10 @@ class PhotonGeocoder(RestAPIGeocoder):
         :return: request url for geocoding
         :rtype: str
         """
+        url_service = self.plg_settings.photon_url
         if reverse:
-            return f"{self.plg_settings.photon_url}/reverse"
-        return f"{self.plg_settings.photon_url}/api/"
+            return f"{url_service}reverse"
+        return f"{url_service}api"
 
     @property
     def request_url_query(self):
