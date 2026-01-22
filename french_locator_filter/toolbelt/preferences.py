@@ -66,15 +66,26 @@ class PlgSettingsStructure:
     request_photon_url: str = "https://photon.komoot.io/"
     request_photon_url_query: str = "limit=10&lang=fr"
 
+    @staticmethod
+    def _url_with_trailing_slash(url: str) -> str:
+        """Add trailing slash in url
+
+        :param url: url
+        :type url: str
+        :return: url with trailing slash
+        :rtype: str
+        """
+        return url if url.endswith("/") else url + "/"
+
     @property
     def gpf_url(self) -> str:
         """Return the URL for geoplateforme use"""
-        return f"{self.request_url}"
+        return self._url_with_trailing_slash(self.request_url)
 
     @property
     def photon_url(self) -> str:
         """Return the URL for photon use"""
-        return f"{self.request_photon_url}"
+        return self._url_with_trailing_slash(self.request_photon_url)
 
 
 class PlgOptionsManager:

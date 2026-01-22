@@ -79,10 +79,9 @@ class FrenchBanGeocoder(RestAPIGeocoder):
         :rtype: str
         """
         url_service = self.plg_settings.gpf_url
-        url_service = url_service.removesuffix("/")
         if reverse:
-            return f"{url_service}/reverse"
-        return f"{url_service}/search"
+            return f"{url_service}reverse"
+        return f"{url_service}search"
 
     @property
     def request_url_query(self):
