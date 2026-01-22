@@ -2,7 +2,8 @@
 # -------------
 
 furo>=2024
+keepachangelog>=2.0.0
 myst-parser[linkify]>=2
-sphinx-autobuild>=2024
+sphinx-autobuild>=2025.8.25
 sphinx-copybutton>=0.3
-sphinxext-opengraph>=0.4
+sphinxext-opengraph[social-cards]>=0.13
