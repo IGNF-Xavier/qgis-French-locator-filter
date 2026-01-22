@@ -38,19 +38,34 @@
 <context>
     <name>FrenchGeocoderLocatorFilterPlugin</name>
     <message>
-        <location filename="../../plugin_main.py" line="223"/>
+        <location filename="../../plugin_main.py" line="292"/>
         <source>Géocodage inversé</source>
         <translation>Géocodage inversé</translation>
     </message>
     <message>
-        <location filename="../../plugin_main.py" line="198"/>
+        <location filename="../../plugin_main.py" line="259"/>
         <source>Géocodage</source>
         <translation>Géocodage</translation>
     </message>
     <message>
-        <location filename="../../plugin_main.py" line="232"/>
+        <location filename="../../plugin_main.py" line="301"/>
         <source>Traitements</source>
         <translation>Traitements</translation>
+    </message>
+    <message>
+        <location filename="../../plugin_main.py" line="69"/>
+        <source>French Geocoder</source>
+        <translation>Géocodage</translation>
+    </message>
+    <message>
+        <location filename="../../plugin_main.py" line="143"/>
+        <source>Help</source>
+        <translation>Aide</translation>
+    </message>
+    <message>
+        <location filename="../../plugin_main.py" line="152"/>
+        <source>Settings</source>
+        <translation>Paramètres</translation>
     </message>
 </context>
 <context>

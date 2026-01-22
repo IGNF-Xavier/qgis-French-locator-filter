@@ -98,6 +98,8 @@ class FrenchGeocoderLocatorFilterPlugin:
                 log_level=Qgis.MessageLevel.Warning,
             )
 
+        self._title_menu: str = self.tr("French Geocoder")
+
         self.log(
             message=(
                 "DEBUG - French (BAN Geocoder) Locator Filter"
@@ -179,15 +181,15 @@ class FrenchGeocoderLocatorFilterPlugin:
             widget=reverse_geocoding_widget,
         )
         self.action_geocoding = self._create_geocoding_action(self.iface.mainWindow())
-        self.iface.addPluginToMenu(__title__, self.action_geocoding)
+        self.iface.addPluginToMenu(self._title_menu, self.action_geocoding)
 
         self.action_reverse_geocoding = self._create_reverse_geocoding_action(
             self.iface.mainWindow()
         )
-        self.iface.addPluginToMenu(__title__, self.action_reverse_geocoding)
+        self.iface.addPluginToMenu(self._title_menu, self.action_reverse_geocoding)
 
-        self.iface.addPluginToMenu(__title__, self.action_settings)
-        self.iface.addPluginToMenu(__title__, self.action_help)
+        self.iface.addPluginToMenu(self._title_menu, self.action_settings)
+        self.iface.addPluginToMenu(self._title_menu, self.action_help)
 
         # -- Help menu
 
@@ -343,12 +345,12 @@ class FrenchGeocoderLocatorFilterPlugin:
         self.docks.clear()
 
         # -- Clean up menu
-        self.iface.removePluginMenu(__title__, self.action_help)
-        self.iface.removePluginMenu(__title__, self.action_settings)
+        self.iface.removePluginMenu(self._title_menu, self.action_help)
+        self.iface.removePluginMenu(self._title_menu, self.action_settings)
         if self.action_reverse_geocoding:
-            self.iface.removePluginMenu(__title__, self.action_reverse_geocoding)
+            self.iface.removePluginMenu(self._title_menu, self.action_reverse_geocoding)
         if self.action_geocoding:
-            self.iface.removePluginMenu(__title__, self.action_geocoding)
+            self.iface.removePluginMenu(self._title_menu, self.action_geocoding)
 
         # -- Clean up preferences panel in QGIS settings
         self.iface.unregisterOptionsWidgetFactory(self.options_factory)
