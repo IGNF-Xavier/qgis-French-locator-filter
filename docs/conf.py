@@ -34,8 +34,8 @@ author: str = __about__.__author__
 copyright: str = __about__.__copyright__
 description: str = __about__.__summary__
 project: str = __about__.__title__
-version = release = __about__.__version__
-
+version: str = __about__.__version__
+release: str = latest_version
 
 # -- General configuration ---------------------------------------------------
 
@@ -116,10 +116,8 @@ intersphinx_mapping: dict[str, tuple[str, None]] = {
 
 # MyST Parser
 myst_enable_extensions: list[str] = [
-    "amsmath",
     "colon_fence",
     "deflist",
-    "dollarmath",
     "html_image",
     "linkify",
     "replacements",
@@ -140,6 +138,7 @@ myst_substitutions: dict[str, str] = {
     "repo_url": __about__.__uri__,
     "title": project,
     "version": version,
+    "release_version": release,
 }
 
 myst_url_schemes: tuple[str, str, str] = ("http", "https", "mailto")
