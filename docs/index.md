@@ -11,24 +11,25 @@
 
 ----
 
-![Demonstration of the French Locator Filter plugin for QGIS](/_static/images/french_geocoder_demo.gif "French Locator Filter - demo")
+![Demonstration of the French Locator Filter plugin for QGIS](./_static/images/french_geocoder_demo.gif "French Locator Filter - demo")
 
 ----
 
 ```{toctree}
 ---
-caption: Manuel (Français)
+caption: 🇫🇷 Manuel (Français)
 maxdepth: 1
 ---
 Installation <usage/fr_installation>
 usage/fr_with_qdt
 Utilisation <usage/fr_how_to_use>
 Traitements <usage/fr_processings>
+Tutoriel officiel de adresse.data.gouv.fr <https://adresse.data.gouv.fr/blog/plugin-qgis-pour-integrer-le-geocodeur-de-la-ban>
 ```
 
 ```{toctree}
 ---
-caption: Manual (English)
+caption: 🇬🇧 Manual (English)
 maxdepth: 1
 ---
 Installation <usage/en_installation>
@@ -36,6 +37,8 @@ usage/en_with_qdt
 Usage <usage/en_how_to_use>
 Processings <usage/en_processings>
 ```
+
+----
 
 ```{toctree}
 ---
