@@ -1,5 +1,7 @@
 # French Locator Filter - Un plugin de géocodage pour QGIS
 
+![Banner](./french_locator_filter/resources/images/banner.png)
+
 [![pipeline status](https://gitlab.com/Oslandia/qgis/french_locator_filter/badges/master/pipeline.svg)](https://gitlab.com/Oslandia/qgis/french_locator_filter/-/commits/master)
 [![documentation badge](https://img.shields.io/badge/documentation-autobuilt%20with%20Sphinx-blue)](https://oslandia.gitlab.io/qgis/french_locator_filter/)
 
