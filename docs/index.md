@@ -24,6 +24,7 @@ Installation <usage/fr_installation>
 usage/fr_with_qdt
 Utilisation <usage/fr_how_to_use>
 Traitements <usage/fr_processings>
+Tutoriel officiel de adresse.data.gouv.fr <https://adresse.data.gouv.fr/blog/plugin-qgis-pour-integrer-le-geocodeur-de-la-ban>
 ```
 
 ```{toctree}
