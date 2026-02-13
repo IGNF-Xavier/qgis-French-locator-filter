@@ -11,13 +11,13 @@
 
 ----
 
-![Demonstration of the French Locator Filter plugin for QGIS](/_static/images/french_geocoder_demo.gif "French Locator Filter - demo")
+![Demonstration of the French Locator Filter plugin for QGIS](./_static/images/french_geocoder_demo.gif "French Locator Filter - demo")
 
 ----
 
 ```{toctree}
 ---
-caption: Manuel (Français)
+caption: 🇫🇷 Manuel (Français)
 maxdepth: 1
 ---
 Installation <usage/fr_installation>
@@ -29,7 +29,7 @@ Tutoriel officiel de adresse.data.gouv.fr <https://adresse.data.gouv.fr/blog/plu
 
 ```{toctree}
 ---
-caption: Manual (English)
+caption: 🇬🇧 Manual (English)
 maxdepth: 1
 ---
 Installation <usage/en_installation>
@@ -37,6 +37,8 @@ usage/en_with_qdt
 Usage <usage/en_how_to_use>
 Processings <usage/en_processings>
 ```
+
+----
 
 ```{toctree}
 ---
