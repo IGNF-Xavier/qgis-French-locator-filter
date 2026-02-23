@@ -37,6 +37,19 @@ class TestPlgPreferences(unittest.TestCase):
         self.assertIsInstance(settings.version, str)
         self.assertEqual(settings.version, __version__)
 
+    def test_plg_preferences_search_terms_to_list(self):
+        settings = PlgSettingsStructure(search_terms_to_ignore="test, value2")
+        self.assertEqual(
+            settings.search_terms_to_ignore_list,
+            ["test", "value2"],
+            "search_terms_to_ignore_list failed",
+        )
+
+    def test_plg_preferences_search_terms_to_str(self):
+        settings = PlgSettingsStructure(search_terms_to_ignore=("test", "value2"))
+
+        self.assertEqual(settings.terms_to_str, "test, value2", "terms_to_str failed")
+
 
 # ############################################################################
 # ####### Stand-alone run ########

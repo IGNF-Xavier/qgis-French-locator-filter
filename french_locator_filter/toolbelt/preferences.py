@@ -7,7 +7,7 @@ Plugin settings.
 # standard
 import os
 from dataclasses import asdict, dataclass, field, fields
-from typing import Tuple
+from typing import Iterable, Tuple
 
 # PyQGIS
 from qgis.core import Qgis, QgsSettings
@@ -86,6 +86,30 @@ class PlgSettingsStructure:
     def photon_url(self) -> str:
         """Return the URL for photon use"""
         return self._url_with_trailing_slash(self.request_photon_url)
+
+    @property
+    def search_terms_to_ignore_list(self) -> list:
+        """Convert search_terms_to_ignore from str into list by splitting on comma and
+            stripping.
+
+        :return: list of search terms to ignore
+        :rtype: list
+        """
+        if isinstance(self.search_terms_to_ignore, str):
+            return [term.strip() for term in self.search_terms_to_ignore.split(",")]
+        return self.search_terms_to_ignore
+
+    @property
+    def terms_to_str(self) -> str:
+        """Convert search_terms_to_ignore from list into str separated by comma and
+            space.
+
+        :return: str separated by comma space
+        :rtype: str
+        """
+        if isinstance(self.search_terms_to_ignore, Iterable):
+            return ", ".join(self.search_terms_to_ignore)
+        return self.search_terms_to_ignore
 
 
 class PlgOptionsManager:
