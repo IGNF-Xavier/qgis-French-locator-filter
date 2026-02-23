@@ -160,6 +160,24 @@ class RestAPIGeocoder(QgsGeocoderInterface):
             "get_reverse_geocode_query must be implemented in RestAPIGeocoder derived classes"
         )
 
+    @property
+    def query_search_key(self) -> str:
+        """Search key for query (default "q")
+
+        :return: search key for query
+        :rtype: str
+        """
+        return "q"
+
+    @property
+    def result_container_name(self) -> str:
+        """Result container name used to parse available results (defaut "features")
+
+        :return: result container name
+        :rtype: str
+        """
+        return "features"
+
     def maximum_result_for_inverse_geocoding(self) -> int:
         """Maximum result for an inverse geocoding
 
@@ -209,7 +227,7 @@ class RestAPIGeocoder(QgsGeocoderInterface):
                 responses = json.loads(str(response_content, "UTF8"))
                 return [
                     self._result_from_json(response)
-                    for response in responses.get("features")
+                    for response in responses.get(self.result_container_name)
                 ]
             except Exception as err:
                 self.log(
@@ -258,14 +276,14 @@ class RestAPIGeocoder(QgsGeocoderInterface):
             qurl = qntwk.build_url(
                 request_url=self.request_url(reverse=False),
                 request_url_query=self.request_url_query,
-                additional_query=f"&q={string}",
+                additional_query=f"&{self.query_search_key}={string}",
             )
             response_content = qntwk.get_url(url=qurl)
             # load response as a dict
             responses = json.loads(str(response_content, "UTF8"))
             return [
                 self._result_from_json(response)
-                for response in responses.get("features")
+                for response in responses.get(self.result_container_name)
             ]
         except Exception as err:
             self.log(
