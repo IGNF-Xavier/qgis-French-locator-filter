@@ -11,6 +11,13 @@ To display all QGIS processing algorithms: `Processing > Toolbox`
 ```{include} ../../french_locator_filter/resources/help/en_gpf_geocoder_batch.md
 ```
 
+(photon_geocoder_batch)=
+
+## Batch geocoding Photon
+
+```{include} ../../french_locator_filter/resources/help/en_photon_geocoder_batch.md
+```
+
 (gpf_inverse_geocoder_batch)=
 
 ## Batch reverse geocoding Géoplateforme
@@ -18,7 +25,7 @@ To display all QGIS processing algorithms: `Processing > Toolbox`
 ```{include} ../../french_locator_filter/resources/help/en_gpf_inverse_geocoder_batch.md
 ```
 
-(gpf_inverse_geocoder_batch)=
+(photon_inverse_geocoder_batch)=
 
 ## Batch reverse geocoding Photon
 

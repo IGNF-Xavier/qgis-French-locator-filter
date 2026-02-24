@@ -1,0 +1,56 @@
+from qgis.analysis import QgsBatchGeocodeAlgorithm
+from qgis.core import QgsCoordinateReferenceSystem
+from qgis.PyQt.QtCore import QCoreApplication
+
+from french_locator_filter.core.geocoder.photon_geocoder import PhotonGeocoder
+from french_locator_filter.processing.utils import get_short_string, get_user_manual_url
+
+geocoder = PhotonGeocoder()
+
+
+class PhotonGeocoderBatchProcessing(QgsBatchGeocodeAlgorithm):
+    def __init__(self):
+        super().__init__(geocoder)
+
+    def displayName(self):
+        return self.tr("Batch Photon geocoding")
+
+    def helpUrl(self):
+        return get_user_manual_url(self.name())
+
+    def shortHelpString(self):
+        return get_short_string(self.name(), self.displayName())
+
+    def name(self):
+        return "photon_geocoder_batch"
+
+    def group(self):
+        return ""
+
+    def groupId(self):
+        return ""
+
+    def createInstance(self):
+        return PhotonGeocoderBatchProcessing()
+
+    def tr(self, message: str) -> str:
+        """Get the translation for a string using Qt translation API.
+
+        :param message: string to be translated.
+        :type message: str
+
+        :returns: Translated version of message.
+        :rtype: str
+        """
+        return QCoreApplication.translate(self.__class__.__name__, message)
+
+    def outputCrs(
+        self, input_crs: QgsCoordinateReferenceSystem
+    ) -> QgsCoordinateReferenceSystem:
+        use_crs = QgsCoordinateReferenceSystem("EPSG:4326")
+        if input_crs.isValid():
+            use_crs = input_crs
+        return super().outputCrs(use_crs)
+
+    def tags(self):
+        return ["geocode", "géoplateforme", "batch"]
