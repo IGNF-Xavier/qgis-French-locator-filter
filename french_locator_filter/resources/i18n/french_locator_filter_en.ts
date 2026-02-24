@@ -22,9 +22,14 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gui/wdg_reverse_geocoding.ui" line="33"/>
+        <location filename="../../gui/wdg_reverse_geocoding.ui" line="49"/>
         <source>Charger</source>
         <translation>Load</translation>
+    </message>
+    <message>
+        <location filename="../../gui/wdg_reverse_geocoding.ui" line="36"/>
+        <source>Geocoder</source>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -214,9 +219,19 @@
 <context>
     <name>ReverseGeocodingWidget</name>
     <message>
-        <location filename="../../gui/wdg_reverse_geocoding.py" line="116"/>
+        <location filename="../../gui/wdg_reverse_geocoding.py" line="122"/>
         <source>Résultats géocodage inversé</source>
         <translation>Reverse geocoding results</translation>
+    </message>
+    <message>
+        <location filename="../../gui/wdg_reverse_geocoding.py" line="61"/>
+        <source>French Adress geocoder</source>
+        <translation>Geocoder API Géoplateforme</translation>
+    </message>
+    <message>
+        <location filename="../../gui/wdg_reverse_geocoding.py" line="64"/>
+        <source>Photon Adress geocoder</source>
+        <translation>Photon Adress geocoder</translation>
     </message>
 </context>
 <context>
