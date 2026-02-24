@@ -15,4 +15,4 @@ Géocodage inversé avec la Géoplateforme depuis une couche vectorielle.
 |------------------------------------|-------------------------------------|--------------------------------|
 | Couche vectorielle en sortie | `OUTPUT`        | Couche vectorielle avec géocodage inversé.  |
 
-Nom du traitement : `french_locator_filter:gpf_geocoder_batch`
+Nom du traitement : `french_locator_filter:gpf_inverse_geocoder_batch`
