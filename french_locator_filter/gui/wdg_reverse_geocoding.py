@@ -58,6 +58,7 @@ class ReverseGeocodingWidget(QWidget):
             0, QHeaderView.ResizeMode.Stretch
         )
 
+        self._result_geocoder = None
         self.cbx_geocoder.addItem(
             self.tr("French Adress geocoder"), FrenchBanGeocoder()
         )
@@ -81,8 +82,8 @@ class ReverseGeocodingWidget(QWidget):
         feature.setGeometry(geometry)
 
         context = QgsGeocoderContext(transform_context)
-        geocoder = self.cbx_geocoder.currentData()
-        results = geocoder.geocodeFeature(feature, context)
+        self._result_geocoder = self.cbx_geocoder.currentData()
+        results = self._result_geocoder.geocodeFeature(feature, context)
 
         # Clear current results
         while self.mdl_result.rowCount() != 0:
@@ -96,7 +97,10 @@ class ReverseGeocodingWidget(QWidget):
         """Load result as QgsVectorLayer from current search"""
         crs = None
 
-        geocoder = FrenchBanGeocoder()
+        if self._result_geocoder is None:
+            return
+
+        geocoder = self._result_geocoder
         feature_list = []
         for row in range(0, self.mdl_result.rowCount()):
             geocoder_result = self.mdl_result.data(
