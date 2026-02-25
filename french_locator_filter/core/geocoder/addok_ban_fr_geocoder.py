@@ -1,5 +1,5 @@
 # standard library
-from typing import List, Optional
+from typing import Dict, Optional
 
 # PyQGIS
 from qgis.core import (
@@ -11,6 +11,7 @@ from qgis.core import (
     QgsPointXY,
     QgsRectangle,
 )
+from qgis.PyQt.QtCore import QMetaType
 
 # project
 from french_locator_filter.core.geocoder.rest_api_geocoder import RestAPIGeocoder
@@ -42,33 +43,34 @@ class FrenchBanGeocoder(RestAPIGeocoder):
         return FrenchBanGeocoder._last_request_timestamp
 
     @property
-    def _attributes(self) -> List[str]:
-        """Get attributes to read from french BAN API properties
+    def _attributes(self) -> Dict[str, QMetaType.Type]:
+        """Get attributes to read from REST API properties.
+        To be overriden in implementation, empty list by default
 
         Returns:
-            List[str]: attributes
+            Dict[str, QMetaType.Type]: dict of attribute with expected data type
         """
-        return [
-            "id",
-            "type",
-            "name",
-            "postcode",
-            "citycode",
-            "city",
-            "district",
-            "housenumber",
-            "street",
-            "population",
-            "context",
-            "municipality",
-            "oldcitycode",
-            "oldcity",
-            "label",
-            "x",
-            "y",
-            "importance",
-            "score",
-        ]
+        return {
+            "id": QMetaType.Type.QString,
+            "type": QMetaType.Type.QString,
+            "name": QMetaType.Type.QString,
+            "postcode": QMetaType.Type.QString,
+            "citycode": QMetaType.Type.QString,
+            "city": QMetaType.Type.QString,
+            "district": QMetaType.Type.QString,
+            "housenumber": QMetaType.Type.QString,
+            "street": QMetaType.Type.QString,
+            "population": QMetaType.Type.Int,
+            "context": QMetaType.Type.QString,
+            "municipality": QMetaType.Type.QString,
+            "oldcitycode": QMetaType.Type.QString,
+            "oldcity": QMetaType.Type.QString,
+            "label": QMetaType.Type.QString,
+            "x": QMetaType.Type.Double,
+            "y": QMetaType.Type.Double,
+            "importance": QMetaType.Type.Double,
+            "score": QMetaType.Type.Double,
+        }
 
     def request_url(self, reverse: bool = False) -> str:
         """Define request url
@@ -155,7 +157,7 @@ class FrenchBanGeocoder(RestAPIGeocoder):
             crs,
         )
         attributes = {}
-        for attribute in self._attributes:
+        for attribute, _ in self._attributes.items():
             attributes[attribute] = properties.get(attribute, None)
 
         # Define viewport from extent or define default from type

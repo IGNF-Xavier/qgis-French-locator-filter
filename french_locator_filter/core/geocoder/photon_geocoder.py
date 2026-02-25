@@ -1,5 +1,5 @@
 # standard library
-from typing import List, Optional
+from typing import Dict, Optional
 
 # PyQGIS
 from qgis.core import (
@@ -11,6 +11,7 @@ from qgis.core import (
     QgsPointXY,
     QgsRectangle,
 )
+from qgis.PyQt.QtCore import QMetaType
 
 # project
 from french_locator_filter.core.geocoder.rest_api_geocoder import RestAPIGeocoder
@@ -42,30 +43,31 @@ class PhotonGeocoder(RestAPIGeocoder):
         return PhotonGeocoder._last_request_timestamp
 
     @property
-    def _attributes(self) -> List[str]:
-        """Get attributes to read from Photon API properties
+    def _attributes(self) -> Dict[str, QMetaType.Type]:
+        """Get attributes to read from REST API properties.
+        To be overriden in implementation, empty list by default
 
         Returns:
-            List[str]: attributes
+            Dict[str, QMetaType.Type]: dict of attribute with expected data type
         """
-        return [
-            "name",
-            "street",
-            "housenumber",
-            "postcode",
-            "state",
-            "country",
-            "countrycode",
-            "osm_id",
-            "osm_key",
-            "osm_value",
-            "osm_type",
-            "city",
-            "locality",
-            "county",
-            "type",
-            "district",
-        ]
+        return {
+            "name": QMetaType.Type.QString,
+            "street": QMetaType.Type.QString,
+            "housenumber": QMetaType.Type.QString,
+            "postcode": QMetaType.Type.QString,
+            "state": QMetaType.Type.QString,
+            "country": QMetaType.Type.QString,
+            "countrycode": QMetaType.Type.QString,
+            "osm_id": QMetaType.Type.Int,
+            "osm_key": QMetaType.Type.QString,
+            "osm_value": QMetaType.Type.QString,
+            "osm_type": QMetaType.Type.QString,
+            "city": QMetaType.Type.QString,
+            "locality": QMetaType.Type.QString,
+            "county": QMetaType.Type.QString,
+            "type": QMetaType.Type.QString,
+            "district": QMetaType.Type.QString,
+        }
 
     def request_url(self, reverse: bool = False) -> str:
         """Define request url
@@ -149,7 +151,7 @@ class PhotonGeocoder(RestAPIGeocoder):
             crs,
         )
         attributes = {}
-        for attribute in self._attributes:
+        for attribute, _ in self._attributes.items():
             attributes[attribute] = properties.get(attribute, None)
 
         if "extent" in properties:

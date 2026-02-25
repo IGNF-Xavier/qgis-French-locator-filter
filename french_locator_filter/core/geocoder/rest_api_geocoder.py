@@ -1,7 +1,7 @@
 # standard library
 import json
 import time
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 # PyQGIS
 from qgis.core import (
@@ -58,14 +58,14 @@ class RestAPIGeocoder(QgsGeocoderInterface):
         )
 
     @property
-    def _attributes(self) -> List[str]:
+    def _attributes(self) -> Dict[str, QMetaType.Type]:
         """Get attributes to read from REST API properties.
         To be overriden in implementation, empty list by default
 
         Returns:
-            List[str]: attributes
+            Dict[str, QMetaType.Type]: dict of attribute with expected data type
         """
-        return []
+        return {}
 
     def appendedFields(self) -> QgsFields:
         """Returns a set of newly created fields which will be appended to existing features during the geocode operation.
@@ -75,8 +75,8 @@ class RestAPIGeocoder(QgsGeocoderInterface):
             QgsFields: appended fields
         """
         fields = QgsFields()
-        for attribute in self._attributes:
-            fields.append(QgsField(attribute, QMetaType.Type.QString))
+        for attribute, metadata_type in self._attributes.items():
+            fields.append(QgsField(attribute, metadata_type))
 
         return fields
 
