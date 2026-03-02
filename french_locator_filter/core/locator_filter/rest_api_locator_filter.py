@@ -94,6 +94,19 @@ class RestAPILocatorFilter(QgsGeocoderLocatorFilter):
             )
             return False
 
+        # ignore if search terms is one of special terms to ignore
+        if search.strip() in self.plg_settings.search_terms_to_ignore_list:
+            self.log(
+                message=self.tr("API search not triggered. Reason: ")
+                + self.tr(
+                    "Search term '{}' is one of special terms to be ignored.".format(
+                        search
+                    )
+                ),
+                log_level=4,
+            )
+            return
+
         return True
 
     def fetchResults(
