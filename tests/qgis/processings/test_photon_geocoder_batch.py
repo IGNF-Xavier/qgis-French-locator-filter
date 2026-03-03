@@ -42,7 +42,7 @@ PHOTON_SRV_MOCK_RESPOND = {
 
 GEOCODING_RESULT_ATTRIBUTES = {
     "osm_type": "R",
-    "osm_id": "76469",
+    "osm_id": 76469,
     "osm_key": "place",
     "osm_value": "city",
     "type": "city",
