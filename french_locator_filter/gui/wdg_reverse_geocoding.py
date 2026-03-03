@@ -23,6 +23,7 @@ from qgis.PyQt.QtWidgets import QHeaderView, QWidget
 # project
 from french_locator_filter.__about__ import DIR_PLUGIN_ROOT
 from french_locator_filter.core.geocoder.addok_ban_fr_geocoder import FrenchBanGeocoder
+from french_locator_filter.core.geocoder.photon_geocoder import PhotonGeocoder
 from french_locator_filter.gui.mdl_geocoder_result import QgsGeocoderResultModel
 
 
@@ -57,6 +58,12 @@ class ReverseGeocodingWidget(QWidget):
             0, QHeaderView.ResizeMode.Stretch
         )
 
+        self._result_geocoder = None
+        self.cbx_geocoder.addItem(
+            self.tr("French Adress geocoder"), FrenchBanGeocoder()
+        )
+        self.cbx_geocoder.addItem(self.tr("Photon Adress geocoder"), PhotonGeocoder())
+
     def _reverse_geocoding(self) -> None:
         """Ask for a reverse geocoding"""
         selected_point = self.wdg_selection.get_referenced_displayed_point()
@@ -75,8 +82,8 @@ class ReverseGeocodingWidget(QWidget):
         feature.setGeometry(geometry)
 
         context = QgsGeocoderContext(transform_context)
-        geocoder = FrenchBanGeocoder()
-        results = geocoder.geocodeFeature(feature, context)
+        self._result_geocoder = self.cbx_geocoder.currentData()
+        results = self._result_geocoder.geocodeFeature(feature, context)
 
         # Clear current results
         while self.mdl_result.rowCount() != 0:
@@ -90,7 +97,10 @@ class ReverseGeocodingWidget(QWidget):
         """Load result as QgsVectorLayer from current search"""
         crs = None
 
-        geocoder = FrenchBanGeocoder()
+        if self._result_geocoder is None:
+            return
+
+        geocoder = self._result_geocoder
         feature_list = []
         for row in range(0, self.mdl_result.rowCount()):
             geocoder_result = self.mdl_result.data(
