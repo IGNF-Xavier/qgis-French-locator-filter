@@ -38,22 +38,22 @@
 <context>
     <name>FrenchGeocoderLocatorFilterPlugin</name>
     <message>
-        <location filename="../../plugin_main.py" line="292"/>
+        <location filename="../../plugin_main.py" line="308"/>
         <source>Géocodage inversé</source>
         <translation>Reverse geocoding</translation>
     </message>
     <message>
-        <location filename="../../plugin_main.py" line="259"/>
+        <location filename="../../plugin_main.py" line="263"/>
         <source>Géocodage</source>
         <translation>Geocoding</translation>
     </message>
     <message>
-        <location filename="../../plugin_main.py" line="301"/>
+        <location filename="../../plugin_main.py" line="317"/>
         <source>Traitements</source>
         <translation>Processing</translation>
     </message>
     <message>
-        <location filename="../../plugin_main.py" line="69"/>
+        <location filename="../../plugin_main.py" line="101"/>
         <source>French Geocoder</source>
         <translation></translation>
     </message>
@@ -71,7 +71,7 @@
 <context>
     <name>FrenchLocatorProcessingProvider</name>
     <message>
-        <location filename="../../processing/provider.py" line="67"/>
+        <location filename="../../processing/provider.py" line="71"/>
         <source>{} - Tools</source>
         <translation>{} - Tools</translation>
     </message>
@@ -103,6 +103,14 @@
         <location filename="../../processing/inverse_geocoder_batch_processing.py" line="197"/>
         <source>Geocoding inversé</source>
         <translation>Reverse geocoding</translation>
+    </message>
+</context>
+<context>
+    <name>PhotonGeocoderBatchProcessing</name>
+    <message>
+        <location filename="../../processing/photon_geocoder_batch_processing.py" line="16"/>
+        <source>Batch Photon geocoding</source>
+        <translation>Batch Photon geocoding</translation>
     </message>
 </context>
 <context>
@@ -170,12 +178,12 @@
 <context>
     <name>RestAPIGeocoder</name>
     <message>
-        <location filename="../../core/geocoder/rest_api_geocoder.py" line="215"/>
+        <location filename="../../core/geocoder/rest_api_geocoder.py" line="233"/>
         <source>Erreur lors de la demande de géocodage inversé : {}</source>
         <translation>Error during reverse geocoding: {}</translation>
     </message>
     <message>
-        <location filename="../../core/geocoder/rest_api_geocoder.py" line="271"/>
+        <location filename="../../core/geocoder/rest_api_geocoder.py" line="289"/>
         <source>Erreur lors de la demande de géocodage : {}</source>
         <translation>Error during geocoding : {}</translation>
     </message>
@@ -183,7 +191,7 @@
 <context>
     <name>RestAPILocatorFilter</name>
     <message>
-        <location filename="../../core/locator_filter/rest_api_locator_filter.py" line="90"/>
+        <location filename="../../core/locator_filter/rest_api_locator_filter.py" line="99"/>
         <source>API search not triggered. Reason: </source>
         <translation>API search not triggered. Reason: </translation>
     </message>
@@ -196,6 +204,11 @@
         <location filename="../../core/locator_filter/rest_api_locator_filter.py" line="90"/>
         <source>search term is matching the prefix.</source>
         <translation>search term is matching the prefix.</translation>
+    </message>
+    <message>
+        <location filename="../../core/locator_filter/rest_api_locator_filter.py" line="99"/>
+        <source>Search term &apos;{}&apos; is one of special terms to be ignored.</source>
+        <translation>Search term &apos;{}&apos; is one of special terms to be ignored.</translation>
     </message>
 </context>
 <context>

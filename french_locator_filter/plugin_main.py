@@ -180,11 +180,13 @@ class FrenchGeocoderLocatorFilterPlugin:
             name="reverse_geocode",
             widget=reverse_geocoding_widget,
         )
-        self.action_geocoding = self._create_geocoding_action(self.iface.mainWindow())
+        self.action_geocoding = self._create_geocoding_action(
+            self.iface.mainWindow(), only_gpf=False
+        )
         self.iface.addPluginToMenu(self._title_menu, self.action_geocoding)
 
         self.action_reverse_geocoding = self._create_reverse_geocoding_action(
-            self.iface.mainWindow()
+            self.iface.mainWindow(), only_gpf=False
         )
         self.iface.addPluginToMenu(self._title_menu, self.action_reverse_geocoding)
 
@@ -247,11 +249,13 @@ class FrenchGeocoderLocatorFilterPlugin:
 
         return action
 
-    def _create_geocoding_action(self, parent: QWidget) -> QAction:
+    def _create_geocoding_action(self, parent: QWidget, only_gpf: bool) -> QAction:
         """Create action with menu for geocoding related function actions
 
         :param parent: parent widget
         :type parent: QWidget
+        :param only_gpf: add only action with Géoplateforme use
+        :type only_gpf: bool
         :return: action for geocoding
         :rtype: QAction
         """
@@ -272,6 +276,14 @@ class FrenchGeocoderLocatorFilterPlugin:
             )
         )
 
+        if not only_gpf:
+            geocoding_menu_processing.addAction(
+                create_processing_action(
+                    "french_locator_filter:photon_geocoder_batch",
+                    geocoding_menu_processing,
+                )
+            )
+
         geocoding_action_processing.setMenu(geocoding_menu_processing)
 
         geocoding_menu.addAction(geocoding_action_processing)
@@ -279,11 +291,15 @@ class FrenchGeocoderLocatorFilterPlugin:
         geocoding_action.setMenu(geocoding_menu)
         return geocoding_action
 
-    def _create_reverse_geocoding_action(self, parent: QWidget) -> QAction:
+    def _create_reverse_geocoding_action(
+        self, parent: QWidget, only_gpf: bool
+    ) -> QAction:
         """Create action with menu for reverse geocoding related function actions
 
         :param parent: parent widget
         :type parent: QWidget
+        :param only_gpf: add only action with Géoplateforme use
+        :type only_gpf: bool
         :return: action for geocoding
         :rtype: QAction
         """
@@ -307,6 +323,14 @@ class FrenchGeocoderLocatorFilterPlugin:
             )
         )
 
+        if not only_gpf:
+            reverse_geocoding_menu_processing.addAction(
+                create_processing_action(
+                    "french_locator_filter:photon_inverse_geocoder_batch",
+                    reverse_geocoding_menu_processing,
+                )
+            )
+
         reverse_geocoding_action_processing.setMenu(reverse_geocoding_menu_processing)
 
         reverse_geocoding_menu.addAction(reverse_geocoding_action_processing)
@@ -325,8 +349,10 @@ class FrenchGeocoderLocatorFilterPlugin:
         """
         available_actions = []
 
-        available_actions.append(self._create_geocoding_action(parent))
-        available_actions.append(self._create_reverse_geocoding_action(parent))
+        available_actions.append(self._create_geocoding_action(parent, only_gpf=True))
+        available_actions.append(
+            self._create_reverse_geocoding_action(parent, only_gpf=True)
+        )
         return available_actions
 
     def initProcessing(self):

@@ -17,6 +17,9 @@ from french_locator_filter.processing.gpf_geocoder_batch_processing import (
 from french_locator_filter.processing.gpf_inverse_geocoder_batch_processing import (
     GpfInverseGeocoderBatchProcessing,
 )
+from french_locator_filter.processing.photon_geocoder_batch_processing import (
+    PhotonGeocoderBatchProcessing,
+)
 from french_locator_filter.processing.photon_inverse_geocoder_batch_processing import (
     PhotonInverseGeocoderBatchProcessing,
 )
@@ -34,6 +37,7 @@ class FrenchLocatorProcessingProvider(QgsProcessingProvider):
     def loadAlgorithms(self):
         """Loads all algorithms belonging to this provider."""
         self.addAlgorithm(GpfGeocoderBatchProcessing())
+        self.addAlgorithm(PhotonGeocoderBatchProcessing())
         self.addAlgorithm(GpfInverseGeocoderBatchProcessing())
         self.addAlgorithm(PhotonInverseGeocoderBatchProcessing())
 

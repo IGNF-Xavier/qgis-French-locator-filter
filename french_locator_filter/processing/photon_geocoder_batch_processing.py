@@ -2,18 +2,18 @@ from qgis.analysis import QgsBatchGeocodeAlgorithm
 from qgis.core import QgsCoordinateReferenceSystem
 from qgis.PyQt.QtCore import QCoreApplication
 
-from french_locator_filter.core.geocoder.addok_ban_fr_geocoder import FrenchBanGeocoder
+from french_locator_filter.core.geocoder.photon_geocoder import PhotonGeocoder
 from french_locator_filter.processing.utils import get_short_string, get_user_manual_url
 
-geocoder = FrenchBanGeocoder()
+geocoder = PhotonGeocoder()
 
 
-class GpfGeocoderBatchProcessing(QgsBatchGeocodeAlgorithm):
+class PhotonGeocoderBatchProcessing(QgsBatchGeocodeAlgorithm):
     def __init__(self):
         super().__init__(geocoder)
 
     def displayName(self):
-        return self.tr("Batch Géoplateforme geocoding")
+        return self.tr("Batch Photon geocoding")
 
     def helpUrl(self):
         return get_user_manual_url(self.name())
@@ -22,7 +22,7 @@ class GpfGeocoderBatchProcessing(QgsBatchGeocodeAlgorithm):
         return get_short_string(self.name(), self.displayName())
 
     def name(self):
-        return "gpf_geocoder_batch"
+        return "photon_geocoder_batch"
 
     def group(self):
         return ""
@@ -31,7 +31,7 @@ class GpfGeocoderBatchProcessing(QgsBatchGeocodeAlgorithm):
         return ""
 
     def createInstance(self):
-        return GpfGeocoderBatchProcessing()
+        return PhotonGeocoderBatchProcessing()
 
     def tr(self, message: str) -> str:
         """Get the translation for a string using Qt translation API.
@@ -60,4 +60,4 @@ class GpfGeocoderBatchProcessing(QgsBatchGeocodeAlgorithm):
         return super().outputCrs(use_crs)
 
     def tags(self):
-        return ["geocode", "géoplateforme", "batch"]
+        return ["geocode", "photon", "batch"]

@@ -11,6 +11,13 @@ Pour afficher tous les traitements QGIS : `Traitements > Boîte à outils`
 ```{include} ../../french_locator_filter/resources/help/fr_gpf_geocoder_batch.md
 ```
 
+(photon_geocoder_batch)=
+
+## Géocodage en lot depuis Photon
+
+```{include} ../../french_locator_filter/resources/help/fr_photon_geocoder_batch.md
+```
+
 (gpf_inverse_geocoder_batch)=
 
 ## Géocodage inversé avec la Géoplateforme
@@ -18,7 +25,7 @@ Pour afficher tous les traitements QGIS : `Traitements > Boîte à outils`
 ```{include} ../../french_locator_filter/resources/help/fr_gpf_inverse_geocoder_batch.md
 ```
 
-(gpf_inverse_geocoder_batch)=
+(photon_inverse_geocoder_batch)=
 
 ## Géocodage inversé avec Photon
 
