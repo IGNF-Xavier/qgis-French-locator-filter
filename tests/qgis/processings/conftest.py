@@ -5,9 +5,6 @@ from qgis.core import QgsApplication
 from french_locator_filter.processing.provider import FrenchLocatorProcessingProvider
 from french_locator_filter.toolbelt.preferences import PlgSettingsStructure
 
-GPF_SRV_URL = "http://localhost:5000/"
-PHOTON_SRV_URL = "http://localhost:6000/"
-
 
 @pytest.fixture(autouse=True)
 def add_provider(qgis_processing) -> FrenchLocatorProcessingProvider:
@@ -23,26 +20,7 @@ def add_provider(qgis_processing) -> FrenchLocatorProcessingProvider:
     QgsApplication.processingRegistry().removeProvider(prov)
 
 
-def start_srv(host: str, port: int) -> pytest_httpserver.HTTPServer:
-    """Start simulating a server with pytest_httpserver
-    Server is stopped after use
-
-    :param host: server host
-    :type host: str
-    :param port: server port
-    :type port: int
-    :yield: server started
-    :rtype: pytest_httpserver.HTTPServer
-    """
-    server = pytest_httpserver.HTTPServer(host=host, port=port, ssl_context=None)
-    server.start()
-    yield server
-    server.clear()
-    if server.is_running():
-        server.stop()
-
-
-@pytest.fixture
+@pytest.fixture(scope="function")
 def data_geopf_srv(monkeypatch) -> pytest_httpserver.HTTPServer:
     """Fixture to start simulating data.geopf.fr server and monkeypatch plugin settings for url
 
@@ -51,12 +29,16 @@ def data_geopf_srv(monkeypatch) -> pytest_httpserver.HTTPServer:
     :yield: server started
     :rtype: pytest_httpserver.HTTPServer
     """
-    server = start_srv("127.0.0.1", 5000)
-    monkeypatch.setattr(PlgSettingsStructure, "gpf_url", GPF_SRV_URL)
-    yield from server
+    server = pytest_httpserver.HTTPServer()
+    server.start()
+    monkeypatch.setattr(PlgSettingsStructure, "gpf_url", server.url_for(""))
+    yield server
+    server.clear()
+    if server.is_running():
+        server.stop()
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def photon_srv(monkeypatch) -> pytest_httpserver.HTTPServer:
     """Fixture to start simulating photon.komoot.io server and monkeypatch plugin settings for url
 
@@ -65,6 +47,10 @@ def photon_srv(monkeypatch) -> pytest_httpserver.HTTPServer:
     :yield: server started
     :rtype: pytest_httpserver.HTTPServer
     """
-    server = start_srv("127.0.0.1", 6000)
-    monkeypatch.setattr(PlgSettingsStructure, "photon_url", PHOTON_SRV_URL)
-    yield from server
+    server = pytest_httpserver.HTTPServer()
+    server.start()
+    monkeypatch.setattr(PlgSettingsStructure, "photon_url", server.url_for(""))
+    yield server
+    server.clear()
+    if server.is_running():
+        server.stop()

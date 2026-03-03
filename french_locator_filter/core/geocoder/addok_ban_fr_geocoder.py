@@ -67,6 +67,7 @@ class FrenchBanGeocoder(RestAPIGeocoder):
             "x",
             "y",
             "importance",
+            "score",
         ]
 
     def request_url(self, reverse: bool = False) -> str:
