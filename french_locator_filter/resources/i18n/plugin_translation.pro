@@ -18,6 +18,7 @@ SOURCES =	../../core/geocoder/addok_ban_fr_geocoder.py \
 	../../processing/gpf_geocoder_batch_processing.py \
 	../../processing/gpf_inverse_geocoder_batch_processing.py \
 	../../processing/inverse_geocoder_batch_processing.py \
+	../../processing/photon_geocoder_batch_processing.py \
 	../../processing/photon_inverse_geocoder_batch_processing.py \
 	../../processing/provider.py \
 	../../processing/utils.py \
