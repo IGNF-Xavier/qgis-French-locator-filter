@@ -46,18 +46,18 @@ GPF_SRV_MOCK_RESPOND = {
 
 GEOCODING_RESULT_ATTRIBUTES = {
     "label": "Marseille",
-    "score": "0.9662990909090908",
+    "score": 0.9662990909090908,
     "id": "13055",
     "type": "municipality",
     "name": "Marseille",
     "postcode": "13001",
     "citycode": "13055",
-    "x": "895296.11",
-    "y": "6245510.5",
-    "population": "877215",
+    "x": 895296.11,
+    "y": 6245510.5,
+    "population": 877215,
     "city": "Marseille",
     "context": "13, Bouches-du-Rhône, Provence-Alpes-Côte d'Azur",
-    "importance": "0.62929",
+    "importance": 0.62929,
     "municipality": "Marseille",
 }
 

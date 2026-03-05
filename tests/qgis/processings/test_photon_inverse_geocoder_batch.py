@@ -50,7 +50,7 @@ PHOTON_SRV_MOCK_RESPOND = {
 
 GEOCODING_RESULT_ATTRIBUTES = {
     "osm_type": "W",
-    "osm_id": "109075797",
+    "osm_id": 109075797,
     "osm_key": "highway",
     "osm_value": "tertiary",
     "type": "street",
