@@ -6,7 +6,7 @@
     <message>
         <location filename="../../gui/dlg_settings.py" line="130"/>
         <source>Value defined from &apos;{}&apos; environnement variable</source>
-        <translation>Valeur définie depuis la variable d&apos;environnement &apos;{}&apos;</translation>
+        <translation>Valeur définie depuis la variable d'environnement '{}'</translation>
     </message>
 </context>
 <context>
@@ -213,23 +213,23 @@
     <message>
         <location filename="../../core/locator_filter/rest_api_locator_filter.py" line="99"/>
         <source>Search term &apos;{}&apos; is one of special terms to be ignored.</source>
-        <translation>le terme &apos;{}&apos; est l&apos;un des termes spéciaux à ignorer.</translation>
+        <translation>le terme '{}' est l'un des termes spéciaux à ignorer.</translation>
     </message>
 </context>
 <context>
     <name>ReverseGeocodingWidget</name>
     <message>
-        <location filename="../../gui/wdg_reverse_geocoding.py" line="122"/>
+        <location filename="../../gui/wdg_reverse_geocoding.py" line="126"/>
         <source>Résultats géocodage inversé</source>
         <translation>Résultats géocodage inversé</translation>
     </message>
     <message>
-        <location filename="../../gui/wdg_reverse_geocoding.py" line="61"/>
+        <location filename="../../gui/wdg_reverse_geocoding.py" line="62"/>
         <source>French Adress geocoder</source>
         <translation>Géocodeur API Géoplateforme</translation>
     </message>
     <message>
-        <location filename="../../gui/wdg_reverse_geocoding.py" line="64"/>
+        <location filename="../../gui/wdg_reverse_geocoding.py" line="65"/>
         <source>Photon Adress geocoder</source>
         <translation>Géocodeur adresse Photon</translation>
     </message>
@@ -254,7 +254,7 @@
     <message>
         <location filename="../../gui/dlg_settings.ui" line="216"/>
         <source>Request URL:</source>
-        <translation>Base de l&apos;URL de requête :</translation>
+        <translation>Base de l'URL de requête :</translation>
     </message>
     <message>
         <location filename="../../gui/dlg_settings.ui" line="209"/>
@@ -289,7 +289,7 @@
     <message>
         <location filename="../../gui/dlg_settings.ui" line="69"/>
         <source>Minimal search length</source>
-        <translation>Nombre minimal de caractères avant de déclencher la requête à l&apos;API</translation>
+        <translation>Nombre minimal de caractères avant de déclencher la requête à l'API</translation>
     </message>
     <message>
         <location filename="../../gui/dlg_settings.ui" line="75"/>

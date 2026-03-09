@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.5.0 - 20226-03-09
+
+- New logo by @florentfougeres
+- Declare plugin compatible with qgis4 by @geojulien
+- update(UI): add menu "Géocodage" for plugin actions by @jmkerloch
+- feat(geocoder): define attributes types by @jmkerloch
+- feat(reverse geocoding): allow selection of geocoder for reverse geocoding by @jmkerloch
+- feat(batch): add batch processing with Photon geocoder by @jmkerloch
+- feat(geocoding): add new function to define request param and result content by @jmkerloch
+- feat(test): add mock for gpf server to be able to run test without internet connection by @jmkerloch
+- fix(geocoding): use settings search_terms_to_ignore to limit search terms by @jmkerloch
+- fix(geocoding): remove duplicated slash by @jmkerloch
+- update(docs): add hyperlink to official tutorial on adresse.data.gouv.fr by @geojulien
+- update(docs): distinguish release from current version by @geojulien
+- add(docs): auto generate QDT snippet and use keepachangelog to retrieve latest published version from CHANGELOG.md by @geojulien
+- add(docs): ajout section "plugin officiel" by @geojulien
+
 ## 1.4.1 - 2025-09-18
 
 - feature: store geocoding result export to a memory layer (see !53)
