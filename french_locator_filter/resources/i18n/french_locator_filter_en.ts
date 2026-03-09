@@ -6,7 +6,7 @@
     <message>
         <location filename="../../gui/dlg_settings.py" line="130"/>
         <source>Value defined from &apos;{}&apos; environnement variable</source>
-        <translation>Value defined from &apos;{}&apos; environnement variable</translation>
+        <translation>Value defined from '{}' environnement variable</translation>
     </message>
 </context>
 <context>
@@ -213,23 +213,23 @@
     <message>
         <location filename="../../core/locator_filter/rest_api_locator_filter.py" line="99"/>
         <source>Search term &apos;{}&apos; is one of special terms to be ignored.</source>
-        <translation>Search term &apos;{}&apos; is one of special terms to be ignored.</translation>
+        <translation>Search term '{}' is one of special terms to be ignored.</translation>
     </message>
 </context>
 <context>
     <name>ReverseGeocodingWidget</name>
     <message>
-        <location filename="../../gui/wdg_reverse_geocoding.py" line="122"/>
+        <location filename="../../gui/wdg_reverse_geocoding.py" line="126"/>
         <source>Résultats géocodage inversé</source>
         <translation>Reverse geocoding results</translation>
     </message>
     <message>
-        <location filename="../../gui/wdg_reverse_geocoding.py" line="61"/>
+        <location filename="../../gui/wdg_reverse_geocoding.py" line="62"/>
         <source>French Adress geocoder</source>
         <translation>Geocoder API Géoplateforme</translation>
     </message>
     <message>
-        <location filename="../../gui/wdg_reverse_geocoding.py" line="64"/>
+        <location filename="../../gui/wdg_reverse_geocoding.py" line="65"/>
         <source>Photon Adress geocoder</source>
         <translation>Photon Adress geocoder</translation>
     </message>
