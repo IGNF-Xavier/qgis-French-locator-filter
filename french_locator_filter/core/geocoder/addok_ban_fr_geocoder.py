@@ -14,33 +14,13 @@ from qgis.core import (
 from qgis.PyQt.QtCore import QMetaType
 
 # project
-from french_locator_filter.core.geocoder.rest_api_geocoder import RestAPIGeocoder
+from french_locator_filter.core.geocoder.gpf_rest_api_geocoder import (
+    GpfRestApiGeocoder,
+)
 
 
-class FrenchBanGeocoder(RestAPIGeocoder):
+class FrenchBanGeocoder(GpfRestApiGeocoder):
     """Geocoder for french BAN API"""
-
-    _last_request_timestamp: int = 0
-
-    def __init__(self):
-        super().__init__()
-        self.max_request_per_second = 50
-
-    def set_last_request_timestamp(self, timestamp: int) -> int:
-        """Define timestamp for last request
-
-        :param timestamp: request timestamp
-        :type timestamp: int
-        """
-        FrenchBanGeocoder._last_request_timestamp = timestamp
-
-    def last_request_timestamp(self) -> int:
-        """Get last request timestamp
-
-        :return: last request timestamp
-        :rtype: int
-        """
-        return FrenchBanGeocoder._last_request_timestamp
 
     @property
     def _attributes(self) -> Dict[str, QMetaType.Type]:

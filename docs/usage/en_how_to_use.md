@@ -2,9 +2,9 @@
 
 Place search extension (geocoding) using the Géoplateforme geocoding API <https://geoservices.ign.fr/documentation/services/services-geoplateforme/geocodage>.
 
-This extension enables place search by address in [the QGIS universal search bar (Locator)](https://docs.qgis.org/3.40/en/docs/user_manual/introduction/qgis_configuration.html#locator-settings).
+This extension enables place search by address, but also by **cadastral parcel** and by **building (RNB)**, in [the QGIS universal search bar (Locator)](https://docs.qgis.org/3.40/en/docs/user_manual/introduction/qgis_configuration.html#locator-settings).
 
-A tool is available to perform reverse geocoding (get an address from coordinates).
+A tool is available to perform reverse geocoding (get an address, parcel or building from coordinates).
 
 Processing algorithms are also available to run batch operations from a vector layer.
 
@@ -19,7 +19,7 @@ Processing algorithms are also available to run batch operations from a vector l
 
 #### Prefix
 
-Typing the prefix `fra` restricts the search to addresses provided by this service (and avoids searching other objects indexed by the Locator bar).
+Typing the prefix `fra` restricts the search to addresses provided by this service (and avoids searching other objects indexed by the Locator bar). Prefixes `par` (cadastral parcel) and `rnb` (building) work the same way to restrict the search to those indexes.
 
 #### Predefined zoom levels
 
@@ -43,6 +43,20 @@ A dock widget is displayed allowing you to select a point on the map and request
 
 You can load results as temporary layer with `Load` button.
 
+The `Geocoder` selector lets you choose the source used for reverse geocoding: address (BAN), Photon, cadastral parcel or building (RNB). For RNB, the result is automatically enriched with the building's address (taken directly from the RNB response), and the RNB vector tile layer (see below) is added to the map so the found building can be checked visually.
+
+----
+
+## Parcel search (structured search)
+
+A dedicated dock widget lets you search a cadastral parcel without knowing its full identifier, by progressively filtering: department, commune (list automatically populated with their INSEE code), then section and number (optional).
+
+----
+
+## RNB layer (buildings)
+
+The plugin menu provides an `Add RNB layer (buildings)` entry that adds the [Référentiel National du Bâti](https://rnb.beta.gouv.fr/) building footprints vector tiles to the map, useful to visually check that a RNB reverse geocoding request found the right building. This layer is also added automatically the first time a reverse geocoding is run with the RNB geocoder.
+
 ----
 
 ## Settings
@@ -65,3 +79,4 @@ The following table lists the available parameters with their associated environ
 |Default parameters for Géoplateforme API query | `QGIS_FRENCH_LOCATOR_REQUEST_URL_QUERY`        | `limit=10&autocomplete=1`                   |
 |Photon API request URL                         | `QGIS_FRENCH_LOCATOR_REQUEST_PHOTON_URL`       | `https://photon.komoot.io/api/`             |
 |Default parameters for Photon API query        | `QGIS_FRENCH_LOCATOR_REQUEST_PHOTON_URL_QUERY` | `limit=10&lang=fr`                          |
+|RNB API request URL                            | `QGIS_FRENCH_LOCATOR_REQUEST_RNB_URL`          | `https://rnb-api.beta.gouv.fr/api/alpha/`   |

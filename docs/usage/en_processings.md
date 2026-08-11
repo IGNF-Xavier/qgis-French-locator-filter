@@ -31,3 +31,31 @@ To display all QGIS processing algorithms: `Processing > Toolbox`
 
 ```{include} ../../french_locator_filter/resources/help/en_photon_inverse_geocoder_batch.md
 ```
+
+(gpf_parcel_geocoder_batch)=
+
+## Batch cadastral parcel geocoding Géoplateforme
+
+```{include} ../../french_locator_filter/resources/help/en_gpf_parcel_geocoder_batch.md
+```
+
+(gpf_parcel_inverse_geocoder_batch)=
+
+## Batch reverse cadastral parcel geocoding Géoplateforme
+
+```{include} ../../french_locator_filter/resources/help/en_gpf_parcel_inverse_geocoder_batch.md
+```
+
+(gpf_rnb_geocoder_batch)=
+
+## Batch building geocoding RNB
+
+```{include} ../../french_locator_filter/resources/help/en_gpf_rnb_geocoder_batch.md
+```
+
+(gpf_rnb_inverse_geocoder_batch)=
+
+## Batch reverse building geocoding RNB
+
+```{include} ../../french_locator_filter/resources/help/en_gpf_rnb_inverse_geocoder_batch.md
+```

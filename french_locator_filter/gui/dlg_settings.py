@@ -95,6 +95,7 @@ class ConfigOptionsPage(FORM_CLASS, QgsOptionsPageWidget):
             "request_url_query": self.lbl_url_query_value,
             "request_photon_url": self.lne_url_api_photon_path_value,
             "request_photon_url_query": self.lne_url_api_photon_query_value,
+            "request_rnb_url": self.lne_url_api_rnb_path_value,
             "debug_mode": self.opt_debug,
         }
 

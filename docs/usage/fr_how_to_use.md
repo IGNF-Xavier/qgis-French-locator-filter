@@ -2,9 +2,9 @@
 
 Extension de recherche de lieux (géocodage) utilisant l'API de géocodage de la Géoplateforme <https://geoservices.ign.fr/documentation/services/services-geoplateforme/geocodage>.
 
-Cette extension permet d'activer la recherche de lieu par adresse dans [la barre de recherche universelle de QGIS (Localisateur)](https://docs.qgis.org/3.40/fr/docs/user_manual/introduction/qgis_configuration.html#locator-settings).
+Cette extension permet d'activer la recherche de lieu par adresse, mais aussi par **parcelle cadastrale** et par **bâtiment (RNB)**, dans [la barre de recherche universelle de QGIS (Localisateur)](https://docs.qgis.org/3.40/fr/docs/user_manual/introduction/qgis_configuration.html#locator-settings).
 
-Un outil est disponible pour effectuer un géocodage inversé (adresse depuis coordonnées).
+Un outil est disponible pour effectuer un géocodage inversé (adresse, parcelle ou bâtiment depuis des coordonnées).
 
 Des processings sont aussi disponibles pour des traitements en lots à partir d'une couche vectorielle.
 
@@ -19,7 +19,7 @@ Des processings sont aussi disponibles pour des traitements en lots à partir d'
 
 #### Préfixe
 
-Taper le préfixe `fra` permet de ne rechercher que des adresses fournies par ce service (et évite de rechercher les autres objets indexés par la barre Localisateur).
+Taper le préfixe `fra` permet de ne rechercher que des adresses fournies par ce service (et évite de rechercher les autres objets indexés par la barre Localisateur). Les préfixes `par` (parcelle cadastrale) et `rnb` (bâtiment) fonctionnent de la même façon pour restreindre la recherche à ces indexes.
 
 #### Zooms prédéfinis
 
@@ -43,6 +43,20 @@ Un dockwidget est affiché permettant de sélectionner un point sur la carte et 
 
 Il est possible de charger le résultat dans une couche temporaire via le bouton `Charger`.
 
+Le sélecteur `Géocodeur` permet de choisir la source utilisée pour le géocodage inversé : adresse (BAN), Photon, parcelle cadastrale ou bâtiment (RNB). Pour le RNB, le résultat est automatiquement enrichi avec l'adresse du bâtiment (issue directement de la réponse du RNB), et la couche de tuiles vectorielles RNB (voir ci-dessous) est ajoutée à la carte pour vérifier visuellement le bâtiment trouvé.
+
+----
+
+## Recherche de parcelle (recherche structurée)
+
+Un dockwidget dédié permet de rechercher une parcelle cadastrale sans connaître son identifiant complet, en filtrant progressivement : département, commune (liste peuplée automatiquement avec leur code INSEE), puis section et numéro (optionnels).
+
+----
+
+## Couche RNB (bâtiments)
+
+Le menu du plugin propose une entrée `Ajouter la couche RNB (bâtiments)` qui ajoute à la carte les tuiles vectorielles des empreintes de bâtiments du [Référentiel National du Bâti](https://rnb.beta.gouv.fr/), utile pour vérifier visuellement qu'un géocodage inversé RNB a bien trouvé le bon bâtiment. Cette couche est aussi ajoutée automatiquement lors du premier géocodage inversé effectué avec le géocodeur RNB.
+
 ----
 
 ## Réglages
@@ -65,3 +79,4 @@ Le tableau suivant reprend les paramètres disponibles avec la variable d'enviro
 |Paramètre par défaut requête API Géoplateforme | `QGIS_FRENCH_LOCATOR_REQUEST_URL_QUERY`        | `limit=10&autocomplete=1`                  |
 |URL requête API Photon                         | `QGIS_FRENCH_LOCATOR_REQUEST_PHOTON_URL`       | `https://photon.komoot.io/api/`            |
 |Paramètre par défaut requête API Photon        | `QGIS_FRENCH_LOCATOR_REQUEST_PHOTON_URL_QUERY` | `limit=10&lang=fr`                         |
+|URL requête API RNB                            | `QGIS_FRENCH_LOCATOR_REQUEST_RNB_URL`          | `https://rnb-api.beta.gouv.fr/api/alpha/`  |

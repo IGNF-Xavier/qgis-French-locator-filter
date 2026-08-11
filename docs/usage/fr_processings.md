@@ -31,3 +31,31 @@ Pour afficher tous les traitements QGIS : `Traitements > Boîte à outils`
 
 ```{include} ../../french_locator_filter/resources/help/fr_photon_inverse_geocoder_batch.md
 ```
+
+(gpf_parcel_geocoder_batch)=
+
+## Géocodage de parcelle cadastrale en lot depuis la Géoplateforme
+
+```{include} ../../french_locator_filter/resources/help/fr_gpf_parcel_geocoder_batch.md
+```
+
+(gpf_parcel_inverse_geocoder_batch)=
+
+## Géocodage inversé de parcelle cadastrale avec la Géoplateforme
+
+```{include} ../../french_locator_filter/resources/help/fr_gpf_parcel_inverse_geocoder_batch.md
+```
+
+(gpf_rnb_geocoder_batch)=
+
+## Géocodage de bâtiment en lot depuis le RNB
+
+```{include} ../../french_locator_filter/resources/help/fr_gpf_rnb_geocoder_batch.md
+```
+
+(gpf_rnb_inverse_geocoder_batch)=
+
+## Géocodage inversé de bâtiment avec le RNB
+
+```{include} ../../french_locator_filter/resources/help/fr_gpf_rnb_inverse_geocoder_batch.md
+```

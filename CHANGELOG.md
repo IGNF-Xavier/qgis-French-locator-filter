@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+- feat(geocoding): add direct and reverse geocoding for the cadastral parcel index (`index=parcel`) of the Géoplateforme API, including locator filter, reverse geocoding dock entry and batch Processing algorithms
+- feat(geocoding): add a structured parcel search widget (department → commune → section → number)
+- feat(geocoding): add direct and reverse geocoding for the Référentiel National du Bâti (RNB), including locator filter, reverse geocoding dock entry and batch Processing algorithms; reverse results are enriched with the building's address, embedded directly in the RNB response
+- refactor(geocoder): share the Géoplateforme host rate-limit counter between the address and parcel geocoders
+
 ## 1.5.0 - 20226-03-09
 
 - New logo by @florentfougeres

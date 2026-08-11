@@ -23,6 +23,18 @@ from french_locator_filter.processing.photon_geocoder_batch_processing import (
 from french_locator_filter.processing.photon_inverse_geocoder_batch_processing import (
     PhotonInverseGeocoderBatchProcessing,
 )
+from french_locator_filter.processing.gpf_parcel_geocoder_batch_processing import (
+    GpfParcelGeocoderBatchProcessing,
+)
+from french_locator_filter.processing.gpf_parcel_inverse_geocoder_batch_processing import (
+    GpfParcelInverseGeocoderBatchProcessing,
+)
+from french_locator_filter.processing.gpf_rnb_geocoder_batch_processing import (
+    GpfRnbGeocoderBatchProcessing,
+)
+from french_locator_filter.processing.gpf_rnb_inverse_geocoder_batch_processing import (
+    GpfRnbInverseGeocoderBatchProcessing,
+)
 
 # ############################################################################
 # ########## Classes ###############
@@ -40,6 +52,10 @@ class FrenchLocatorProcessingProvider(QgsProcessingProvider):
         self.addAlgorithm(PhotonGeocoderBatchProcessing())
         self.addAlgorithm(GpfInverseGeocoderBatchProcessing())
         self.addAlgorithm(PhotonInverseGeocoderBatchProcessing())
+        self.addAlgorithm(GpfParcelGeocoderBatchProcessing())
+        self.addAlgorithm(GpfParcelInverseGeocoderBatchProcessing())
+        self.addAlgorithm(GpfRnbGeocoderBatchProcessing())
+        self.addAlgorithm(GpfRnbInverseGeocoderBatchProcessing())
 
     def id(self) -> str:
         """Unique provider id, used for identifying it. This string should be unique, \

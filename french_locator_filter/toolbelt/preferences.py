@@ -66,6 +66,9 @@ class PlgSettingsStructure:
     request_photon_url: str = "https://photon.komoot.io/"
     request_photon_url_query: str = "limit=10&lang=fr"
 
+    # API RNB (Référentiel National du Bâti)
+    request_rnb_url: str = "https://rnb-api.beta.gouv.fr/api/alpha/"
+
     @staticmethod
     def _url_with_trailing_slash(url: str) -> str:
         """Add trailing slash in url
@@ -86,6 +89,11 @@ class PlgSettingsStructure:
     def photon_url(self) -> str:
         """Return the URL for photon use"""
         return self._url_with_trailing_slash(self.request_photon_url)
+
+    @property
+    def rnb_url(self) -> str:
+        """Return the URL for RNB (Référentiel National du Bâti) use"""
+        return self._url_with_trailing_slash(self.request_rnb_url)
 
     @property
     def search_terms_to_ignore_list(self) -> list:

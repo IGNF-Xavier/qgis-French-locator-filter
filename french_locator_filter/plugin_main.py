@@ -35,16 +35,24 @@ from french_locator_filter.__about__ import (
 from french_locator_filter.core.locator_filter.addok_ban_fr_locator_filter import (
     FrenchBanGeocoderLocatorFilter,
 )
+from french_locator_filter.core.locator_filter.gpf_parcel_locator_filter import (
+    GpfParcelGeocoderLocatorFilter,
+)
+from french_locator_filter.core.locator_filter.gpf_rnb_locator_filter import (
+    GpfRnbGeocoderLocatorFilter,
+)
 from french_locator_filter.core.locator_filter.photon_locator_filter import (
     PhotonGeocoderLocatorFilter,
 )
 from french_locator_filter.gui.dlg_settings import PlgOptionsFactory
+from french_locator_filter.gui.wdg_parcel_search import ParcelSearchWidget
 from french_locator_filter.gui.wdg_reverse_geocoding import ReverseGeocodingWidget
 from french_locator_filter.processing.provider import FrenchLocatorProcessingProvider
 from french_locator_filter.processing.utils import (
     create_processing_action,
 )
 from french_locator_filter.toolbelt import PlgLogger
+from french_locator_filter.toolbelt.rnb_tile_layer import add_rnb_vector_tile_layer
 
 # ############################################################################
 # ########## Classes ###############
@@ -64,6 +72,8 @@ class FrenchGeocoderLocatorFilterPlugin:
         self.provider = None
         self.ban_locator_filter = None
         self.photon_locator_filter = None
+        self.parcel_locator_filter = None
+        self.rnb_locator_filter = None
         self.options_factory = None
 
         self.docks = []
@@ -74,8 +84,10 @@ class FrenchGeocoderLocatorFilterPlugin:
         self.action_geocoding: Optional[QAction] = None
         self.action_reverse_geocoding: Optional[QAction] = None
         self.reverse_geocoding_widget_action: Optional[QAction] = None
+        self.parcel_search_widget_action: Optional[QAction] = None
 
         self.action_help_plugin_menu_documentation: Optional[QAction] = None
+        self.action_add_rnb_layer: Optional[QAction] = None
 
         # translation
         self.locale: str = QgsSettings().value("locale/userLocale", QLocale().name())[
@@ -139,6 +151,18 @@ class FrenchGeocoderLocatorFilterPlugin:
             )
             iface.registerLocatorFilter(self.photon_locator_filter)
 
+        if not self.parcel_locator_filter:
+            self.parcel_locator_filter = GpfParcelGeocoderLocatorFilter(
+                canvas=iface.mapCanvas()
+            )
+            iface.registerLocatorFilter(self.parcel_locator_filter)
+
+        if not self.rnb_locator_filter:
+            self.rnb_locator_filter = GpfRnbGeocoderLocatorFilter(
+                canvas=iface.mapCanvas()
+            )
+            iface.registerLocatorFilter(self.rnb_locator_filter)
+
         # -- Actions
         self.action_help = QAction(
             QgsApplication.getThemeIcon("mActionHelpContents.svg"),
@@ -180,6 +204,15 @@ class FrenchGeocoderLocatorFilterPlugin:
             name="reverse_geocode",
             widget=reverse_geocoding_widget,
         )
+
+        # Create widget for structured parcel search
+        parcel_search_widget = ParcelSearchWidget(self.iface.mainWindow())
+        self.parcel_search_widget_action = self.add_dock_widget_and_action(
+            title=self.tr("Recherche de parcelle"),
+            name="parcel_search",
+            widget=parcel_search_widget,
+        )
+
         self.action_geocoding = self._create_geocoding_action(
             self.iface.mainWindow(), only_gpf=False
         )
@@ -189,6 +222,13 @@ class FrenchGeocoderLocatorFilterPlugin:
             self.iface.mainWindow(), only_gpf=False
         )
         self.iface.addPluginToMenu(self._title_menu, self.action_reverse_geocoding)
+
+        self.action_add_rnb_layer = QAction(
+            self.tr("Ajouter la couche RNB (bâtiments)"),
+            self.iface.mainWindow(),
+        )
+        self.action_add_rnb_layer.triggered.connect(add_rnb_vector_tile_layer)
+        self.iface.addPluginToMenu(self._title_menu, self.action_add_rnb_layer)
 
         self.iface.addPluginToMenu(self._title_menu, self.action_settings)
         self.iface.addPluginToMenu(self._title_menu, self.action_help)
@@ -266,12 +306,27 @@ class FrenchGeocoderLocatorFilterPlugin:
         )
         geocoding_menu = QMenu(parent)
 
+        if self.parcel_search_widget_action:
+            geocoding_menu.addAction(self.parcel_search_widget_action)
+
         # Geocoding Processings
         geocoding_action_processing = QAction(self.tr("Traitements"), parent)
         geocoding_menu_processing = QMenu(parent)
         geocoding_menu_processing.addAction(
             create_processing_action(
                 "french_locator_filter:gpf_geocoder_batch",
+                geocoding_menu_processing,
+            )
+        )
+        geocoding_menu_processing.addAction(
+            create_processing_action(
+                "french_locator_filter:gpf_parcel_geocoder_batch",
+                geocoding_menu_processing,
+            )
+        )
+        geocoding_menu_processing.addAction(
+            create_processing_action(
+                "french_locator_filter:gpf_rnb_geocoder_batch",
                 geocoding_menu_processing,
             )
         )
@@ -319,6 +374,18 @@ class FrenchGeocoderLocatorFilterPlugin:
         reverse_geocoding_menu_processing.addAction(
             create_processing_action(
                 "french_locator_filter:gpf_inverse_geocoder_batch",
+                reverse_geocoding_menu_processing,
+            )
+        )
+        reverse_geocoding_menu_processing.addAction(
+            create_processing_action(
+                "french_locator_filter:gpf_parcel_inverse_geocoder_batch",
+                reverse_geocoding_menu_processing,
+            )
+        )
+        reverse_geocoding_menu_processing.addAction(
+            create_processing_action(
+                "french_locator_filter:gpf_rnb_inverse_geocoder_batch",
                 reverse_geocoding_menu_processing,
             )
         )
@@ -377,6 +444,8 @@ class FrenchGeocoderLocatorFilterPlugin:
             self.iface.removePluginMenu(self._title_menu, self.action_reverse_geocoding)
         if self.action_geocoding:
             self.iface.removePluginMenu(self._title_menu, self.action_geocoding)
+        if self.action_add_rnb_layer:
+            self.iface.removePluginMenu(self._title_menu, self.action_add_rnb_layer)
 
         # -- Clean up preferences panel in QGIS settings
         self.iface.unregisterOptionsWidgetFactory(self.options_factory)
@@ -410,6 +479,14 @@ class FrenchGeocoderLocatorFilterPlugin:
         # remove filter from locator
         if self.photon_locator_filter:
             iface.deregisterLocatorFilter(self.photon_locator_filter)
+
+        # remove filter from locator
+        if self.parcel_locator_filter:
+            iface.deregisterLocatorFilter(self.parcel_locator_filter)
+
+        # remove filter from locator
+        if self.rnb_locator_filter:
+            iface.deregisterLocatorFilter(self.rnb_locator_filter)
 
         if self.provider:
             QgsApplication.processingRegistry().removeProvider(self.provider)

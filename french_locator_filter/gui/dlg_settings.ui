@@ -235,6 +235,29 @@
     </widget>
    </item>
    <item>
+    <widget class="QGroupBox" name="grp_api_rnb">
+     <property name="title">
+      <string>RNB API configuration</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_5">
+      <item row="0" column="0">
+       <widget class="QLabel" name="lbl_url_rnb_path">
+        <property name="text">
+         <string>Request URL:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QgsFilterLineEdit" name="lne_url_api_rnb_path_value">
+        <property name="qgisRelation" stdset="0">
+         <string notr="true"/>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <widget class="QGroupBox" name="grp_misc">
      <property name="title">
       <string>Miscellaneous</string>
