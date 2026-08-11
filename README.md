@@ -16,8 +16,8 @@ Pour chaque source : recherche via la barre de recherche universelle, dockwidget
 
 ## Code source 
 
-[ Code source](https://github.com/IGNF-Xavier/qgis-French-locator-filter)
+[ Code officiel à l'origine Gitlab Oslandia ](https://gitlab.com/Oslandia/qgis/french_locator_filter)
 
-## Others languages
+
 
 
