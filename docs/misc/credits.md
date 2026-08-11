@@ -1,0 +1,22 @@
+# Credits and sponsoring
+
+This plugin is forked from the work of Richard Duivenvoorde, introduced on his [blog post](https://qgis.nl/2018/05/16/english-coding-a-qgslocator-plugin/?lang=en).
+
+## Funding
+
+```{admonition} Ready to contribute?
+Plugin is free to use, not to develop. If you use it quite intensively or are interested in improving it, please consider to contribute to the code, to the documentation or fund some developments:
+
+- [identified enhancements](https://gitlab.com/Oslandia/qgis/french_locator_filter/-/issues?scope=all&state=opened&label_name[]=enhancement)
+- want to fund? Please, [send us an email](mailto:qgis@oslandia.com)
+```
+
+## Sponsors
+
+[Oslandia](https://oslandia.com) carries out part of its development work with its own funds (cash flow via internal Grant Open Source), but stabilization and functional enrichment were financed by organizations that are commited to the virtuous circle of open source:
+
+- [Gendarmerie Nationale](https://www.gendarmerie.interieur.gouv.fr/)
+- [Bordeaux Métropole](https://www.bordeaux-metropole.fr/)
+- [Orange Concessions](https://orangeconcessions.com/)
+- [Grand Lyon métropole](https://www.grandlyon.com/)
+- [Institut Géographique National (IGN)](https://www.ign.fr/)

@@ -1,0 +1,35 @@
+[general]
+name=French Locator Filter
+category=Filter
+hasProcessingProvider=True
+about=Multiple geocoding services integrated in QGIS search bar and processings: French national address API (BAN) and Photon (OSM).
+about[fr]=Ce plugin ajoute un filtre de localisateur dans la barre de recherche universelle et des traitements basés sur différents services de géocodage : Base Adresse Nationale (BAN) et Photon (OSM).
+description=Adds a Locator Filter (search bar) and processing algorithms to use geocoding services like the national French open address and the Photon OpenStreetMap APIs.
+description[fr]=Filtre de localisateur dans la barre de recherche et traitements de différents services de géocodage (Géoplateforme et Photon).
+icon=resources/images/icon.svg
+tags=geocoder,locator,filter,addok,France,french,address,open data,photon,BAN,BANO,IGN,geoplateforme
+tags[fr]=geocodeur,recherche,adresse,France,ADDOK,Etalab,BAN,BANO,IGN,Géoplateforme,photon
+
+# credits and contact
+author=Oslandia
+email=qgis@oslandia.com
+homepage=https://oslandia.gitlab.io/qgis/french_locator_filter/
+repository=https://gitlab.com/Oslandia/qgis/french_locator_filter/
+tracker=https://gitlab.com/Oslandia/qgis/french_locator_filter/-/issues
+
+# QGIS status
+deprecated=False
+experimental=False
+qgisMinimumVersion=3.40.4
+qgisMaximumVersion=4.10.20
+supportsQt6=True
+
+# versioning
+version=1.6.0-DEV
+changelog=
+
+[oslandia]
+funders=ANFSI,Bordeaux Métropole,Grand Lyon,Orange,IGN France
+screenshot=docs/_static/images/french_locator_sample_basque_qgis_details.png
+issue_to_be_funded=https://gitlab.com/Oslandia/qgis/french_locator_filter/-/issues/?sort=updated_desc&state=opened&label_name%5B%5D=To%20be%20funded&first_page_size=100
+blog_link=https://oslandia.com/2024/05/31/plugin-qgis-french-locator-filter-1-1-0-api-photon/

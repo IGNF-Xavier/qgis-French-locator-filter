@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>wdg_parcel_search</class>
+ <widget class="QWidget" name="wdg_parcel_search">
+  <property name="windowTitle">
+   <string>Recherche de parcelle</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QGroupBox" name="grp_search">
+     <property name="title">
+      <string>Recherche structurée</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="lbl_department">
+        <property name="text">
+         <string>Département :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="cbx_department"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="lbl_commune">
+        <property name="text">
+         <string>Commune :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="cbx_commune"/>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="lbl_section">
+        <property name="text">
+         <string>Section (optionnel) :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="lne_section"/>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="lbl_number">
+        <property name="text">
+         <string>Numéro (optionnel) :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLineEdit" name="lne_number"/>
+      </item>
+      <item row="4" column="0" colspan="2">
+       <widget class="QPushButton" name="btn_search">
+        <property name="text">
+         <string>Rechercher</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTableView" name="tbv_geocoder_result"/>
+   </item>
+   <item>
+    <widget class="QPushButton" name="btn_load">
+     <property name="text">
+      <string>Charger comme couche</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
