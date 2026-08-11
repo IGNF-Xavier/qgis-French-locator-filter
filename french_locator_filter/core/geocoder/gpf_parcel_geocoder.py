@@ -9,9 +9,7 @@ from qgis.core import (
     QgsFeature,
     QgsGeocoderResult,
     QgsGeometry,
-    QgsJsonUtils,
     QgsPointXY,
-    QgsRectangle,
 )
 from qgis.PyQt.QtCore import QMetaType
 
@@ -98,37 +96,6 @@ class GpfParcelGeocoder(GpfRestApiGeocoder):
             return query
         return None
 
-    def _viewport_from_truegeometry(
-        self, properties: dict, crs: QgsCoordinateReferenceSystem
-    ) -> Optional[QgsRectangle]:
-        """Compute a viewport from the parcel real geometry (truegeometry) if available
-
-        :param properties: response properties
-        :type properties: dict
-        :param crs: geometry crs
-        :type crs: QgsCoordinateReferenceSystem
-        :return: bounding box of the real parcel geometry, None if not available
-        :rtype: Optional[QgsRectangle]
-        """
-        truegeometry = properties.get("truegeometry")
-        if not truegeometry:
-            return None
-        try:
-            geojson_feature = json.dumps(
-                {"type": "Feature", "geometry": truegeometry, "properties": {}}
-            )
-            features = QgsJsonUtils.stringToFeatureList(geojson_feature)
-            if features and features[0].hasGeometry():
-                return features[0].geometry().boundingBox()
-        except Exception as err:
-            self.log(
-                message=self.tr(
-                    "Impossible de calculer l'emprise de la parcelle : {}".format(err)
-                ),
-                log_level=Qgis.MessageLevel.NoLevel,
-            )
-        return None
-
     def _result_from_json(self, response: dict) -> QgsGeocoderResult:
         """Create a QgsGeocoderResult from json content
 
@@ -161,7 +128,7 @@ class GpfParcelGeocoder(GpfRestApiGeocoder):
         for attribute, _ in self._attributes.items():
             attributes[attribute] = properties.get(attribute, None)
 
-        viewport = self._viewport_from_truegeometry(properties, crs)
+        viewport = self.viewport_from_truegeometry(properties, crs)
         if viewport is None:
             viewport = self.create_rectangle_around_point(crs, QgsPointXY(x, y), 200, 200)
         res.setViewport(viewport)

@@ -243,6 +243,10 @@ build:plugin:
     - sed -i "s|^*.qm.*| |" .gitignore
     - git add $PROJECT_FOLDER/resources/i18n/*.qm
 
+    # Refresh the embedded Géoplateforme geocoding GetCapabilities snapshot
+    - python scripts/fetch_geocodage_capabilities.py
+    - git add $PROJECT_FOLDER/resources/geocodage_capabilities.json
+
     # Package the latest version listed in the changelog
     - qgis-plugin-ci package latest --allow-uncommitted-changes --plugin-repo-url $CI_PAGES_URL/
     - qgis-plugin-ci changelog latest >> RELEASE_DESCRIPTION.md

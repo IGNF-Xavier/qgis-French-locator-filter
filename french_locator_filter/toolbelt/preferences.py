@@ -69,6 +69,10 @@ class PlgSettingsStructure:
     # API RNB (Référentiel National du Bâti)
     request_rnb_url: str = "https://rnb-api.beta.gouv.fr/api/alpha/"
 
+    # Dynamic Géoplateforme geocoder (see toolbelt/geocodage_capabilities.py)
+    # empty string means "address" index only
+    request_indexes: str = ""
+
     @staticmethod
     def _url_with_trailing_slash(url: str) -> str:
         """Add trailing slash in url
@@ -94,6 +98,18 @@ class PlgSettingsStructure:
     def rnb_url(self) -> str:
         """Return the URL for RNB (Référentiel National du Bâti) use"""
         return self._url_with_trailing_slash(self.request_rnb_url)
+
+    @property
+    def request_indexes_list(self) -> list:
+        """Convert request_indexes from str into list by splitting on comma and
+            stripping. Empty value defaults to the "address" index only.
+
+        :return: list of active Géoplateforme geocoding indexes
+        :rtype: list
+        """
+        if not self.request_indexes or not self.request_indexes.strip():
+            return ["address"]
+        return [index.strip() for index in self.request_indexes.split(",") if index.strip()]
 
     @property
     def search_terms_to_ignore_list(self) -> list:

@@ -258,6 +258,29 @@
     </widget>
    </item>
    <item>
+    <widget class="QGroupBox" name="grp_dynamic_indexes">
+     <property name="title">
+      <string>Index Géoplateforme (géocodeur dynamique)</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_dynamic_indexes">
+      <item>
+       <widget class="QListWidget" name="lsw_indexes">
+        <property name="toolTip">
+         <string>Index actifs pour le géocodeur dynamique 'gpf' (barre de recherche, géocodage inversé, traitements).</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btn_refresh_indexes">
+        <property name="text">
+         <string>Rafraîchir depuis le service</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <widget class="QGroupBox" name="grp_misc">
      <property name="title">
       <string>Miscellaneous</string>

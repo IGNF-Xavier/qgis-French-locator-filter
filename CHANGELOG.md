@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - feat(geocoding): add a structured parcel search widget (department → commune → section → number)
 - feat(geocoding): add direct and reverse geocoding for the Référentiel National du Bâti (RNB), including locator filter, reverse geocoding dock entry and batch Processing algorithms; reverse results are enriched with the building's address, embedded directly in the RNB response
 - refactor(geocoder): share the Géoplateforme host rate-limit counter between the address and parcel geocoders
+- feat(geocoding): add a dynamic Géoplateforme geocoder (locator filter `gpf`, reverse geocoding dock entry, batch Processing algorithms) whose active index(es) — address, poi, parcel — are configurable in the plugin settings instead of hardcoded, driven by the service's GetCapabilities schema (embedded in the plugin package and refreshable from the settings page); resolves [#31](https://gitlab.com/Oslandia/qgis/french_locator_filter/-/issues/31) for the `/search` and `/reverse` routes (CSV batch routes deferred, see #37)
+- feat(menu): add "Ajouter la couche RNB (bâtiments)" action and automatic loading of the RNB vector tile layer on first RNB reverse geocoding, to visually check results
+- fix(geocoder): send an explicit `limit=1` on parcel reverse geocoding requests (the API otherwise defaults to `limit=10`, returning many unrelated nearby parcels)
+- fix(geocoder): zero-pad the parcel number to 4 digits and strip the department prefix from the municipality code in the structured parcel search, matching the API's expected format
 
 ## 1.5.0 - 20226-03-09
 

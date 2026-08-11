@@ -15,9 +15,9 @@ from typing import Union
 from qgis.core import Qgis, QgsApplication
 from qgis.gui import QgsFilterLineEdit, QgsOptionsPageWidget, QgsOptionsWidgetFactory
 from qgis.PyQt import uic
-from qgis.PyQt.QtCore import QUrl
+from qgis.PyQt.QtCore import Qt, QUrl
 from qgis.PyQt.QtGui import QDesktopServices, QIcon
-from qgis.PyQt.QtWidgets import QCheckBox, QLabel, QSpinBox
+from qgis.PyQt.QtWidgets import QCheckBox, QLabel, QListWidgetItem, QSpinBox
 
 # project
 from french_locator_filter.__about__ import (
@@ -28,6 +28,10 @@ from french_locator_filter.__about__ import (
     __version__,
 )
 from french_locator_filter.toolbelt import PlgLogger, PlgOptionsManager
+from french_locator_filter.toolbelt.geocodage_capabilities import (
+    fetch_and_cache_capabilities,
+    load_capabilities,
+)
 from french_locator_filter.toolbelt.preferences import (
     PlgEnvVariableSettings,
     PlgSettingsStructure,
@@ -74,8 +78,50 @@ class ConfigOptionsPage(FORM_CLASS, QgsOptionsPageWidget):
         self.btn_reset.setIcon(QIcon(QgsApplication.iconPath("mActionUndo.svg")))
         self.btn_reset.pressed.connect(self.reset_settings)
 
+        self.btn_refresh_indexes.pressed.connect(self._refresh_indexes)
+
         # load previously saved settings
         self.load_settings()
+
+    def _populate_indexes_list(self, active_indexes: list) -> None:
+        """Populate the Géoplateforme indexes list widget from the (bundled or
+        cached) capabilities, checking items currently active.
+
+        :param active_indexes: ids of currently active indexes
+        :type active_indexes: list
+        """
+        self.lsw_indexes.clear()
+        capabilities = load_capabilities()
+        for index in capabilities.get("indexes", []):
+            item = QListWidgetItem(index.get("id"))
+            item.setToolTip(index.get("description", ""))
+            item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+            item.setCheckState(
+                Qt.CheckState.Checked
+                if index.get("id") in active_indexes
+                else Qt.CheckState.Unchecked
+            )
+            self.lsw_indexes.addItem(item)
+
+    def _refresh_indexes(self) -> None:
+        """Fetch capabilities from the live service and repopulate the indexes
+        list, keeping the currently checked indexes checked when still available.
+        """
+        currently_checked = [
+            self.lsw_indexes.item(row).text()
+            for row in range(self.lsw_indexes.count())
+            if self.lsw_indexes.item(row).checkState() == Qt.CheckState.Checked
+        ]
+        try:
+            fetch_and_cache_capabilities()
+        except Exception as err:
+            self.log(
+                message=self.tr(
+                    "Impossible de rafraîchir les index depuis le service : {}"
+                ).format(err),
+                log_level=Qgis.MessageLevel.Warning,
+            )
+        self._populate_indexes_list(currently_checked)
 
     @property
     def attribute_widget_dict(
@@ -163,11 +209,18 @@ class ConfigOptionsPage(FORM_CLASS, QgsOptionsPageWidget):
         """Called to permanently apply the settings shown in the options page (e.g. \
         save them to QgsSettings objects). This is usually called when the options \
         dialog is accepted."""
+        checked_indexes = [
+            self.lsw_indexes.item(row).text()
+            for row in range(self.lsw_indexes.count())
+            if self.lsw_indexes.item(row).checkState() == Qt.CheckState.Checked
+        ]
+
         new_settings = PlgSettingsStructure(
             # features
             search_terms_to_ignore=tuple(
                 self.lne_search_terms_to_ignore.text().split(",")
             ),
+            request_indexes=",".join(checked_indexes),
             version=__version__,
         )
         # Define attribute
@@ -190,6 +243,7 @@ class ConfigOptionsPage(FORM_CLASS, QgsOptionsPageWidget):
         self.lne_search_terms_to_ignore.setText(
             ",".join(settings.search_terms_to_ignore)
         )
+        self._populate_indexes_list(settings.request_indexes_list)
 
         # Define widget attribute
         for attribute, widget in self.attribute_widget_dict.items():

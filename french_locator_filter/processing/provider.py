@@ -35,6 +35,12 @@ from french_locator_filter.processing.gpf_rnb_geocoder_batch_processing import (
 from french_locator_filter.processing.gpf_rnb_inverse_geocoder_batch_processing import (
     GpfRnbInverseGeocoderBatchProcessing,
 )
+from french_locator_filter.processing.gpf_dynamic_geocoder_batch_processing import (
+    GpfDynamicGeocoderBatchProcessing,
+)
+from french_locator_filter.processing.gpf_dynamic_inverse_geocoder_batch_processing import (
+    GpfDynamicInverseGeocoderBatchProcessing,
+)
 
 # ############################################################################
 # ########## Classes ###############
@@ -56,6 +62,8 @@ class FrenchLocatorProcessingProvider(QgsProcessingProvider):
         self.addAlgorithm(GpfParcelInverseGeocoderBatchProcessing())
         self.addAlgorithm(GpfRnbGeocoderBatchProcessing())
         self.addAlgorithm(GpfRnbInverseGeocoderBatchProcessing())
+        self.addAlgorithm(GpfDynamicGeocoderBatchProcessing())
+        self.addAlgorithm(GpfDynamicInverseGeocoderBatchProcessing())
 
     def id(self) -> str:
         """Unique provider id, used for identifying it. This string should be unique, \

@@ -21,6 +21,7 @@ from qgis.PyQt.QtWidgets import QHeaderView, QWidget
 # project
 from french_locator_filter.__about__ import DIR_PLUGIN_ROOT
 from french_locator_filter.core.geocoder.addok_ban_fr_geocoder import FrenchBanGeocoder
+from french_locator_filter.core.geocoder.gpf_dynamic_geocoder import GpfDynamicGeocoder
 from french_locator_filter.core.geocoder.gpf_parcel_geocoder import GpfParcelGeocoder
 from french_locator_filter.core.geocoder.gpf_rnb_geocoder import GpfRnbGeocoder
 from french_locator_filter.core.geocoder.photon_geocoder import PhotonGeocoder
@@ -69,6 +70,9 @@ class ReverseGeocodingWidget(QWidget):
             self.tr("Parcelle cadastrale (Géoplateforme)"), GpfParcelGeocoder()
         )
         self.cbx_geocoder.addItem(self.tr("RNB - bâtiment"), GpfRnbGeocoder())
+        self.cbx_geocoder.addItem(
+            self.tr("Géoplateforme (index configurables)"), GpfDynamicGeocoder()
+        )
 
     def _reverse_geocoding(self) -> None:
         """Ask for a reverse geocoding"""
