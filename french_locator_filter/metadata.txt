@@ -2,13 +2,13 @@
 name=French Locator Filter
 category=Filter
 hasProcessingProvider=True
-about=Multiple geocoding services integrated in QGIS search bar and processings: French national address API (BAN) and Photon (OSM).
-about[fr]=Ce plugin ajoute un filtre de localisateur dans la barre de recherche universelle et des traitements basés sur différents services de géocodage : Base Adresse Nationale (BAN) et Photon (OSM).
-description=Adds a Locator Filter (search bar) and processing algorithms to use geocoding services like the national French open address and the Photon OpenStreetMap APIs.
-description[fr]=Filtre de localisateur dans la barre de recherche et traitements de différents services de géocodage (Géoplateforme et Photon).
+about=Multiple geocoding services integrated in QGIS search bar and processings: French national address API (BAN), Photon (OSM), cadastral parcel, POI and buildings (RNB).
+about[fr]=Ce plugin ajoute un filtre de localisateur dans la barre de recherche universelle et des traitements basés sur différents services de géocodage : Base Adresse Nationale (BAN), Photon (OSM), parcelle cadastrale, POI et bâtiments (RNB).
+description=Adds a Locator Filter (search bar) and processing algorithms to use geocoding services like the national French open address, Photon OpenStreetMap, cadastral parcel, POI and RNB building APIs.
+description[fr]=Filtre de localisateur dans la barre de recherche et traitements de différents services de géocodage (Géoplateforme, Photon, parcelle cadastrale, POI, RNB).
 icon=resources/images/icon.svg
-tags=geocoder,locator,filter,addok,France,french,address,open data,photon,BAN,BANO,IGN,geoplateforme
-tags[fr]=geocodeur,recherche,adresse,France,ADDOK,Etalab,BAN,BANO,IGN,Géoplateforme,photon
+tags=geocoder,locator,filter,addok,France,french,address,open data,photon,BAN,BANO,IGN,geoplateforme,parcel,cadastre,poi,rnb,building
+tags[fr]=geocodeur,recherche,adresse,France,ADDOK,Etalab,BAN,BANO,IGN,Géoplateforme,photon,parcelle,cadastre,poi,rnb,bâtiment
 
 # credits and contact
 author=Oslandia
@@ -25,7 +25,7 @@ qgisMaximumVersion=4.10.20
 supportsQt6=True
 
 # versioning
-version=1.6.0-DEV
+version=1.6.0
 changelog=
 
 [oslandia]
