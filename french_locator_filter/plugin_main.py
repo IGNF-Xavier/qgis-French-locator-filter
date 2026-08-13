@@ -35,6 +35,9 @@ from french_locator_filter.__about__ import (
 from french_locator_filter.core.locator_filter.addok_ban_fr_locator_filter import (
     FrenchBanGeocoderLocatorFilter,
 )
+from french_locator_filter.core.locator_filter.gpf_chained_locator_filter import (
+    GpfChainedGeocoderLocatorFilter,
+)
 from french_locator_filter.core.locator_filter.gpf_dynamic_locator_filter import (
     GpfDynamicGeocoderLocatorFilter,
 )
@@ -78,6 +81,7 @@ class FrenchGeocoderLocatorFilterPlugin:
         self.parcel_locator_filter = None
         self.rnb_locator_filter = None
         self.dynamic_locator_filter = None
+        self.chained_locator_filter = None
         self.options_factory = None
 
         self.docks = []
@@ -172,6 +176,12 @@ class FrenchGeocoderLocatorFilterPlugin:
                 canvas=iface.mapCanvas()
             )
             iface.registerLocatorFilter(self.dynamic_locator_filter)
+
+        if not self.chained_locator_filter:
+            self.chained_locator_filter = GpfChainedGeocoderLocatorFilter(
+                canvas=iface.mapCanvas()
+            )
+            iface.registerLocatorFilter(self.chained_locator_filter)
 
         # -- Actions
         self.action_help = QAction(
@@ -346,6 +356,12 @@ class FrenchGeocoderLocatorFilterPlugin:
                 geocoding_menu_processing,
             )
         )
+        geocoding_menu_processing.addAction(
+            create_processing_action(
+                "french_locator_filter:gpf_chained_geocoder_batch",
+                geocoding_menu_processing,
+            )
+        )
 
         if not only_gpf:
             geocoding_menu_processing.addAction(
@@ -408,6 +424,12 @@ class FrenchGeocoderLocatorFilterPlugin:
         reverse_geocoding_menu_processing.addAction(
             create_processing_action(
                 "french_locator_filter:gpf_dynamic_inverse_geocoder_batch",
+                reverse_geocoding_menu_processing,
+            )
+        )
+        reverse_geocoding_menu_processing.addAction(
+            create_processing_action(
+                "french_locator_filter:gpf_chained_inverse_geocoder_batch",
                 reverse_geocoding_menu_processing,
             )
         )
@@ -513,6 +535,10 @@ class FrenchGeocoderLocatorFilterPlugin:
         # remove filter from locator
         if self.dynamic_locator_filter:
             iface.deregisterLocatorFilter(self.dynamic_locator_filter)
+
+        # remove filter from locator
+        if self.chained_locator_filter:
+            iface.deregisterLocatorFilter(self.chained_locator_filter)
 
         if self.provider:
             QgsApplication.processingRegistry().removeProvider(self.provider)
