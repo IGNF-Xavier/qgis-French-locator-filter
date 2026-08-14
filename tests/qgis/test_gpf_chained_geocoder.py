@@ -60,6 +60,10 @@ BUILDING_1 = {
     "point": {"type": "Point", "coordinates": [2.354053843528745, 48.85238387801971]},
     "shape": None,
     "addresses": [],
+    "ext_ids": [
+        {"id": "BATIMENT0000000245184192", "source": "bdtopo"},
+        {"id": "bdnb-bc-XXXX-YYYY", "source": "bdnb"},
+    ],
 }
 BUILDING_2 = {
     "rnb_id": "S65V7NJE3NKS",
@@ -67,6 +71,7 @@ BUILDING_2 = {
     "point": {"type": "Point", "coordinates": [2.354010816155664, 48.85229519541175]},
     "shape": None,
     "addresses": [],
+    "ext_ids": [],
 }
 
 # PCI "bâti parcellaire" candidates (CADASTRALPARCELS.PARCELLAIRE_EXPRESS:batiment):
@@ -174,6 +179,38 @@ class TestGpfChainedGeocoder(unittest.TestCase):
         self.assertEqual(len(results), 1)
         attrs = results[0].additionalAttributes()
         self.assertEqual(attrs["building_cadastral_ids"], "10643495")
+
+    def test_bdtopo_id_columns_are_independent(self):
+        """building_ext_bdtopo_id_wfs (from the WFS lien_bati_parcelle link) and
+        building_ext_bdtopo_id_rnb (from the RNB building's own ext_ids) must be
+        populated independently, with no fallback/merge between the two."""
+        geocoder = GpfChainedGeocoder()
+        # no WFS lien_bati_parcelle result at all for this parcel
+        geocoder._wfs_client.get_features = lambda *args, **kwargs: []
+        geocoder._rnb_geocoder._fetch_rnb_buildings_on_plot = (
+            lambda idu: [BUILDING_1, BUILDING_2]
+        )
+        geocoder._rnb_geocoder._wait_for_rate_limit = lambda feedback=None: False
+
+        results = geocoder._results_for_parcel(
+            "75104000AV0117",
+            ADDRESS_FIELDS,
+            QgsPointXY(2.3545, 48.8525),
+            None,
+            parcel_feature=PARCEL_FEATURE,
+        )
+
+        attrs_by_rnb_id = {
+            result.additionalAttributes()["building_rnb_id"]: result.additionalAttributes()
+            for result in results
+        }
+        self.assertIsNone(attrs_by_rnb_id["RBJ8E9C42GDJ"]["building_ext_bdtopo_id_wfs"])
+        self.assertEqual(
+            attrs_by_rnb_id["RBJ8E9C42GDJ"]["building_ext_bdtopo_id_rnb"],
+            "BATIMENT0000000245184192",
+        )
+        self.assertIsNone(attrs_by_rnb_id["S65V7NJE3NKS"]["building_ext_bdtopo_id_wfs"])
+        self.assertIsNone(attrs_by_rnb_id["S65V7NJE3NKS"]["building_ext_bdtopo_id_rnb"])
 
     def test_parcel_fields_from_feature_stringifies_numeric_properties(self):
         geocoder = GpfChainedGeocoder()

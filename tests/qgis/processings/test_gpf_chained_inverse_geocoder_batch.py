@@ -114,6 +114,7 @@ RNB_BUILDINGS_ON_PLOT_RESPOND = {
             "point": {"type": "Point", "coordinates": [2.35405, 48.85238]},
             "shape": None,
             "addresses": [],
+            "ext_ids": [{"id": "BATIMENT0000000999999999", "source": "bdtopo"}],
         },
         {
             "rnb_id": "S65V7NJE3NKS",
@@ -121,6 +122,7 @@ RNB_BUILDINGS_ON_PLOT_RESPOND = {
             "point": {"type": "Point", "coordinates": [2.35401, 48.85229]},
             "shape": None,
             "addresses": [],
+            "ext_ids": [],
         },
     ],
 }
@@ -207,7 +209,18 @@ def test_inverse_geocode_fans_out_one_result_per_building(
 
     rnb_ids = {f.attribute("building_rnb_id") for f in output_layer.getFeatures()}
     assert rnb_ids == {"RBJ8E9C42GDJ", "S65V7NJE3NKS"}
+    features_by_rnb_id = {f.attribute("building_rnb_id"): f for f in output_layer.getFeatures()}
     for f in output_layer.getFeatures():
         assert f.attribute("address_label") == "7 Rue Le Regrattier 75004 Paris"
         assert f.attribute("parcel_idu") == IDU
         assert f.attribute("building_cadastral_ids") == "10643495"
+        assert f.attribute("building_ext_bdtopo_id_wfs") == "BATIMENT0000000245184192"
+        # reverse geocoding finds the parcel spatially, not via lien_adresse_parcelle
+        assert f.attribute("parcel_type_lien") is None
+
+    # from the RNB building's own ext_ids, independent of the WFS link above
+    assert (
+        features_by_rnb_id["RBJ8E9C42GDJ"].attribute("building_ext_bdtopo_id_rnb")
+        == "BATIMENT0000000999999999"
+    )
+    assert features_by_rnb_id["S65V7NJE3NKS"].attribute("building_ext_bdtopo_id_rnb") is None

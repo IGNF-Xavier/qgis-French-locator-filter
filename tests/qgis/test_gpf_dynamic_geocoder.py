@@ -123,6 +123,17 @@ class TestGpfDynamicGeocoder(unittest.TestCase):
         self.assertEqual(result.identifier(), "133 AV - Paris (75056)")
         self.assertEqual(result.group(), "parcel")
 
+    def test_result_from_json_parcel_has_result_index(self):
+        """Parcel (and POI) results have no "type" property unlike address
+        results: result_index must still be populated, from "_type", so the
+        row is identifiable regardless of which index produced it."""
+        geocoder = GpfDynamicGeocoder()
+        geocoder.plg_settings.request_indexes = "parcel"
+
+        result = geocoder._result_from_json(PARCEL_RESPONSE)
+
+        self.assertEqual(result.additionalAttributes()["result_index"], "parcel")
+
 
 # ############################################################################
 # ####### Stand-alone run ########

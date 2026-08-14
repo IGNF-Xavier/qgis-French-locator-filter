@@ -63,6 +63,10 @@ class GpfDynamicGeocoder(GpfRestApiGeocoder):
                 name = field.get("name")
                 if name:
                     attributes[name] = QMetaType.Type.QString
+        # synthetic column, always present: which index the result came from.
+        # Unlike "type" (only meaningful for the address index: housenumber/
+        # street/...), this is populated for every index (address/poi/parcel)
+        attributes["result_index"] = QMetaType.Type.QString
         return attributes
 
     def request_url(self, reverse: bool = False) -> str:
@@ -185,6 +189,9 @@ class GpfDynamicGeocoder(GpfRestApiGeocoder):
         overrides = _INDEX_FIELD_JSON_KEY_OVERRIDES.get(result_type, {})
         attributes = {}
         for attribute in self._attributes:
+            if attribute == "result_index":
+                attributes[attribute] = result_type
+                continue
             json_key = overrides.get(attribute, attribute)
             value = properties.get(json_key)
             if isinstance(value, list):

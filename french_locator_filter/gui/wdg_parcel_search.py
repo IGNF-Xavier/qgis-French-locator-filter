@@ -50,6 +50,7 @@ class ParcelSearchWidget(QWidget):
         self.tbv_geocoder_result.horizontalHeader().setSectionResizeMode(
             0, QHeaderView.ResizeMode.Stretch
         )
+        self.tbv_geocoder_result.horizontalHeader().setSectionsMovable(True)
 
         for code, name in FRENCH_DEPARTMENTS:
             self.cbx_department.addItem(f"{code} - {name}", code)

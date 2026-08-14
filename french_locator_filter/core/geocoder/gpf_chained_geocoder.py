@@ -93,9 +93,11 @@ class GpfChainedGeocoder(GpfRestApiGeocoder):
             "parcel_feuille": QMetaType.Type.QString,
             "parcel_contenance": QMetaType.Type.QString,
             "parcel_commune": QMetaType.Type.QString,
+            "parcel_type_lien": QMetaType.Type.QString,
             "building_rnb_id": QMetaType.Type.QString,
             "building_status": QMetaType.Type.QString,
-            "building_ext_bdtopo_id": QMetaType.Type.QString,
+            "building_ext_bdtopo_id_wfs": QMetaType.Type.QString,
+            "building_ext_bdtopo_id_rnb": QMetaType.Type.QString,
             "building_cadastral_ids": QMetaType.Type.QString,
         }
 
@@ -148,21 +150,26 @@ class GpfChainedGeocoder(GpfRestApiGeocoder):
             cql_filter=_cql_equals("id_adr", id_adr),
             feedback=feedback,
         )
-        idus = sorted(
-            {
-                link["properties"].get("idu")
-                for link in parcel_links
-                if link.get("properties", {}).get("idu")
-            }
-        )
+        type_lien_by_idu = {}
+        for link in parcel_links:
+            props = link.get("properties", {})
+            idu = props.get("idu")
+            if idu:
+                type_lien_by_idu[idu] = props.get("type_lien")
 
-        if not idus:
+        if not type_lien_by_idu:
             return [self._build_result(address_fields, None, None, None, None, address_point)]
 
         results = []
-        for idu in idus:
+        for idu in sorted(type_lien_by_idu):
             results.extend(
-                self._results_for_parcel(idu, address_fields, address_point, feedback)
+                self._results_for_parcel(
+                    idu,
+                    address_fields,
+                    address_point,
+                    feedback,
+                    type_lien=type_lien_by_idu[idu],
+                )
             )
         return results
 
@@ -245,6 +252,7 @@ class GpfChainedGeocoder(GpfRestApiGeocoder):
         fallback_point: QgsPointXY,
         feedback: Optional[QgsFeedback],
         parcel_feature: Optional[dict] = None,
+        type_lien: Optional[str] = None,
     ) -> List[QgsGeocoderResult]:
         """Build results for a single cadastral parcel: fetch its real geometry
         (unless already provided), the RNB building(s) on it, and the BDTOPO
@@ -263,6 +271,10 @@ class GpfChainedGeocoder(GpfRestApiGeocoder):
         :param parcel_feature: parcel WFS feature, already fetched (reverse case);
             fetched here if not provided (direct case), defaults to None
         :type parcel_feature: Optional[dict], optional
+        :param type_lien: confidence of the address<->parcel WFS link ("BAN"/"GEO"),
+            None for reverse geocoding (parcel found spatially, not via the link),
+            defaults to None
+        :type type_lien: Optional[str], optional
         :return: list of results for this parcel
         :rtype: List[QgsGeocoderResult]
         """
@@ -317,6 +329,7 @@ class GpfChainedGeocoder(GpfRestApiGeocoder):
                     cadastral_ids or None,
                     fallback_point,
                     parcel_geom,
+                    type_lien=type_lien,
                 )
             ]
 
@@ -329,6 +342,7 @@ class GpfChainedGeocoder(GpfRestApiGeocoder):
                 cadastral_ids or None,
                 fallback_point,
                 parcel_geom,
+                type_lien=type_lien,
             )
             for building in buildings
         ]
@@ -445,6 +459,21 @@ class GpfChainedGeocoder(GpfRestApiGeocoder):
             "parcel_commune": props.get("nom_com"),
         }
 
+    def _bdtopo_id_from_building(self, building: dict) -> Optional[str]:
+        """Extract the BDTOPO building id from an RNB building's own `ext_ids`,
+        independent of (and not cross-checked against) the WFS `lien_bati_parcelle`
+        link, so both sources can be compared side by side.
+
+        :param building: RNB building json dict
+        :type building: dict
+        :return: BDTOPO id, None if not present in `ext_ids`
+        :rtype: Optional[str]
+        """
+        for ext_id in building.get("ext_ids", []):
+            if ext_id.get("source") == "bdtopo":
+                return ext_id.get("id")
+        return None
+
     def _build_result(
         self,
         address_fields: dict,
@@ -454,6 +483,7 @@ class GpfChainedGeocoder(GpfRestApiGeocoder):
         cadastral_ids: Optional[str],
         fallback_point: QgsPointXY,
         parcel_geom: Optional[QgsGeometry] = None,
+        type_lien: Optional[str] = None,
     ) -> QgsGeocoderResult:
         """Build a QgsGeocoderResult from an (address, parcel, building) combination
 
@@ -464,7 +494,8 @@ class GpfChainedGeocoder(GpfRestApiGeocoder):
         :param building: RNB building json dict, None if not found
         :type building: Optional[dict]
         :param ext_bdtopo_ids: comma-separated BDTOPO building id(s) linked to
-            the parcel (informational, not cross-checked against `building`)
+            the parcel via the WFS `lien_bati_parcelle` layer (informational,
+            not cross-checked against `building`)
         :type ext_bdtopo_ids: Optional[str]
         :param cadastral_ids: comma-separated PCI cadastral building gid(s)
             intersecting the parcel (informational, not cross-checked against
@@ -475,6 +506,9 @@ class GpfChainedGeocoder(GpfRestApiGeocoder):
         :type fallback_point: QgsPointXY
         :param parcel_geom: parcel real geometry, already resolved, defaults to None
         :type parcel_geom: Optional[QgsGeometry], optional
+        :param type_lien: confidence of the address<->parcel WFS link ("BAN"/"GEO"),
+            None for reverse geocoding, defaults to None
+        :type type_lien: Optional[str], optional
         :return: geocoder result
         :rtype: QgsGeocoderResult
         """
@@ -487,13 +521,16 @@ class GpfChainedGeocoder(GpfRestApiGeocoder):
             attributes.update(parcel_fields)
             label_parts.append(f"Parcelle {parcel_fields.get('parcel_idu')}")
 
+        if type_lien:
+            attributes["parcel_type_lien"] = type_lien
+
         if building:
             attributes["building_rnb_id"] = building.get("rnb_id")
             attributes["building_status"] = building.get("status")
-            label_parts.append(f"Bâtiment {building.get('rnb_id')}")
+            attributes["building_ext_bdtopo_id_rnb"] = self._bdtopo_id_from_building(building)
 
         if ext_bdtopo_ids:
-            attributes["building_ext_bdtopo_id"] = ext_bdtopo_ids
+            attributes["building_ext_bdtopo_id_wfs"] = ext_bdtopo_ids
 
         if cadastral_ids:
             attributes["building_cadastral_ids"] = cadastral_ids

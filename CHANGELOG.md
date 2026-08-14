@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.6.4-exp - 2026-08-14
+
+- fix(geocoder): send an explicit `limit=1` on the base BAN geocoder's reverse geocoding requests (same missing-`limit=` bug already fixed on the parcel and dynamic geocoders, never applied to the plain BAN one), and cap `maximum_result_for_inverse_geocoding()` at 1 accordingly
+- feat(geocoder): add a synthetic `result_index` attribute to the dynamic geocoder, always populated with the active index id (`address`/`poi`/`parcel`) regardless of whether the raw API response has a `type` property (parcel and POI results don't), so every row is identifiable
+- refactor(geocoder): simplify the chained geocoder's label to `"{adresse} — Parcelle {idu}"`, dropping the RNB building id segment now that it has its own table column
+- feat(geocoder): split the chained geocoder's BDTOPO building id into two independent columns instead of one with a fallback — `building_ext_bdtopo_id_wfs` (from the WFS `lien_bati_parcelle` link, as before) and `building_ext_bdtopo_id_rnb` (from the RNB building's own `ext_ids`, available even when the WFS link is missing) — so both sources can be compared
+- feat(geocoder): add `parcel_type_lien` to the chained geocoder's direct search results (`"BAN"` = declared reliable link, `"GEO"` = geometrically inferred, less reliable), read from `lien_adresse_parcelle`'s `type_lien` field, to help explain cases where an address unexpectedly resolves to more than one parcel; left `None` on reverse geocoding, where the parcel is found spatially rather than via this link
+- feat(ui): make the reverse geocoding dock's and the parcel search widget's result table columns reorderable by drag and drop (`setSectionsMovable(True)`)
+
 ## 1.6.3-exp - 2026-08-14
 
 - refactor(geocoder): rebase the chained geocoder on the Géoplateforme WFS `BAN-PLUS` precomputed link layers (`lien_adresse_parcelle`, `lien_bati_parcelle`) and the PCI `parcellaire express` layer, instead of reconstructing the address/building/parcel link via RNB bounding-box search; adds a new `toolbelt/wfs_client.py` and `request_wfs_url` setting. Direct search now uses the authoritative BAN-PLUS link (with declared/inferred confidence); reverse search anchors on the real parcel geometry (WFS `parcelle`, spatial containment/distance ordering) rather than a heuristic RNB bbox. New attributes: `parcel_idu/section/numero/feuille/contenance/commune` (from the PCI, including the real parcel geometry as viewport) and `building_ext_bdtopo_id` (BDTOPO id, informational — the RNB API has no way to query by external id, confirmed by testing; building lookup now goes through the new `GET /buildings/plot/{idu}/` RNB endpoint instead)

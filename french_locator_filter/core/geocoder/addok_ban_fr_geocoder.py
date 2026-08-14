@@ -81,7 +81,7 @@ class FrenchBanGeocoder(GpfRestApiGeocoder):
         :return: maximum result
         :rtype: int
         """
-        return 50
+        return 1
 
     def get_reverse_geocode_query(self, feature: QgsFeature) -> Optional[str]:
         """Get query for reverse geocode
@@ -97,15 +97,19 @@ class FrenchBanGeocoder(GpfRestApiGeocoder):
         geometry = feature.geometry()
         if geometry:
             center = geometry.centroid().asPoint()
+            # without an explicit limit, the API defaults to 10 results within its
+            # default search radius, flooding the interactive reverse geocoding
+            # dock with unrelated nearby addresses
             if geometry.type() == Qgis.GeometryType.Point:
                 point = geometry.asPoint()
-                query = f"&lon={point.x()}&lat={point.y()}"
+                query = f"&lon={point.x()}&lat={point.y()}&limit=1"
             elif geometry.type() == Qgis.GeometryType.Polygon:
                 query = (
-                    f"searchgeom={geometry.asJson()}&lon={center.x()}&lat={center.y()}"
+                    f"searchgeom={geometry.asJson()}&lon={center.x()}"
+                    f"&lat={center.y()}&limit=1"
                 )
             else:
-                query = f"&lon={center.x()}&lat={center.y()}"
+                query = f"&lon={center.x()}&lat={center.y()}&limit=1"
             return query
         return None
 

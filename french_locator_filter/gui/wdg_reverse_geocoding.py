@@ -61,6 +61,7 @@ class ReverseGeocodingWidget(QWidget):
         self.tbv_geocoder_result.horizontalHeader().setSectionResizeMode(
             0, QHeaderView.ResizeMode.Stretch
         )
+        self.tbv_geocoder_result.horizontalHeader().setSectionsMovable(True)
 
         self._result_geocoder = None
         self.cbx_geocoder.addItem(

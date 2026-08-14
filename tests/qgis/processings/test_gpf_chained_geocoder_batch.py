@@ -128,6 +128,7 @@ RNB_BUILDINGS_ON_PLOT_RESPOND = {
             "point": {"type": "Point", "coordinates": [2.35405, 48.85238]},
             "shape": None,
             "addresses": [],
+            "ext_ids": [{"id": "BATIMENT0000000999999999", "source": "bdtopo"}],
         },
         {
             "rnb_id": "S65V7NJE3NKS",
@@ -135,6 +136,7 @@ RNB_BUILDINGS_ON_PLOT_RESPOND = {
             "point": {"type": "Point", "coordinates": [2.35401, 48.85229]},
             "shape": None,
             "addresses": [],
+            "ext_ids": [],
         },
     ],
 }
@@ -217,9 +219,20 @@ def test_geocode_fans_out_one_result_per_building(
 
     rnb_ids = {f.attribute("building_rnb_id") for f in output_layer.getFeatures()}
     assert rnb_ids == {"RBJ8E9C42GDJ", "S65V7NJE3NKS"}
+    features_by_rnb_id = {f.attribute("building_rnb_id"): f for f in output_layer.getFeatures()}
     for f in output_layer.getFeatures():
         assert f.attribute("address_label") == "7 Rue Le Regrattier 75004 Paris"
         assert f.attribute("parcel_idu") == IDU
         assert f.attribute("parcel_section") == "AV"
-        assert f.attribute("building_ext_bdtopo_id") == "BATIMENT0000000245184192"
+        # from WFS lien_bati_parcelle, shared by both buildings on this parcel
+        assert f.attribute("building_ext_bdtopo_id_wfs") == "BATIMENT0000000245184192"
         assert f.attribute("building_cadastral_ids") == "10643495"
+        # from lien_adresse_parcelle's type_lien
+        assert f.attribute("parcel_type_lien") == "GEO"
+
+    # from the RNB building's own ext_ids, independent of the WFS link above
+    assert (
+        features_by_rnb_id["RBJ8E9C42GDJ"].attribute("building_ext_bdtopo_id_rnb")
+        == "BATIMENT0000000999999999"
+    )
+    assert features_by_rnb_id["S65V7NJE3NKS"].attribute("building_ext_bdtopo_id_rnb") is None
