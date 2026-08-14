@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.6.3-exp - 2026-08-14
+
+- refactor(geocoder): rebase the chained geocoder on the Géoplateforme WFS `BAN-PLUS` precomputed link layers (`lien_adresse_parcelle`, `lien_bati_parcelle`) and the PCI `parcellaire express` layer, instead of reconstructing the address/building/parcel link via RNB bounding-box search; adds a new `toolbelt/wfs_client.py` and `request_wfs_url` setting. Direct search now uses the authoritative BAN-PLUS link (with declared/inferred confidence); reverse search anchors on the real parcel geometry (WFS `parcelle`, spatial containment/distance ordering) rather than a heuristic RNB bbox. New attributes: `parcel_idu/section/numero/feuille/contenance/commune` (from the PCI, including the real parcel geometry as viewport) and `building_ext_bdtopo_id` (BDTOPO id, informational — the RNB API has no way to query by external id, confirmed by testing; building lookup now goes through the new `GET /buildings/plot/{idu}/` RNB endpoint instead)
+- feat(geocoding): add `building_cadastral_ids`, the PCI "bâti parcellaire" identifier(s) (`CADASTRALPARCELS.PARCELLAIRE_EXPRESS:batiment`, a 3rd building dataset distinct from BDTOPO and RNB), found by a bbox query around the parcel geometry filtered to buildings that actually intersect it
+- feat(ui): the reverse geocoding dock and the structured parcel search widget now display results as a proper multi-column table (one column per attribute, via the geocoder's `appendedFields()`) instead of a single column with a concatenated label
+
 ## 1.6.2-exp - 2026-08-14
 
 - fix(geocoder): send an explicit `limit=` on the dynamic geocoder's reverse geocoding requests (1 per active index, at least 1) instead of letting the API default to `limit=10`, which flooded the interactive reverse geocoding dock with unrelated nearby candidates

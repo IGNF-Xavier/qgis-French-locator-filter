@@ -136,6 +136,35 @@ class GpfRnbGeocoder(RestAPIGeocoder):
             )
             return []
 
+    def _fetch_rnb_buildings_on_plot(self, idu: str) -> List[dict]:
+        """Query the RNB buildings-on-plot endpoint and return the raw list of
+        buildings intersecting a given cadastral parcel.
+
+        :param idu: cadastral parcel identifier (e.g. "75104000AV0117")
+        :type idu: str
+        :return: list of buildings (json dict) on the parcel
+        :rtype: List[dict]
+        """
+        try:
+            qntwk = NetworkRequestsManager()
+            qurl = qntwk.build_url(
+                request_url=f"{self.plg_settings.rnb_url}buildings/plot/{idu}/",
+                request_url_query="format=json",
+            )
+            response_content = qntwk.get_url(url=qurl)
+            data = json.loads(str(response_content, "UTF8"))
+            return data.get("results", [])
+        except Exception as err:
+            self.log(
+                message=self.tr(
+                    "Erreur lors de la demande au RNB (parcelle {}) : {}".format(
+                        idu, err
+                    )
+                ),
+                log_level=1,
+            )
+            return []
+
     def geocodeString(
         self,
         string: str,

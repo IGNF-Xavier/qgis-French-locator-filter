@@ -102,13 +102,14 @@ class ReverseGeocodingWidget(QWidget):
             add_rnb_vector_tile_layer()
         results = self._result_geocoder.geocodeFeature(feature, context)
 
-        # Clear current results
-        while self.mdl_result.rowCount() != 0:
-            self.mdl_result.removeRow(0)
+        # Rebuild columns for this geocoder's fields (also clears current results)
+        self.mdl_result.set_fields(self._result_geocoder.appendedFields())
 
         # Add available results
         for result in results:
             self.mdl_result.add_geocoder_result(result)
+
+        self.tbv_geocoder_result.resizeColumnsToContents()
 
     def _load_results(self) -> None:
         """Load result as QgsVectorLayer from current search"""

@@ -73,6 +73,9 @@ class PlgSettingsStructure:
     # empty string means "address" index only
     request_indexes: str = ""
 
+    # WFS Géoplateforme (BAN-PLUS link layers, PCI parcellaire)
+    request_wfs_url: str = "https://data.geopf.fr/wfs/ows"
+
     @staticmethod
     def _url_with_trailing_slash(url: str) -> str:
         """Add trailing slash in url
@@ -98,6 +101,11 @@ class PlgSettingsStructure:
     def rnb_url(self) -> str:
         """Return the URL for RNB (Référentiel National du Bâti) use"""
         return self._url_with_trailing_slash(self.request_rnb_url)
+
+    @property
+    def wfs_url(self) -> str:
+        """Return the URL for the Géoplateforme WFS service"""
+        return self.request_wfs_url
 
     @property
     def request_indexes_list(self) -> list:

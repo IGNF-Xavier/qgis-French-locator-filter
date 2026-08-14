@@ -3,7 +3,13 @@ import json
 from typing import Optional
 
 # PyQGIS
-from qgis.core import Qgis, QgsCoordinateReferenceSystem, QgsJsonUtils, QgsRectangle
+from qgis.core import (
+    Qgis,
+    QgsCoordinateReferenceSystem,
+    QgsGeometry,
+    QgsJsonUtils,
+    QgsRectangle,
+)
 
 # project
 from french_locator_filter.core.geocoder.rest_api_geocoder import RestAPIGeocoder
@@ -37,6 +43,32 @@ class GpfRestApiGeocoder(RestAPIGeocoder):
         """
         return GpfRestApiGeocoder._last_request_timestamp
 
+    def geometry_from_geojson(self, geometry: Optional[dict]) -> Optional[QgsGeometry]:
+        """Build a QgsGeometry from a raw GeoJSON geometry dict
+
+        :param geometry: GeoJSON geometry dict ({"type": ..., "coordinates": ...})
+        :type geometry: Optional[dict]
+        :return: geometry, None if not available/invalid
+        :rtype: Optional[QgsGeometry]
+        """
+        if not geometry:
+            return None
+        try:
+            geojson_feature = json.dumps(
+                {"type": "Feature", "geometry": geometry, "properties": {}}
+            )
+            features = QgsJsonUtils.stringToFeatureList(geojson_feature)
+            if features and features[0].hasGeometry():
+                return features[0].geometry()
+        except Exception as err:
+            self.log(
+                message=self.tr(
+                    "Impossible de lire une géométrie GeoJSON : {}".format(err)
+                ),
+                log_level=Qgis.MessageLevel.NoLevel,
+            )
+        return None
+
     def viewport_from_truegeometry(
         self, properties: dict, crs: QgsCoordinateReferenceSystem
     ) -> Optional[QgsRectangle]:
@@ -50,21 +82,5 @@ class GpfRestApiGeocoder(RestAPIGeocoder):
         :return: bounding box of the real geometry, None if not available
         :rtype: Optional[QgsRectangle]
         """
-        truegeometry = properties.get("truegeometry")
-        if not truegeometry:
-            return None
-        try:
-            geojson_feature = json.dumps(
-                {"type": "Feature", "geometry": truegeometry, "properties": {}}
-            )
-            features = QgsJsonUtils.stringToFeatureList(geojson_feature)
-            if features and features[0].hasGeometry():
-                return features[0].geometry().boundingBox()
-        except Exception as err:
-            self.log(
-                message=self.tr(
-                    "Impossible de calculer l'emprise du résultat : {}".format(err)
-                ),
-                log_level=Qgis.MessageLevel.NoLevel,
-            )
-        return None
+        geom = self.geometry_from_geojson(properties.get("truegeometry"))
+        return geom.boundingBox() if geom else None

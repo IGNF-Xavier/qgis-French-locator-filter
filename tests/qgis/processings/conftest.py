@@ -72,3 +72,22 @@ def rnb_srv(monkeypatch) -> pytest_httpserver.HTTPServer:
     server.clear()
     if server.is_running():
         server.stop()
+
+
+@pytest.fixture(scope="function")
+def wfs_srv(monkeypatch) -> pytest_httpserver.HTTPServer:
+    """Fixture to start simulating the Géoplateforme WFS server (data.geopf.fr/wfs/ows)
+    and monkeypatch plugin settings for url
+
+    :param monkeypatch: monkeypatch for PlgSettingsStructure
+    :type monkeypatch: MonkeyPatch
+    :yield: server started
+    :rtype: pytest_httpserver.HTTPServer
+    """
+    server = pytest_httpserver.HTTPServer()
+    server.start()
+    monkeypatch.setattr(PlgSettingsStructure, "wfs_url", server.url_for("/"))
+    yield server
+    server.clear()
+    if server.is_running():
+        server.stop()

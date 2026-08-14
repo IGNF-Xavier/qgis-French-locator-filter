@@ -45,6 +45,7 @@ class ParcelSearchWidget(QWidget):
         self._geocoder = GpfParcelGeocoder()
 
         self.mdl_result = QgsGeocoderResultModel(self)
+        self.mdl_result.set_fields(self._geocoder.appendedFields())
         self.tbv_geocoder_result.setModel(self.mdl_result)
         self.tbv_geocoder_result.horizontalHeader().setSectionResizeMode(
             0, QHeaderView.ResizeMode.Stretch
@@ -109,11 +110,12 @@ class ParcelSearchWidget(QWidget):
             number=number,
         )
 
-        while self.mdl_result.rowCount() != 0:
-            self.mdl_result.removeRow(0)
+        self.mdl_result.set_fields(self._geocoder.appendedFields())
 
         for result in results:
             self.mdl_result.add_geocoder_result(result)
+
+        self.tbv_geocoder_result.resizeColumnsToContents()
 
     def _load_results(self) -> None:
         """Load result as QgsVectorLayer from current search"""
