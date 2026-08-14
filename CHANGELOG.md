@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.6.5-exp - 2026-08-14
+
+- fix(geocoder): the chained geocoder's reverse search (point → parcel) only ran its per-parcel lookup chain (WFS `lien_bati_parcelle`, WFS `batiment`, RNB `buildings/plot` — 3 extra HTTP calls) on the parcel actually containing the clicked point, instead of on every parcel found in the 40 m search bbox; this caused both a noticeable slowdown and spurious extra parcels/results for a single click (falls back to the single nearest parcel when none contains the point, e.g. exactly on a boundary)
+
 ## 1.6.4-exp - 2026-08-14
 
 - fix(geocoder): send an explicit `limit=1` on the base BAN geocoder's reverse geocoding requests (same missing-`limit=` bug already fixed on the parcel and dynamic geocoders, never applied to the plain BAN one), and cap `maximum_result_for_inverse_geocoding()` at 1 accordingly

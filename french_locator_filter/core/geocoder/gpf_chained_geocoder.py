@@ -224,6 +224,7 @@ class GpfChainedGeocoder(GpfRestApiGeocoder):
             WFS_PARCELLE, bbox=bbox, feedback=feedback
         )
         parcels = self._order_parcels_by_relevance(parcels, point)
+        parcels = self._select_relevant_parcels(parcels, point)
 
         results = []
         for parcel in parcels:
@@ -407,6 +408,38 @@ class GpfChainedGeocoder(GpfRestApiGeocoder):
             return (0 if contains else 1, distance)
 
         return sorted(parcels, key=sort_key)
+
+    def _select_relevant_parcels(
+        self, parcels: List[dict], point: QgsPointXY
+    ) -> List[dict]:
+        """Keep only the parcel(s) that actually contain the point - there
+        should be at most one, since cadastral parcels do not overlap - instead
+        of every parcel merely inside the search bbox. Running the full
+        per-parcel lookup chain (building links, cadastral building ids, RNB
+        buildings - 3 extra HTTP calls each) for every nearby parcel rather
+        than just the relevant one is both needlessly slow and a source of
+        spurious extra results. Falls back to the single nearest parcel if
+        none contains the point (e.g. it falls exactly on a boundary/gap).
+
+        :param parcels: candidate parcel WFS features, already ordered by
+            relevance (containment first, then distance)
+        :type parcels: List[dict]
+        :param point: reference point (EPSG:4326)
+        :type point: QgsPointXY
+        :return: parcel(s) to actually process
+        :rtype: List[dict]
+        """
+        point_geom = QgsGeometry.fromPointXY(point)
+        containing = []
+        for parcel in parcels:
+            geom = self.geometry_from_geojson(parcel.get("geometry"))
+            if not (geom and geom.contains(point_geom)):
+                # parcels are ordered: containing ones come first
+                break
+            containing.append(parcel)
+        if containing:
+            return containing
+        return parcels[:1]
 
     def _address_fields_from_ban_result(self, address_result: QgsGeocoderResult) -> dict:
         """Extract the address_* fields from a FrenchBanGeocoder result

@@ -84,6 +84,24 @@ CADASTRAL_BUILDING_INSIDE = {
     },
     "properties": {"gid": 10643495, "type": "Bâtiment en dur", "code_dep": "75", "code_insee": "75104"},
 }
+# a second, unrelated parcel, far from PARCEL_FEATURE and from the test point
+PARCEL_FEATURE_FAR = {
+    "type": "Feature",
+    "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [[[[2.360, 48.860], [2.361, 48.860], [2.361, 48.861], [2.360, 48.861], [2.360, 48.860]]]],
+    },
+    "properties": {
+        "idu": "75104000AV0200",
+        "section": "AV",
+        "numero": "0200",
+        "feuille": 1,
+        "contenance": 100,
+        "nom_com": "Paris 4e Arrondissement",
+        "code_insee": "75104",
+    },
+}
+
 CADASTRAL_BUILDING_OUTSIDE = {
     "type": "Feature",
     "geometry": {
@@ -211,6 +229,31 @@ class TestGpfChainedGeocoder(unittest.TestCase):
         )
         self.assertIsNone(attrs_by_rnb_id["S65V7NJE3NKS"]["building_ext_bdtopo_id_wfs"])
         self.assertIsNone(attrs_by_rnb_id["S65V7NJE3NKS"]["building_ext_bdtopo_id_rnb"])
+
+    def test_select_relevant_parcels_keeps_only_containing_parcel(self):
+        """Reverse geocoding must not run the full per-parcel lookup chain
+        (3 extra HTTP calls) for every parcel merely inside the search bbox:
+        only the parcel actually containing the point should be kept."""
+        geocoder = GpfChainedGeocoder()
+        point = QgsPointXY(2.3545, 48.8525)  # inside PARCEL_FEATURE only
+
+        selected = geocoder._select_relevant_parcels(
+            [PARCEL_FEATURE_FAR, PARCEL_FEATURE], point
+        )
+
+        self.assertEqual(len(selected), 1)
+        self.assertEqual(selected[0]["properties"]["idu"], "75104000AV0117")
+
+    def test_select_relevant_parcels_falls_back_to_nearest_when_none_contains(self):
+        geocoder = GpfChainedGeocoder()
+        point = QgsPointXY(0.0, 0.0)  # outside both parcels
+
+        selected = geocoder._select_relevant_parcels(
+            [PARCEL_FEATURE, PARCEL_FEATURE_FAR], point
+        )
+
+        self.assertEqual(len(selected), 1)
+        self.assertEqual(selected[0]["properties"]["idu"], "75104000AV0117")
 
     def test_parcel_fields_from_feature_stringifies_numeric_properties(self):
         geocoder = GpfChainedGeocoder()
