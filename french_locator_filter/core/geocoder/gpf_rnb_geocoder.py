@@ -165,6 +165,36 @@ class GpfRnbGeocoder(RestAPIGeocoder):
             )
             return []
 
+    def _fetch_rnb_building_detail(self, rnb_id: str) -> Optional[dict]:
+        """Query the RNB single-building endpoint, which already embeds the
+        building's real shape (unlike the lightweight point-only attributes
+        used elsewhere) - used to visualize a specific building's real
+        footprint without redoing a bbox/plot search.
+
+        :param rnb_id: RNB building identifier
+        :type rnb_id: str
+        :return: building json dict, None if not found
+        :rtype: Optional[dict]
+        """
+        try:
+            qntwk = NetworkRequestsManager()
+            qurl = qntwk.build_url(
+                request_url=f"{self.plg_settings.rnb_url}buildings/{rnb_id}/",
+                request_url_query="format=json",
+            )
+            response_content = qntwk.get_url(url=qurl)
+            return json.loads(str(response_content, "UTF8"))
+        except Exception as err:
+            self.log(
+                message=self.tr(
+                    "Erreur lors de la demande au RNB (bâtiment {}) : {}".format(
+                        rnb_id, err
+                    )
+                ),
+                log_level=1,
+            )
+            return None
+
     def geocodeString(
         self,
         string: str,

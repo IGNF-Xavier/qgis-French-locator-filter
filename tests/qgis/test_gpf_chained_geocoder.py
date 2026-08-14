@@ -13,12 +13,19 @@ Usage from the repo root folder:
 import unittest
 
 # PyQGIS
-from qgis.core import QgsPointXY
+from qgis.core import (
+    QgsCoordinateReferenceSystem,
+    QgsGeocoderResult,
+    QgsGeometry,
+    QgsPointXY,
+)
 
 # project
 from french_locator_filter.core.geocoder.gpf_chained_geocoder import (
     WFS_BATIMENT,
+    WFS_PARCELLE,
     GpfChainedGeocoder,
+    _polygon_wkt_lat_lon,
 )
 
 # ############################################################################
@@ -274,6 +281,128 @@ class TestGpfChainedGeocoder(unittest.TestCase):
 
         self.assertEqual(fields["parcel_idu"], "75104000AV0117")
         self.assertIsNone(fields["parcel_section"])
+
+    def test_polygon_wkt_lat_lon_swaps_axes(self):
+        """The WFS expects (lat, lon) axis order for CQL_FILTER spatial
+        predicates on EPSG:4326 layers (verified live), matching the bbox=
+        convention already used elsewhere - not the (lon, lat)/(x, y) order
+        QGIS geometries are stored in internally for this CRS."""
+        geometry = QgsGeometry.fromWkt(
+            "POLYGON((2.354 48.852, 2.355 48.852, 2.355 48.853, 2.354 48.853, 2.354 48.852))"
+        )
+
+        wkt = _polygon_wkt_lat_lon(geometry)
+
+        self.assertEqual(
+            wkt,
+            "MULTIPOLYGON(((48.852 2.354,48.852 2.355,48.853 2.355,"
+            "48.853 2.354,48.852 2.354)))",
+        )
+
+    def test_polygon_wkt_lat_lon_none_for_non_polygon(self):
+        geometry = QgsGeometry.fromPointXY(QgsPointXY(2.3545, 48.8525))
+
+        self.assertIsNone(_polygon_wkt_lat_lon(geometry))
+
+
+def _make_chained_result(attrs: dict, point: QgsPointXY) -> QgsGeocoderResult:
+    """Build a QgsGeocoderResult carrying the given additional attributes,
+    as if produced by GpfChainedGeocoder - used to feed build_provenance_layers
+    without exercising the full geocodeString/geocodeFeature HTTP chain."""
+    geom = QgsGeometry.fromPointXY(point)
+    crs = QgsCoordinateReferenceSystem("EPSG:4326")
+    result = QgsGeocoderResult("label", geom, crs)
+    result.setAdditionalAttributes(attrs)
+    return result
+
+
+BUILDING_1_WITH_SHAPE = dict(BUILDING_1, shape=PARCEL_FEATURE["geometry"])
+BUILDING_2_WITH_SHAPE = dict(BUILDING_2, shape=PARCEL_FEATURE["geometry"])
+
+
+class TestGpfChainedGeocoderProvenanceLayers(unittest.TestCase):
+    def _geocoder_with_two_buildings_on_one_parcel(self):
+        geocoder = GpfChainedGeocoder()
+
+        def fake_get_features(typename, cql_filter=None, bbox=None, count=100, feedback=None):
+            if typename == WFS_PARCELLE:
+                return [PARCEL_FEATURE]
+            return []
+
+        geocoder._wfs_client.get_features = fake_get_features
+        geocoder._rnb_geocoder._wait_for_rate_limit = lambda feedback=None: False
+        geocoder._rnb_geocoder.set_last_request_timestamp = lambda ts: None
+        geocoder._rnb_geocoder._fetch_rnb_building_detail = {
+            "RBJ8E9C42GDJ": BUILDING_1_WITH_SHAPE,
+            "S65V7NJE3NKS": BUILDING_2_WITH_SHAPE,
+        }.get
+
+        point = QgsPointXY(2.3545, 48.8525)
+        geocoder._last_address_points = {
+            ADDRESS_FIELDS["address_id"]: QgsGeometry.fromPointXY(point)
+        }
+
+        common_attrs = {**ADDRESS_FIELDS, "parcel_idu": "75104000AV0117"}
+        row1 = _make_chained_result(
+            {**common_attrs, "building_rnb_id": "RBJ8E9C42GDJ"}, point
+        )
+        row2 = _make_chained_result(
+            {**common_attrs, "building_rnb_id": "S65V7NJE3NKS"}, point
+        )
+        return geocoder, [(1, row1), (2, row2)]
+
+    def test_parcel_is_deduplicated_across_buildings(self):
+        """A parcel referenced by 2 rows (one per building) must appear once
+        in the "parcel" provenance, not once per row - otherwise the map
+        would show the same polygon stacked on itself."""
+        geocoder, rows = self._geocoder_with_two_buildings_on_one_parcel()
+
+        entities = geocoder.build_provenance_layers(rows)
+
+        parcels = entities["parcel"]
+        self.assertEqual(len(parcels), 1)
+        attrs = parcels[0]["attributes"]
+        self.assertEqual(attrs["parcel_idu"], "75104000AV0117")
+        self.assertEqual(attrs["result_rows"], "1, 2")
+        self.assertEqual(attrs["buildings_rnb"], "RBJ8E9C42GDJ, S65V7NJE3NKS")
+        self.assertIsNotNone(parcels[0]["geometry"])
+
+    def test_buildings_rnb_are_fetched_individually_with_geometry(self):
+        geocoder, rows = self._geocoder_with_two_buildings_on_one_parcel()
+
+        entities = geocoder.build_provenance_layers(rows)
+
+        buildings = {
+            entity["attributes"]["building_rnb_id"]: entity
+            for entity in entities["building_rnb"]
+        }
+        self.assertEqual(set(buildings), {"RBJ8E9C42GDJ", "S65V7NJE3NKS"})
+        for rnb_id, entity in buildings.items():
+            self.assertIsNotNone(entity["geometry"])
+            self.assertEqual(entity["attributes"]["parcel_idu"], "75104000AV0117")
+
+    def test_address_is_deduplicated_with_linked_parcels(self):
+        geocoder, rows = self._geocoder_with_two_buildings_on_one_parcel()
+
+        entities = geocoder.build_provenance_layers(rows)
+
+        addresses = entities["address"]
+        self.assertEqual(len(addresses), 1)
+        attrs = addresses[0]["attributes"]
+        self.assertEqual(attrs["address_id"], ADDRESS_FIELDS["address_id"])
+        self.assertEqual(attrs["parcels"], "75104000AV0117")
+        self.assertEqual(attrs["result_rows"], "1, 2")
+        self.assertIsNotNone(addresses[0]["geometry"])
+
+    def test_bdtopo_and_pci_layers_empty_without_known_ids(self):
+        """No WFS call for BDTOPO/PCI candidates - and thus no entity - when
+        a row has neither building_ext_bdtopo_id_* nor building_cadastral_ids."""
+        geocoder, rows = self._geocoder_with_two_buildings_on_one_parcel()
+
+        entities = geocoder.build_provenance_layers(rows)
+
+        self.assertEqual(entities["building_bdtopo"], [])
+        self.assertEqual(entities["building_pci"], [])
 
 
 # ############################################################################

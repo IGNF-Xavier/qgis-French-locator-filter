@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.6.6-exp - 2026-08-14
+
+- feat(ui): add a "Charger les géométries par provenance" button to the reverse geocoding dock (enabled for the chained geocoder only), building 5 deduplicated memory layers - Adresse, Parcelle, Bâtiment RNB, Bâtiment BDTOPO, Bâti PCI - from the currently displayed results, so every geometry behind a "fiche complète" result can be inspected on the map instead of just its single result point. Entities are deduplicated by their natural identifier (e.g. a parcel with 3 buildings is one feature, not 3 overlapping copies), each carrying `result_rows` plus the relevant linked ids (address/parcel/building) to trace it back to its row(s) in the results table. Nothing here runs during a normal search - only on explicit click - and each entity is fetched at most once (parcel WFS lookup, RNB `GET /buildings/{id}/` which already embeds the real shape, BDTOPO/PCI candidates)
+- feat(geocoder): fetch BDTOPO (`BDTOPO_V3:batiment`) and PCI "bâti parcellaire" candidates around a parcel using a server-side `INTERSECTS` spatial filter on the parcel's real geometry, instead of a bounding-box query filtered client-side afterwards - avoids over-fetching neighbouring buildings on dense urban blocks, where a parcel's bbox often extends well past its own footprint
+
 ## 1.6.5-exp - 2026-08-14
 
 - fix(geocoder): the chained geocoder's reverse search (point → parcel) only ran its per-parcel lookup chain (WFS `lien_bati_parcelle`, WFS `batiment`, RNB `buildings/plot` — 3 extra HTTP calls) on the parcel actually containing the clicked point, instead of on every parcel found in the 40 m search bbox; this caused both a noticeable slowdown and spurious extra parcels/results for a single click (falls back to the single nearest parcel when none contains the point, e.g. exactly on a boundary)

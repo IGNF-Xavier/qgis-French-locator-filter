@@ -27,6 +27,9 @@ from french_locator_filter.core.geocoder.gpf_parcel_geocoder import GpfParcelGeo
 from french_locator_filter.core.geocoder.gpf_rnb_geocoder import GpfRnbGeocoder
 from french_locator_filter.core.geocoder.photon_geocoder import PhotonGeocoder
 from french_locator_filter.gui.mdl_geocoder_result import QgsGeocoderResultModel
+from french_locator_filter.toolbelt.chained_provenance_layers import (
+    add_provenance_layers,
+)
 from french_locator_filter.toolbelt.geocoder_result_layer import add_results_as_layer
 from french_locator_filter.toolbelt.rnb_tile_layer import add_rnb_vector_tile_layer
 
@@ -53,6 +56,13 @@ class ReverseGeocodingWidget(QWidget):
         self.btn_load.setIcon(QIcon(":/images/themes/default/mActionCreateMemory.svg"))
         self.btn_load.clicked.connect(self._load_results)
 
+        self.btn_load_provenance.setIcon(
+            QIcon(":/images/themes/default/mActionCreateMemory.svg")
+        )
+        self.btn_load_provenance.clicked.connect(self._load_provenance_layers)
+        self.btn_load_provenance.setEnabled(False)
+        self.cbx_geocoder.currentIndexChanged.connect(self._update_provenance_button)
+
         self.wdg_selection.set_marker_color(QColor("green"))
 
         self.mdl_result = QgsGeocoderResultModel(self)
@@ -78,6 +88,15 @@ class ReverseGeocodingWidget(QWidget):
         self.cbx_geocoder.addItem(
             self.tr("Fiche complète (adresse + bâtiment + parcelle)"),
             GpfChainedGeocoder(),
+        )
+        self._update_provenance_button()
+
+    def _update_provenance_button(self) -> None:
+        """Enable "Charger les géométries par provenance" only for the chained
+        geocoder - the only one with several distinct entities (address,
+        parcel, buildings) to visualize per result"""
+        self.btn_load_provenance.setEnabled(
+            isinstance(self.cbx_geocoder.currentData(), GpfChainedGeocoder)
         )
 
     def _reverse_geocoding(self) -> None:
@@ -128,4 +147,23 @@ class ReverseGeocodingWidget(QWidget):
 
         add_results_as_layer(
             self._result_geocoder, results, self.tr("Résultats géocodage inversé")
+        )
+
+    def _load_provenance_layers(self) -> None:
+        """Load the currently displayed chained geocoder results as separate,
+        deduplicated layers per provenance (address, parcel, buildings)"""
+        if not isinstance(self._result_geocoder, GpfChainedGeocoder):
+            return
+
+        rows = []
+        for row in range(0, self.mdl_result.rowCount()):
+            geocoder_result = self.mdl_result.data(
+                self.mdl_result.index(row, self.mdl_result.IDENTIFIER_COL),
+                Qt.ItemDataRole.UserRole,
+            )
+            if geocoder_result:
+                rows.append((row + 1, geocoder_result))
+
+        add_provenance_layers(
+            self._result_geocoder, rows, self.tr("Fiche complète - géométries")
         )

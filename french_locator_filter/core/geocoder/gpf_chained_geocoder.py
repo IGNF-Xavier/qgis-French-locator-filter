@@ -1,5 +1,5 @@
 # standard library
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 # PyQGIS
 from qgis.core import (
@@ -28,6 +28,17 @@ WFS_LIEN_ADRESSE_PARCELLE = "BAN-PLUS:lien_adresse_parcelle"
 WFS_LIEN_BATI_PARCELLE = "BAN-PLUS:lien_bati_parcelle"
 WFS_PARCELLE = "CADASTRALPARCELS.PARCELLAIRE_EXPRESS:parcelle"
 WFS_BATIMENT = "CADASTRALPARCELS.PARCELLAIRE_EXPRESS:batiment"
+# BDTOPO building footprints (id field "cleabs"); an attribute-only CQL_FILTER
+# on this ~51M-feature layer times out (no index on cleabs), so buildings are
+# always fetched by a spatial filter like WFS_BATIMENT, never looked up by id
+WFS_BATIMENT_BDTOPO = "BDTOPO_V3:batiment"
+
+# geometry field name per WFS layer, needed to build a CQL_FILTER INTERSECTS
+# predicate - differs between layers, verified live via DescribeFeatureType
+_GEOMETRY_FIELD_BY_TYPENAME = {
+    WFS_BATIMENT: "geom",
+    WFS_BATIMENT_BDTOPO: "geometrie",
+}
 
 
 def _cql_equals(field: str, value: str) -> str:
@@ -41,6 +52,34 @@ def _cql_equals(field: str, value: str) -> str:
     :rtype: str
     """
     return f"{field}='{value.replace(chr(39), chr(39) * 2)}'"
+
+
+def _polygon_wkt_lat_lon(geometry: QgsGeometry) -> Optional[str]:
+    """Build a (MULTI)POLYGON WKT literal with (lat, lon) axis order, for use
+    in a CQL_FILTER INTERSECTS predicate - this WFS expects that axis order
+    for EPSG:4326 spatial filters (verified live), matching the bbox=
+    parameter convention already used elsewhere in this client.
+
+    :param geometry: source polygon/multipolygon geometry (x=lon, y=lat)
+    :type geometry: QgsGeometry
+    :return: WKT literal, None if geometry is not a (multi)polygon
+    :rtype: Optional[str]
+    """
+    if geometry.isMultipart():
+        polygons = geometry.asMultiPolygon()
+    else:
+        polygon = geometry.asPolygon()
+        polygons = [polygon] if polygon else []
+    if not polygons:
+        return None
+
+    def ring_wkt(ring) -> str:
+        return "(" + ",".join(f"{point.y()} {point.x()}" for point in ring) + ")"
+
+    polygons_wkt = ",".join(
+        "(" + ",".join(ring_wkt(ring) for ring in polygon) + ")" for polygon in polygons
+    )
+    return f"MULTIPOLYGON({polygons_wkt})"
 
 
 class GpfChainedGeocoder(GpfRestApiGeocoder):
@@ -71,6 +110,12 @@ class GpfChainedGeocoder(GpfRestApiGeocoder):
         self._address_geocoder = FrenchBanGeocoder()
         self._rnb_geocoder = GpfRnbGeocoder()
         self._wfs_client = WfsClient()
+        # address point geometries from the last search, keyed by address_id:
+        # already resolved during geocodeString/geocodeFeature at no extra
+        # cost, but not otherwise retained (_build_result may use the
+        # building point or the parcel centroid as the result's own
+        # geometry instead) - reused by build_provenance_layers
+        self._last_address_points: Dict[str, QgsGeometry] = {}
 
     @property
     def _attributes(self) -> Dict[str, QMetaType.Type]:
@@ -133,6 +178,8 @@ class GpfChainedGeocoder(GpfRestApiGeocoder):
             List[QgsGeocoderResult]: list of geocoding results, one per
                 (address, parcel, building) combination
         """
+        self._last_address_points = {}
+
         address_results = self._address_geocoder.geocodeString(string, context, feedback)
         if not address_results:
             return []
@@ -140,6 +187,10 @@ class GpfChainedGeocoder(GpfRestApiGeocoder):
         best_address = address_results[0]
         address_fields = self._address_fields_from_ban_result(best_address)
         address_point = best_address.geometry().asPoint()
+        if address_fields.get("address_id"):
+            self._last_address_points[address_fields["address_id"]] = QgsGeometry.fromPointXY(
+                address_point
+            )
 
         id_adr = best_address.additionalAttributes().get("id")
         if not id_adr:
@@ -197,6 +248,8 @@ class GpfChainedGeocoder(GpfRestApiGeocoder):
         :return: list of result for feature
         :rtype: List[QgsGeocoderResult]
         """
+        self._last_address_points = {}
+
         geometry = feature.geometry()
         if not geometry:
             return []
@@ -211,6 +264,10 @@ class GpfChainedGeocoder(GpfRestApiGeocoder):
             if address_results
             else {name: None for name in self._attributes if name.startswith("address_")}
         )
+        if address_results and address_fields.get("address_id"):
+            self._last_address_points[address_fields["address_id"]] = address_results[
+                0
+            ].geometry()
 
         crs = QgsCoordinateReferenceSystem("EPSG:4326")
         rect = self.create_rectangle_around_point(
@@ -348,15 +405,64 @@ class GpfChainedGeocoder(GpfRestApiGeocoder):
             for building in buildings
         ]
 
+    def _intersecting_candidates(
+        self,
+        typename: str,
+        parcel_geom: Optional[QgsGeometry],
+        feedback: Optional[QgsFeedback],
+    ) -> List[dict]:
+        """Fetch features of a WFS layer that have no direct key to a parcel
+        (unlike `lien_bati_parcelle`), using a server-side spatial filter on
+        the parcel's real geometry rather than just its bounding box - a
+        bbox alone over-fetches in dense urban blocks (many neighbouring
+        buildings share it without touching the actual parcel shape), and
+        client-side filtering does not save that extra network transfer.
+        A bbox+intersects fallback is kept for typenames without a known
+        geometry field.
+
+        :param typename: WFS type name to query
+        :type typename: str
+        :param parcel_geom: parcel real geometry, None if not available
+        :type parcel_geom: Optional[QgsGeometry]
+        :param feedback: feedback, defaults to None
+        :type feedback: Optional[QgsFeedback]
+        :return: candidate WFS features actually intersecting the parcel
+        :rtype: List[dict]
+        """
+        if not parcel_geom:
+            return []
+
+        geometry_field = _GEOMETRY_FIELD_BY_TYPENAME.get(typename)
+        wkt = _polygon_wkt_lat_lon(parcel_geom) if geometry_field else None
+
+        if geometry_field and wkt:
+            candidates = self._wfs_client.get_features(
+                typename,
+                cql_filter=f"INTERSECTS({geometry_field},{wkt})",
+                feedback=feedback,
+            )
+        else:
+            rect = parcel_geom.boundingBox()
+            bbox = (
+                f"{rect.yMinimum()},{rect.xMinimum()},"
+                f"{rect.yMaximum()},{rect.xMaximum()},urn:ogc:def:crs:EPSG::4326"
+            )
+            candidates = self._wfs_client.get_features(
+                typename, bbox=bbox, feedback=feedback
+            )
+
+        return [
+            candidate
+            for candidate in candidates
+            if (candidate_geom := self.geometry_from_geojson(candidate.get("geometry")))
+            and parcel_geom.intersects(candidate_geom)
+        ]
+
     def _cadastral_building_ids(
         self, parcel_geom: Optional[QgsGeometry], feedback: Optional[QgsFeedback]
     ) -> List[str]:
         """Find the PCI cadastral building(s) ("bâti parcellaire") whose real
         geometry intersects a parcel, and return their `gid` identifiers.
-
-        The PCI `batiment` layer has no direct key to a parcel (unlike
-        `lien_bati_parcelle`), so candidates are fetched by bounding box
-        around the parcel and then filtered by an actual intersection test.
 
         :param parcel_geom: parcel real geometry, None if not available
         :type parcel_geom: Optional[QgsGeometry]
@@ -365,25 +471,11 @@ class GpfChainedGeocoder(GpfRestApiGeocoder):
         :return: sorted list of cadastral building gid(s), as strings
         :rtype: List[str]
         """
-        if not parcel_geom:
-            return []
-
-        rect = parcel_geom.boundingBox()
-        bbox = (
-            f"{rect.yMinimum()},{rect.xMinimum()},"
-            f"{rect.yMaximum()},{rect.xMaximum()},urn:ogc:def:crs:EPSG::4326"
-        )
-        candidates = self._wfs_client.get_features(
-            WFS_BATIMENT, bbox=bbox, feedback=feedback
-        )
-
-        gids = set()
-        for candidate in candidates:
-            candidate_geom = self.geometry_from_geojson(candidate.get("geometry"))
-            if candidate_geom and parcel_geom.intersects(candidate_geom):
-                gid = candidate.get("properties", {}).get("gid")
-                if gid is not None:
-                    gids.add(str(gid))
+        gids = {
+            str(candidate.get("properties", {}).get("gid"))
+            for candidate in self._intersecting_candidates(WFS_BATIMENT, parcel_geom, feedback)
+            if candidate.get("properties", {}).get("gid") is not None
+        }
         return sorted(gids)
 
     def _order_parcels_by_relevance(
@@ -597,6 +689,212 @@ class GpfChainedGeocoder(GpfRestApiGeocoder):
         res.setGroup("chained")
         res.setAdditionalAttributes(attributes)
         return res
+
+    # ------------------------------------------------------------------
+    # Provenance layers: re-fetch the real geometries of the entities behind
+    # already-displayed results, deduplicated, for visual inspection. Never
+    # called during a normal search - only on explicit user action - and
+    # each unique parcel/building is only ever fetched once.
+    # ------------------------------------------------------------------
+
+    def build_provenance_layers(
+        self,
+        rows: List[Tuple[int, QgsGeocoderResult]],
+        feedback: Optional[QgsFeedback] = None,
+    ) -> Dict[str, List[dict]]:
+        """Build deduplicated per-provenance entities (address, parcel,
+        building RNB/BDTOPO/PCI) from a set of already-displayed chained
+        geocoder results, for loading as separate layers.
+
+        Each entity is fetched at most once, keyed by its natural identifier
+        (address id, parcel idu, RNB/BDTOPO/PCI building id) - not once per
+        displayed row - since what should be seen on the map is "the parcel",
+        not as many overlapping copies of it as there are buildings on it.
+
+        :param rows: (1-based row number as displayed in the results table,
+            geocoder result) pairs
+        :type rows: List[Tuple[int, QgsGeocoderResult]]
+        :param feedback: feedback, defaults to None
+        :type feedback: Optional[QgsFeedback]
+        :return: dict keyed by provenance ("address", "parcel",
+            "building_rnb", "building_bdtopo", "building_pci"), each a list
+            of {"geometry": QgsGeometry|None, "attributes": dict} entities
+        :rtype: Dict[str, List[dict]]
+        """
+        addresses: Dict[str, dict] = {}
+        parcels: Dict[str, dict] = {}
+        buildings_rnb: Dict[str, dict] = {}
+        buildings_bdtopo: Dict[str, dict] = {}
+        buildings_pci: Dict[str, dict] = {}
+
+        parcel_geometries: Dict[str, Optional[QgsGeometry]] = {}
+        bdtopo_candidates_by_parcel: Dict[str, List[dict]] = {}
+        pci_candidates_by_parcel: Dict[str, List[dict]] = {}
+
+        for row_number, result in rows:
+            attrs = result.additionalAttributes()
+            address_id = attrs.get("address_id")
+            parcel_idu = attrs.get("parcel_idu")
+            rnb_id = attrs.get("building_rnb_id")
+
+            if address_id:
+                entry = addresses.setdefault(
+                    address_id,
+                    {
+                        "geometry": self._last_address_points.get(address_id),
+                        "attributes": {
+                            "address_id": address_id,
+                            "address_label": attrs.get("address_label"),
+                            "address_postcode": attrs.get("address_postcode"),
+                            "address_city": attrs.get("address_city"),
+                            "parcels": set(),
+                            "result_rows": [],
+                        },
+                    },
+                )
+                if parcel_idu:
+                    entry["attributes"]["parcels"].add(parcel_idu)
+                entry["attributes"]["result_rows"].append(row_number)
+
+            if not parcel_idu:
+                continue
+
+            if parcel_idu not in parcel_geometries:
+                parcel_features = self._wfs_client.get_features(
+                    WFS_PARCELLE,
+                    cql_filter=_cql_equals("idu", parcel_idu),
+                    count=1,
+                    feedback=feedback,
+                )
+                parcel_feature = parcel_features[0] if parcel_features else None
+                parcel_geometries[parcel_idu] = (
+                    self.geometry_from_geojson(parcel_feature.get("geometry"))
+                    if parcel_feature
+                    else None
+                )
+            parcel_geom = parcel_geometries[parcel_idu]
+
+            entry = parcels.setdefault(
+                parcel_idu,
+                {
+                    "geometry": parcel_geom,
+                    "attributes": {
+                        "parcel_idu": parcel_idu,
+                        "parcel_section": attrs.get("parcel_section"),
+                        "parcel_numero": attrs.get("parcel_numero"),
+                        "parcel_commune": attrs.get("parcel_commune"),
+                        "address_label": attrs.get("address_label"),
+                        "buildings_rnb": set(),
+                        "result_rows": [],
+                    },
+                },
+            )
+            if rnb_id:
+                entry["attributes"]["buildings_rnb"].add(rnb_id)
+            entry["attributes"]["result_rows"].append(row_number)
+
+            if rnb_id and rnb_id not in buildings_rnb:
+                if self._rnb_geocoder._wait_for_rate_limit(feedback):
+                    continue
+                try:
+                    building = self._rnb_geocoder._fetch_rnb_building_detail(rnb_id)
+                finally:
+                    self._rnb_geocoder.set_last_request_timestamp(
+                        QDateTime.currentMSecsSinceEpoch()
+                    )
+                buildings_rnb[rnb_id] = {
+                    "geometry": self.geometry_from_geojson(building.get("shape"))
+                    if building
+                    else None,
+                    "attributes": {
+                        "building_rnb_id": rnb_id,
+                        "status": building.get("status") if building else None,
+                        "parcel_idu": parcel_idu,
+                        "result_rows": [row_number],
+                    },
+                }
+            elif rnb_id:
+                buildings_rnb[rnb_id]["attributes"]["result_rows"].append(row_number)
+
+            known_bdtopo_ids = {
+                value
+                for value in (
+                    attrs.get("building_ext_bdtopo_id_wfs"),
+                    attrs.get("building_ext_bdtopo_id_rnb"),
+                )
+                if value
+            }
+            if known_bdtopo_ids:
+                if parcel_idu not in bdtopo_candidates_by_parcel:
+                    bdtopo_candidates_by_parcel[parcel_idu] = self._intersecting_candidates(
+                        WFS_BATIMENT_BDTOPO, parcel_geom, feedback
+                    )
+                for candidate in bdtopo_candidates_by_parcel[parcel_idu]:
+                    cleabs = candidate.get("properties", {}).get("cleabs")
+                    if not cleabs or cleabs not in known_bdtopo_ids or cleabs in buildings_bdtopo:
+                        continue
+                    buildings_bdtopo[cleabs] = {
+                        "geometry": self.geometry_from_geojson(candidate.get("geometry")),
+                        "attributes": {
+                            "building_bdtopo_id": cleabs,
+                            "nature": candidate.get("properties", {}).get("nature"),
+                            "parcel_idu": parcel_idu,
+                            "building_rnb_id": rnb_id,
+                            "result_rows": [row_number],
+                        },
+                    }
+
+            known_pci_gids = {
+                gid.strip()
+                for gid in (attrs.get("building_cadastral_ids") or "").split(",")
+                if gid.strip()
+            }
+            if known_pci_gids:
+                if parcel_idu not in pci_candidates_by_parcel:
+                    pci_candidates_by_parcel[parcel_idu] = self._intersecting_candidates(
+                        WFS_BATIMENT, parcel_geom, feedback
+                    )
+                for candidate in pci_candidates_by_parcel[parcel_idu]:
+                    gid = candidate.get("properties", {}).get("gid")
+                    gid = str(gid) if gid is not None else None
+                    if not gid or gid not in known_pci_gids or gid in buildings_pci:
+                        continue
+                    buildings_pci[gid] = {
+                        "geometry": self.geometry_from_geojson(candidate.get("geometry")),
+                        "attributes": {
+                            "building_pci_gid": gid,
+                            "parcel_idu": parcel_idu,
+                            "result_rows": [row_number],
+                        },
+                    }
+
+        return {
+            "address": self._finalize_entities(addresses),
+            "parcel": self._finalize_entities(parcels),
+            "building_rnb": self._finalize_entities(buildings_rnb),
+            "building_bdtopo": self._finalize_entities(buildings_bdtopo),
+            "building_pci": self._finalize_entities(buildings_pci),
+        }
+
+    def _finalize_entities(self, entities: Dict[str, dict]) -> List[dict]:
+        """Turn accumulated set/list attribute values into sorted,
+        comma-joined strings, ready to become memory layer field values.
+
+        :param entities: entities keyed by their natural identifier
+        :type entities: Dict[str, dict]
+        :return: list of entities (order no longer matters, key dropped)
+        :rtype: List[dict]
+        """
+        finalized = []
+        for entity in entities.values():
+            attributes = dict(entity["attributes"])
+            for key, value in attributes.items():
+                if isinstance(value, set):
+                    attributes[key] = ", ".join(sorted(value))
+                elif isinstance(value, list):
+                    attributes[key] = ", ".join(str(v) for v in sorted(set(value)))
+            finalized.append({"geometry": entity["geometry"], "attributes": attributes})
+        return finalized
 
 
 def _str_or_none(value) -> Optional[str]:

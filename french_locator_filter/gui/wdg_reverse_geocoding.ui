@@ -50,6 +50,13 @@
      </property>
     </widget>
    </item>
+   <item row="4" column="0" colspan="3">
+    <widget class="QPushButton" name="btn_load_provenance">
+     <property name="text">
+      <string>Charger les géométries par provenance (adresse, parcelle, bâtiments)</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <customwidgets>
