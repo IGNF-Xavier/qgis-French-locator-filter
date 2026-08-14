@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.6.2-exp - 2026-08-14
+
+- fix(geocoder): send an explicit `limit=` on the dynamic geocoder's reverse geocoding requests (1 per active index, at least 1) instead of letting the API default to `limit=10`, which flooded the interactive reverse geocoding dock with unrelated nearby candidates
+
 ## 1.6.1-exp - 2026-08-13
 
 - feat(geocoding): add a chained geocoder (locator filter `fic`, reverse geocoding dock entry, batch Processing algorithms) combining address (BAN), RNB building and cadastral parcel(s) into a single "fiche complète" lookup, using the RNB `withPlots=1` parameter to get the intersecting parcel(s) without an extra API call; since a building can intersect several parcels, one result is emitted per (address, building, parcel) combination rather than squeezing a list into one attribute

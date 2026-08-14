@@ -103,17 +103,24 @@ class GpfDynamicGeocoder(GpfRestApiGeocoder):
         if not geometry:
             return None
 
-        indexes = ",".join(self.active_indexes)
+        active_indexes = self.active_indexes
+        indexes = ",".join(active_indexes)
+        # without an explicit limit, the API defaults to 10 results within its
+        # default search radius, which floods the interactive reverse geocoding
+        # dock with unrelated nearby candidates. Request one result per active
+        # index instead (at least 1), so e.g. a single active "address" index
+        # returns only the closest address.
+        limit = f"&limit={max(1, len(active_indexes))}"
         center = geometry.centroid().asPoint()
         if geometry.type() == Qgis.GeometryType.Point:
             point = geometry.asPoint()
-            return f"&lon={point.x()}&lat={point.y()}&index={indexes}"
+            return f"&lon={point.x()}&lat={point.y()}&index={indexes}{limit}"
         elif geometry.type() == Qgis.GeometryType.Polygon:
             return (
                 f"searchgeom={geometry.asJson()}&lon={center.x()}"
-                f"&lat={center.y()}&index={indexes}"
+                f"&lat={center.y()}&index={indexes}{limit}"
             )
-        return f"&lon={center.x()}&lat={center.y()}&index={indexes}"
+        return f"&lon={center.x()}&lat={center.y()}&index={indexes}{limit}"
 
     def maximum_result_for_inverse_geocoding(self) -> int:
         """Maximum result for an inverse geocoding
